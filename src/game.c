@@ -7,6 +7,7 @@
 #include "unmove.h"
 #include "position.h"
 #include "game.h"
+#include "cstring.h"
 
 struct ChessGame
 {
@@ -16,21 +17,22 @@ struct ChessGame
     ChessUnmove history[1024];
     int ply;
     ChessResult result;
-    char* result_text;
+    ChessString result_text;
 };
 
 ChessGame* chess_game_new()
 {
     ChessGame* game = malloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
+    chess_string_init(&game->result_text);
     return game;
 };
 
 void chess_game_destroy(ChessGame* game)
 {
-    free(game->position);
-    if (game->result_text)
-        free(game->result_text);
+    chess_position_destroy((ChessPosition*)game->initial);
+    chess_position_destroy(game->position);
+    chess_string_cleanup(&game->result_text);
     free(game);
 };
 
@@ -60,6 +62,11 @@ ChessResult chess_game_result(const ChessGame* game)
     return game->result;
 }
 
+const char* chess_game_result_text(const ChessGame* game)
+{
+    return chess_string_data(&game->result_text);
+}
+
 void chess_game_reset(ChessGame* game)
 {
     ChessPosition* start = chess_position_new();
@@ -78,9 +85,7 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
     game->position = chess_position_clone(position);
     game->ply = 0;
     game->result = chess_position_check_result(position);
-    if (game->result_text)
-        free(game->result_text);
-    game->result_text = 0;
+    chess_string_clear(&game->result_text);
 }
 
 void chess_game_make_move(ChessGame* game, ChessMove move)
