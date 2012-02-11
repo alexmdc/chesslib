@@ -8,7 +8,12 @@
 
 static void test_position_init()
 {
-    ChessPosition* position = chess_position_new();
+    ChessPosition* position;
+    
+    position = chess_position_new();
+    chess_position_destroy(position);
+
+    position = chess_position_new();
     chess_position_init(position);
 
     CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_ROOK, chess_position_piece(position, CHESS_SQUARE_A1));

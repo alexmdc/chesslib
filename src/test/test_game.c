@@ -15,6 +15,9 @@ static void test_game_new()
     ChessGame* game;
     
     game = chess_game_new();
+    chess_game_destroy(game);
+    
+    game = chess_game_new();
     chess_game_reset(game);
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));

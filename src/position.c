@@ -32,6 +32,7 @@ ChessPosition* chess_position_new()
 
 void chess_position_destroy(ChessPosition* position)
 {
+    assert(position != NULL);
     free(position);
 };
 

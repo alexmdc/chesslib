@@ -30,8 +30,10 @@ ChessGame* chess_game_new()
 
 void chess_game_destroy(ChessGame* game)
 {
-    chess_position_destroy((ChessPosition*)game->initial);
-    chess_position_destroy(game->position);
+    if (game->initial)
+        chess_position_destroy((ChessPosition*)game->initial);
+    if (game->position)
+        chess_position_destroy(game->position);
     chess_string_cleanup(&game->result_text);
     free(game);
 };
