@@ -9,8 +9,11 @@
     assert_arrays_equal(larray, lsize, rarray, rsize, __FILE__, __LINE__)
 #define ASSERT_SETS_EQUAL(lset, lsize, rset, rsize) \
     assert_sets_equal(lset, lsize, rset, rsize, __FILE__, __LINE__)
+#define ASSERT_POSITIONS_EQUAL(lposition, rposition) \
+    assert_positions_equal(lposition, rposition, __FILE__, __LINE__)
 
 void assert_arrays_equal(const int* larray, int lsize, const int* rarray, int rsize, const char* file, unsigned int line);
 void assert_sets_equal(const int* lset, int lsize, const int* rset, int rsize, const char* file, unsigned int line);
+void assert_positions_equal(const ChessPosition*, const ChessPosition*, const char* file, unsigned int line);
 
 #endif /* CHESSLIB_TEST_HELPERS_H_ */

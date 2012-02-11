@@ -4,6 +4,11 @@
 
 #include <CUnit/CUnit.h>
 
+#include "../chess.h"
+#include "../move.h"
+#include "../unmove.h"
+#include "../position.h"
+
 #include "helpers.h"
 
 static int int_compare(const void* lp, const void* rp)
@@ -70,4 +75,50 @@ void assert_sets_equal(const int* lset, int lsize, const int* rset, int rsize, c
 
     free(lset_sorted);
     free(rset_sorted);
+}
+
+void assert_positions_equal(const ChessPosition* lposition, const ChessPosition* rposition, const char* file, unsigned int line)
+{
+    ChessSquare sq;
+    
+    for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
+    {
+        if (chess_position_piece(lposition, sq) != chess_position_piece(rposition, sq))
+        {
+            ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(pieces)", file, line);
+            return;
+        }
+    }
+
+    if (chess_position_to_move(lposition) != chess_position_to_move(rposition))
+    {
+        ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(to_move)", file, line);
+        return;
+    }
+
+    if (chess_position_castle(lposition) != chess_position_castle(rposition))
+    {
+        ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(castle)", file, line);
+        return;
+    }
+    
+    if (chess_position_ep(lposition) != chess_position_ep(rposition))
+    {
+        ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(ep)", file, line);
+        return;
+    }
+    
+    if (chess_position_fifty(lposition) != chess_position_fifty(rposition))
+    {
+        ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(fifty)", file, line);
+        return;
+    }
+    
+    if (chess_position_move_num(lposition) != chess_position_move_num(rposition))
+    {
+        ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(move_num)", file, line);
+        return;
+    }
+    
+    ASSERT_PASS("ASSERT_POSITIONS_EQUAL()", file, line);
 }
