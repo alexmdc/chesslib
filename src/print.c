@@ -7,6 +7,7 @@
 #include "move.h"
 #include "unmove.h"
 #include "position.h"
+#include "game.h"
 #include "print.h"
 #include "generate.h"
 
@@ -190,6 +191,38 @@ int chess_print_position(const ChessPosition* position, char* s)
                  castle & CHESS_CASTLE_STATE_BQ ? 'q' : '-',
                  ep != CHESS_FILE_INVALID ? chess_file_to_char(ep) : '-',
                  chess_position_fifty(position));
+
+    return n;
+}
+
+int chess_print_game_moves(const ChessGame* game, char *s)
+{
+    ChessPosition* position;
+    ChessMove move;
+    ChessResult result;
+    int n = 0, i;
+
+    position = chess_position_clone(chess_game_initial_position(game));
+    if (chess_position_to_move(position) == CHESS_COLOR_BLACK)
+        n += sprintf(s + n, "%d... ", chess_position_move_num(position));
+
+    for (i = 0; i < chess_game_ply(game); i++)
+    {
+        if (chess_position_to_move(position) == CHESS_COLOR_WHITE)
+            n += sprintf(s + n, "%d. ", chess_position_move_num(position));
+        
+        move = chess_game_move(game, i);
+        n += chess_print_move_san(move, position, s + n);
+        s[n++] = ' ';
+        chess_position_make_move(position, move);
+    }
+    chess_position_destroy(position);
+
+    result = chess_game_result(game);
+    if (result == CHESS_RESULT_NONE)
+        result = CHESS_RESULT_IN_PROGRESS;
+    n += chess_print_result(result, s + n);
+    s[n] = 0;
 
     return n;
 }

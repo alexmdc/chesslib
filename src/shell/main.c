@@ -79,36 +79,9 @@ static void list_moves(const ChessGame* game)
 
 static void game_moves(const ChessGame* game)
 {
-    ChessPosition* position;
-    ChessMove move;
-    ChessResult result;
-    char buf[1024], *s;
-    int i;
-
-    s = buf;
-
-    position = chess_position_clone(chess_game_initial_position(game));
-    if (chess_position_to_move(position) == CHESS_COLOR_BLACK)
-        s += sprintf(s, "%d... ", chess_position_move_num(position));
-
-    for (i = 0; i < chess_game_ply(game); i++)
-    {
-        if (chess_position_to_move(position) == CHESS_COLOR_WHITE)
-            s += sprintf(s, "%d. ", chess_position_move_num(position));
-
-        move = chess_game_move(game, i);
-        s += chess_print_move_san(move, position, s);
-        *s++ = ' ';
-        chess_position_make_move(position, move);
-    }
-
-    result = chess_game_result(game);
-    if (result == CHESS_RESULT_NONE)
-        result = CHESS_RESULT_IN_PROGRESS;
-    s += chess_print_result(result, s);
+    char buf[1024];
+    chess_print_game_moves(game, buf);
     printf("%s\n", buf);
-
-    chess_position_destroy(position);
 }
 
 static void print_board(const ChessGame* game)

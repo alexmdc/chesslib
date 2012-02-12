@@ -4,6 +4,7 @@
 #include "../move.h"
 #include "../unmove.h"
 #include "../position.h"
+#include "../game.h"
 #include "../fen.h"
 #include "../print.h"
 
@@ -58,6 +59,41 @@ static void test_print_move_san()
     chess_position_destroy(position);
 }
 
+static void test_print_game_moves()
+{
+    ChessGame* game;
+    ChessPosition* position;
+    char buf[1024];
+    
+    game = chess_game_new();
+    chess_game_reset(game);
+    chess_print_game_moves(game, buf);
+    CU_ASSERT_STRING_EQUAL("*", buf);
+    
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_G1, CHESS_SQUARE_F3));
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D7, CHESS_SQUARE_D5));
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_C2, CHESS_SQUARE_C4));
+    chess_print_game_moves(game, buf);
+    CU_ASSERT_STRING_EQUAL("1. Nf3 d5 2. c4 *", buf);
+    
+    chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
+    chess_print_game_moves(game, buf);
+    CU_ASSERT_STRING_EQUAL("1. Nf3 d5 2. c4 1-0", buf);
+
+    position = chess_position_new();
+    chess_fen_load("5k2/3b2p1/1p4qp/p1pPp1pn/P1P1P3/2PQ4/6PP/3BB1K1 b - - 1 26", position);
+    chess_game_reset_position(game, position);
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_H5, CHESS_SQUARE_F4));
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D3, CHESS_SQUARE_C2));
+    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D7, CHESS_SQUARE_A4));
+    chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
+    chess_print_game_moves(game, buf);
+    CU_ASSERT_STRING_EQUAL(buf, "26... Nf4 27. Qc2 Bxa4 0-1");
+
+    chess_position_destroy(position);
+    chess_game_destroy(game);
+}
+
 static void test_print_result()
 {
     char buf[10];
@@ -77,5 +113,6 @@ void test_print_add_tests()
     CU_Suite* suite = CU_add_suite("print", NULL, NULL);
     CU_add_test(suite, "print_move", (CU_TestFunc)test_print_move);
     CU_add_test(suite, "print_move_san", (CU_TestFunc)test_print_move_san);
+    CU_add_test(suite, "print_game_moves", (CU_TestFunc)test_print_game_moves);
     CU_add_test(suite, "print_result", (CU_TestFunc)test_print_result);
 }
