@@ -11,6 +11,7 @@
 #include "../game.h"
 #include "../generate.h"
 #include "../fen.h"
+#include "../pgn.h"
 #include "../print.h"
 #include "../parse.h"
 
@@ -101,6 +102,13 @@ static void load_fen(ChessGame* game, const char* fen)
     chess_position_destroy(position);
 }
 
+static void save_pgn(const ChessGame* game)
+{
+    char buf[1024];
+    chess_pgn_save(game, buf);
+    printf("%s\n", buf);
+}
+
 static void undo_move(ChessGame* game)
 {
     if (chess_game_ply(game) == 0)
@@ -148,6 +156,61 @@ static void handle_move(ChessGame* game, const char* cmd)
             puts(buf);
         }
     }
+}
+
+static void set_event(ChessGame* game, const char* arg)
+{
+    if (strlen(arg) == 0)
+        puts(chess_game_event(game));
+    else
+        chess_game_set_event(game, arg);
+}
+
+static void set_site(ChessGame* game, const char* arg)
+{
+    if (strlen(arg) == 0)
+        puts(chess_game_site(game));
+    else
+        chess_game_set_site(game, arg);
+}
+
+static void set_date(ChessGame* game, const char* arg)
+{
+    if (strlen(arg) == 0)
+        puts(chess_game_date(game));
+    else
+        chess_game_set_date(game, arg);
+}
+
+static void set_round(ChessGame* game, const char* arg)
+{
+    unsigned int round;
+
+    if (strlen(arg) == 0)
+        printf("%d\n", chess_game_round(game));
+    else
+    {
+        if (sscanf(arg, "%d", &round) == 1)
+            chess_game_set_round(game, round);
+        else
+            printf("Error (parse error): %s\n", arg);
+    }
+}
+
+static void set_white(ChessGame* game, const char* arg)
+{
+    if (strlen(arg) == 0)
+        puts(chess_game_white(game));
+    else
+        chess_game_set_white(game, arg);
+}
+
+static void set_black(ChessGame* game, const char* arg)
+{
+    if (strlen(arg) == 0)
+        puts(chess_game_black(game));
+    else
+        chess_game_set_black(game, arg);
 }
 
 static void set_result(ChessGame* game, const char* arg)
@@ -232,6 +295,10 @@ int main (int argc, const char* argv[])
         {
             load_fen(game, args);
         }
+        else if (!strcmp(cmd, "pgn"))
+        {
+            save_pgn(game);
+        }
         else if (!strcmp(cmd, "ls"))
         {
             list_moves(game);
@@ -247,6 +314,30 @@ int main (int argc, const char* argv[])
         else if (!strcmp(cmd, "undo"))
         {
             undo_move(game);
+        }
+        else if (!strcmp(cmd, "event"))
+        {
+            set_event(game, args);
+        }
+        else if (!strcmp(cmd, "site"))
+        {
+            set_site(game, args);
+        }
+        else if (!strcmp(cmd, "date"))
+        {
+            set_date(game, args);
+        }
+        else if (!strcmp(cmd, "round"))
+        {
+            set_round(game, args);
+        }
+        else if (!strcmp(cmd, "white"))
+        {
+            set_white(game, args);
+        }
+        else if (!strcmp(cmd, "black"))
+        {
+            set_black(game, args);
         }
         else if (!strcmp(cmd, "result"))
         {

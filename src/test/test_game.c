@@ -20,7 +20,7 @@ static void test_game_new()
     game = chess_game_new();
     chess_game_reset(game);
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
     
     start_position = chess_position_new();
     chess_position_init(start_position);
@@ -73,7 +73,7 @@ static void test_game_result()
     
     game = chess_game_new();
     chess_game_reset(game);
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E2, CHESS_SQUARE_E4));
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F1, CHESS_SQUARE_C4));
@@ -115,13 +115,13 @@ static void test_game_result()
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
     CU_ASSERT_EQUAL(19, chess_game_ply(game));
     chess_game_undo_move(game);
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
     CU_ASSERT_EQUAL(18, chess_game_ply(game));
 
     chess_game_destroy(game);
 }
 
-void test_game_set_result()
+static void test_game_set_result()
 {
     ChessGame* game;
 
@@ -132,16 +132,16 @@ void test_game_set_result()
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
 
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
     chess_game_set_result(game, CHESS_RESULT_DRAW);
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
 
     chess_game_undo_move(game);
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F1, CHESS_SQUARE_A6));
     chess_game_make_move(game, chess_move_make(CHESS_SQUARE_B8, CHESS_SQUARE_A6));
@@ -149,7 +149,48 @@ void test_game_set_result()
     CU_ASSERT_EQUAL(CHESS_RESULT_BLACK_WINS, chess_game_result(game));
 
     chess_game_set_result(game, CHESS_RESULT_NONE);
-    CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+    
+    chess_game_destroy(game);
+}
+
+static void test_game_tags()
+{
+    ChessGame* game = chess_game_new();
+    chess_game_reset(game);
+    CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
+    CU_ASSERT_EQUAL(0, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+
+    chess_game_set_event(game, "F/S Return Match");
+    chess_game_set_site(game, "Belgrade, Serbia JUG");
+    chess_game_set_date(game, "1992.11.04");
+    chess_game_set_round(game, 29);
+    chess_game_set_white(game, "Fischer, Robert J.");
+    chess_game_set_black(game, "Spassky, Boris V.");
+    chess_game_set_result(game, CHESS_RESULT_DRAW);
+    CU_ASSERT_STRING_EQUAL("F/S Return Match", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("Belgrade, Serbia JUG", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("1992.11.04", chess_game_date(game));
+    CU_ASSERT_EQUAL(29, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("Fischer, Robert J.", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("Spassky, Boris V.", chess_game_black(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
+
+    chess_game_reset(game);
+    CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
+    CU_ASSERT_EQUAL(0, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+    
+    chess_game_destroy(game);
 }
 
 void test_game_add_tests()
@@ -159,4 +200,5 @@ void test_game_add_tests()
     CU_add_test(suite, "game_move", (CU_TestFunc)test_game_move);
     CU_add_test(suite, "game_result", (CU_TestFunc)test_game_result);
     CU_add_test(suite, "game_set_result", (CU_TestFunc)test_game_set_result);
+    CU_add_test(suite, "game_tags", (CU_TestFunc)test_game_tags);
 }

@@ -20,6 +20,7 @@ void test_generate_add_tests();
 void test_fen_add_tests();
 void test_unmove_add_tests();
 void test_game_add_tests();
+void test_pgn_add_tests();
 void test_cstring_add_tests();
 void test_carray_add_tests();
 
@@ -37,6 +38,7 @@ int main (int argc, const char* argv[])
     test_fen_add_tests();
     test_unmove_add_tests();
     test_game_add_tests();
+    test_pgn_add_tests();
     test_cstring_add_tests();
     test_carray_add_tests();
 
