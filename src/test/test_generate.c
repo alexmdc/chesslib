@@ -9,8 +9,6 @@
 
 #include "helpers.h"
 
-#define MV(f,t) chess_move_make(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t)
-
 static int initialize()
 {
     chess_generate_init();

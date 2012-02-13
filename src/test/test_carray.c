@@ -123,6 +123,8 @@ static void test_carray_set_elem()
     value = '\0';
     chess_array_set_elem(&array, 3, &value);
     CU_ASSERT_STRING_EQUAL("Wab", (const char*)chess_array_data(&array));
+
+    chess_array_cleanup(&array);
 }
 
 void test_carray_add_tests()

@@ -7,7 +7,7 @@
 #include "../game.h"
 #include "../pgn.h"
 
-#define MV(f,t) chess_move_make(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t)
+#include "helpers.h"
 
 static void test_pgn_save()
 {

@@ -123,7 +123,7 @@ static void test_fen_save2()
     ChessPosition* position = chess_position_new();
     chess_position_init(position);
     chess_fen_load("r3r1k1/pp3pbp/1qp3p1/2B5/2BP2b1/Q1n2N2/P4PPP/3R1K1R b - - 0 17", position);
-    chess_position_make_move(position, chess_move_make(CHESS_SQUARE_G4, CHESS_SQUARE_E6));
+    chess_position_make_move(position, MV(G4, E6));
     chess_fen_save(position, fen);
     CU_ASSERT_STRING_EQUAL("r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 1 18", fen);
     chess_position_destroy(position);
@@ -136,7 +136,7 @@ static void test_fen_save3()
     ChessPosition* position = chess_position_new();
     chess_position_init(position);
     chess_fen_load("r1bq1r2/pp2npp1/4p1k1/3pP1N1/1b1n2QP/2N5/PP3PP1/R1B1K2R b KQ - 1 12", position);
-    chess_position_make_move(position, chess_move_make(CHESS_SQUARE_F7, CHESS_SQUARE_F5));
+    chess_position_make_move(position, MV(F7, F5));
     chess_fen_save(position, fen);
     CU_ASSERT_STRING_EQUAL("r1bq1r2/pp2n1p1/4p1k1/3pPpN1/1b1n2QP/2N5/PP3PP1/R1B1K2R w KQ f6 0 13", fen);
     chess_position_destroy(position);

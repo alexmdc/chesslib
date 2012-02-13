@@ -16,4 +16,6 @@ void assert_arrays_equal(const int* larray, int lsize, const int* rarray, int rs
 void assert_sets_equal(const int* lset, int lsize, const int* rset, int rsize, const char* file, unsigned int line);
 void assert_positions_equal(const ChessPosition*, const ChessPosition*, const char* file, unsigned int line);
 
+#define MV(f,t) chess_move_make(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t)
+
 #endif /* CHESSLIB_TEST_HELPERS_H_ */

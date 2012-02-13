@@ -36,10 +36,7 @@ static void test_game_move()
 {
     ChessGame* game;
     ChessPosition* position;
-    ChessMove moves[] = {
-        chess_move_make(CHESS_SQUARE_E2, CHESS_SQUARE_E4),
-        chess_move_make(CHESS_SQUARE_D7, CHESS_SQUARE_D5)
-    };
+    ChessMove moves[] = { MV(E2,E4), MV(D7,D5) };
 
     game = chess_game_new();
     chess_game_reset(game);    
@@ -74,44 +71,44 @@ static void test_game_result()
     game = chess_game_new();
     chess_game_reset(game);
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E2, CHESS_SQUARE_E4));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F1, CHESS_SQUARE_C4));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F8, CHESS_SQUARE_C5));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D1, CHESS_SQUARE_H5));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_G8, CHESS_SQUARE_F6));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_H5, CHESS_SQUARE_F7));
+    chess_game_make_move(game, MV(E2,E4));
+    chess_game_make_move(game, MV(E7,E5));
+    chess_game_make_move(game, MV(F1,C4));
+    chess_game_make_move(game, MV(F8,C5));
+    chess_game_make_move(game, MV(D1,H5));
+    chess_game_make_move(game, MV(G8,F6));
+    chess_game_make_move(game, MV(H5,F7));
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
     CU_ASSERT_EQUAL(7, chess_game_ply(game));
 
     chess_game_reset(game);
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F2, CHESS_SQUARE_F4));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_G2, CHESS_SQUARE_G4));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D8, CHESS_SQUARE_H4));
+    chess_game_make_move(game, MV(F2,F4));
+    chess_game_make_move(game, MV(E7,E5));
+    chess_game_make_move(game, MV(G2,G4));
+    chess_game_make_move(game, MV(D8,H4));
     CU_ASSERT_EQUAL(CHESS_RESULT_BLACK_WINS, chess_game_result(game));
     CU_ASSERT_EQUAL(4, chess_game_ply(game));
 
     chess_game_reset(game);
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E2, CHESS_SQUARE_E3)); /* 1. e3 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_A7, CHESS_SQUARE_A5)); /*    a5 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D1, CHESS_SQUARE_H5)); /* 2. Qh5 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_A8, CHESS_SQUARE_A6)); /*    Ra6 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_H5, CHESS_SQUARE_A5)); /* 3. Qxa5 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_H7, CHESS_SQUARE_H5)); /*    h5 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_H2, CHESS_SQUARE_H4)); /* 4. h4 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_A6, CHESS_SQUARE_H6)); /*    Rah6 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_A5, CHESS_SQUARE_C7)); /* 5. Qxc7 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F7, CHESS_SQUARE_F6)); /*    f6 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_C7, CHESS_SQUARE_D7)); /* 6. Qxd7+ */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E8, CHESS_SQUARE_F7)); /*    Kf7 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D7, CHESS_SQUARE_B7)); /* 7. Qxb7 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D8, CHESS_SQUARE_D3)); /*    Qd3 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_B7, CHESS_SQUARE_B8)); /* 8. Qxb8 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_D3, CHESS_SQUARE_H7)); /*    Qh7 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_B8, CHESS_SQUARE_C8)); /* 9. Qxc8 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F7, CHESS_SQUARE_G6)); /*    Kg6 */
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_C8, CHESS_SQUARE_E6)); /* 10. Qe6 stalemate */
+    chess_game_make_move(game, MV(E2,E3)); /* 1. e3 */
+    chess_game_make_move(game, MV(A7,A5)); /*    a5 */
+    chess_game_make_move(game, MV(D1,H5)); /* 2. Qh5 */
+    chess_game_make_move(game, MV(A8,A6)); /*    Ra6 */
+    chess_game_make_move(game, MV(H5,A5)); /* 3. Qxa5 */
+    chess_game_make_move(game, MV(H7,H5)); /*    h5 */
+    chess_game_make_move(game, MV(H2,H4)); /* 4. h4 */
+    chess_game_make_move(game, MV(A6,H6)); /*    Rah6 */
+    chess_game_make_move(game, MV(A5,C7)); /* 5. Qxc7 */
+    chess_game_make_move(game, MV(F7,F6)); /*    f6 */
+    chess_game_make_move(game, MV(C7,D7)); /* 6. Qxd7+ */
+    chess_game_make_move(game, MV(E8,F7)); /*    Kf7 */
+    chess_game_make_move(game, MV(D7,B7)); /* 7. Qxb7 */
+    chess_game_make_move(game, MV(D8,D3)); /*    Qd3 */
+    chess_game_make_move(game, MV(B7,B8)); /* 8. Qxb8 */
+    chess_game_make_move(game, MV(D3,H7)); /*    Qh7 */
+    chess_game_make_move(game, MV(B8,C8)); /* 9. Qxc8 */
+    chess_game_make_move(game, MV(F7,G6)); /*    Kg6 */
+    chess_game_make_move(game, MV(C8,E6)); /* 10. Qe6 stalemate */
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
     CU_ASSERT_EQUAL(19, chess_game_ply(game));
     chess_game_undo_move(game);
@@ -127,11 +124,11 @@ static void test_game_set_result()
 
     game = chess_game_new();
     chess_game_reset(game);
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E2, CHESS_SQUARE_E4));
+    chess_game_make_move(game, MV(E2,E4));
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
 
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
+    chess_game_make_move(game, MV(E7,E5));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
     chess_game_set_result(game, CHESS_RESULT_DRAW);
@@ -140,11 +137,11 @@ static void test_game_set_result()
     chess_game_undo_move(game);
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_E7, CHESS_SQUARE_E5));
+    chess_game_make_move(game, MV(E7,E5));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_F1, CHESS_SQUARE_A6));
-    chess_game_make_move(game, chess_move_make(CHESS_SQUARE_B8, CHESS_SQUARE_A6));
+    chess_game_make_move(game, MV(F1,A6));
+    chess_game_make_move(game, MV(B8,A6));
     chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
     CU_ASSERT_EQUAL(CHESS_RESULT_BLACK_WINS, chess_game_result(game));
 
