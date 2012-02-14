@@ -143,6 +143,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
         else
             s[n++] = '#';
     }
+    chess_position_destroy(position_copy);
 
     s[n] = 0;
 
