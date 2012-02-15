@@ -129,7 +129,7 @@ static int gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessCo
     {
         if (chess_square_rank(to) == end_rank)
         {
-            n += gen_pawn_promotes(sq, to, moves);
+            n += gen_pawn_promotes(sq, to, moves + n);
         }
         else
         {
@@ -154,7 +154,7 @@ static int gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessCo
             if (piece != CHESS_PIECE_NONE && chess_piece_color(piece) != color)
             {
                 if (chess_square_rank(to) == end_rank)
-                    n += gen_pawn_promotes(sq, to, moves);
+                    n += gen_pawn_promotes(sq, to, moves + n);
                 else
                     moves[n++] = chess_move_make(sq, to);
             }

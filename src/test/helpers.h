@@ -17,5 +17,6 @@ void assert_sets_equal(const int* lset, int lsize, const int* rset, int rsize, c
 void assert_positions_equal(const ChessPosition*, const ChessPosition*, const char* file, unsigned int line);
 
 #define MV(f,t) chess_move_make(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t)
+#define MVP(f,t,p) chess_move_make_promote(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t, CHESS_MOVE_PROMOTE_ ## p)
 
 #endif /* CHESSLIB_TEST_HELPERS_H_ */

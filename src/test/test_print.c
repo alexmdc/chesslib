@@ -43,6 +43,14 @@ static void test_print_move_san()
     chess_print_move_san(MV(F8,F5), position, buf);
     CU_ASSERT_STRING_EQUAL("R8f5", buf);
 
+    chess_fen_load("rnb1k1r1/pp2bpPP/4p3/3p4/6Q1/8/1pP1KP2/1q3BNR w q - 0 17", position);
+    chess_print_move_san(chess_move_make_promote(CHESS_SQUARE_H7, CHESS_SQUARE_G8, CHESS_MOVE_PROMOTE_QUEEN), position, buf);
+    CU_ASSERT_STRING_EQUAL("hxg8=Q+", buf);
+
+    chess_fen_load("6K1/7P/6k1/5p2/5P2/8/8/8 w - - 0 63", position);
+    chess_print_move_san(MVP(H7,H8,ROOK), position, buf);
+    CU_ASSERT_STRING_EQUAL("h8=R", buf);
+
     chess_fen_load("r1bQ4/pp6/k1n4R/1qbp4/1Q6/4QK2/2q2P2/6N1 w - - 4 27", position);
     move = MV(E3,A3);
     chess_print_move_san(move, position, buf);

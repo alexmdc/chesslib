@@ -151,6 +151,34 @@ static void test_generate_moves5()
     chess_position_destroy(position);
 }
 
+static void test_generate_moves6()
+{
+    ChessMove expected_moves[] = {
+        MV(A7,A6), MV(A7,A5),
+        MV(B7,B6), MV(B7,B5),
+        MV(C7,C6),
+        MV(G7,G6), MV(G7,G5),
+        MV(H6,H5),
+        MV(F8,D7), MV(F8,E6), MV(F8,G6), MV(F8,H7),
+        MV(C8,D7), MV(C8,E6), MV(C8,F5), MV(C8,G4), MV(C8,H3),
+        MV(E7,D6), MV(E7,C5), MV(E7,F6), MV(E7,G5), MV(E7,H4),
+        MV(A8,B8),
+        MV(D8,D7), MV(D8,D6), MV(D8,D5), MV(D8,D4),
+        MV(G8,F7),
+        MVP(E2,E1,KNIGHT), MVP(E2,E1,BISHOP), MVP(E2,E1,ROOK), MVP(E2,E1,QUEEN),
+        MVP(E2,F1,KNIGHT), MVP(E2,F1,BISHOP), MVP(E2,F1,ROOK), MVP(E2,F1,QUEEN),
+    };
+    ChessPosition* position = chess_position_new();
+    ChessMove moves[100];
+    int n;
+
+    chess_fen_load("r1bqrnk1/ppp1bNp1/7p/2P5/3P4/3Q1N2/PPB1p1PP/R4RK1 b - - 3 16", position);
+    n = chess_generate_moves(position, moves);
+    ASSERT_SETS_EQUAL(moves, n, expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
+
+    chess_position_destroy(position);
+}
+
 void test_generate_add_tests()
 {
     CU_Suite* suite = CU_add_suite("generate", (CU_InitializeFunc)initialize, NULL);
@@ -159,4 +187,5 @@ void test_generate_add_tests()
     CU_add_test(suite, "generate_moves3", (CU_TestFunc)test_generate_moves3);
     CU_add_test(suite, "generate_moves4", (CU_TestFunc)test_generate_moves4);
     CU_add_test(suite, "generate_moves5", (CU_TestFunc)test_generate_moves5);
+    CU_add_test(suite, "generate_moves6", (CU_TestFunc)test_generate_moves6);
 }
