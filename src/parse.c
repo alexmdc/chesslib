@@ -8,6 +8,7 @@
 #include "position.h"
 #include "parse.h"
 #include "generate.h"
+#include "carray.h"
 
 static ChessBoolean matches_move(const ChessPosition* position, ChessMove move,
     char piece, char from_file, char from_rank, char capture, char to_file, char to_rank, char promote)
@@ -57,7 +58,8 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     char capture = 0;
     char equals = 0, promote = 0;
     const char* c;
-    ChessMove moves[100], move;
+    ChessArray moves;
+    ChessMove move, piece_move;
     ChessPiece pc;
     ChessBoolean pawn_move, pm;
     int m, i;
@@ -139,38 +141,47 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
         from_rank = 0;
     }
 
-    m = chess_generate_moves(position, moves);
+    chess_array_init(&moves, sizeof(ChessMove));
+    chess_generate_moves(position, &moves);
     move = 0;
     pawn_move = CHESS_FALSE;
     for (i = 0; i < m; i++)
     {
-        if (matches_move(position, moves[i], piece, from_file, from_rank, capture, to_file, to_rank, promote))
+        move = *((ChessMove*)chess_array_elem(&moves, i));
+        if (matches_move(position, move, piece, from_file, from_rank, capture, to_file, to_rank, promote))
         {
             if (piece)
             {
-                if (move)
+                if (piece_move)
+                {
+                    chess_array_cleanup(&moves);
                     return CHESS_PARSE_AMBIGUOUS_MOVE;
-                move = moves[i];
+                }
+                piece_move = move;
             }
             else
             {
                 /* Need to prioritise pawn moves */
-                pc = chess_position_piece(position, chess_move_from(moves[i]));
+                pc = chess_position_piece(position, chess_move_from(move));
                 pm = (pc == CHESS_PIECE_WHITE_PAWN || pc == CHESS_PIECE_BLACK_PAWN);
-                if (!move || (pm && !pawn_move))
+                if (!piece_move || (pm && !pawn_move))
                 {
-                    move = moves[i];
+                    piece_move = move;
                     pawn_move = pm;
                 }
                 else if (pm == pawn_move)
+                {
+                    chess_array_cleanup(&moves);
                     return CHESS_PARSE_AMBIGUOUS_MOVE;
+                }
             }
         }
     }
+    chess_array_cleanup(&moves);
 
-    if (move == 0)
+    if (piece_move == 0)
         return CHESS_PARSE_ILLEGAL_MOVE;
 
-    *ret_move = move;
+    *ret_move = piece_move;
     return CHESS_PARSE_OK;
 }

@@ -10,6 +10,7 @@
 #include "game.h"
 #include "print.h"
 #include "generate.h"
+#include "carray.h"
 
 int chess_print_move(ChessMove move, char* s)
 {
@@ -37,7 +38,8 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessSquare to = chess_move_to(move);
     ChessMovePromote promote = chess_move_promotes(move);
     ChessPiece piece = chess_position_piece(position, from);
-    ChessMove moves[100];
+    ChessArray moves;
+    ChessMove move2;
     ChessBoolean capture;
     ChessBoolean piece_ambiguous = CHESS_FALSE;
     ChessBoolean file_ambiguous = CHESS_FALSE, rank_ambiguous = CHESS_FALSE;
@@ -45,7 +47,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessFile file;
     ChessRank rank;
     ChessPosition* position_copy;
-    int m = 0, n = 0, i;
+    int n = 0, i;
 
     assert(piece != CHESS_PIECE_NONE);
 
@@ -79,17 +81,19 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
         s[n++] = toupper(chess_piece_to_char(piece));
 
         /* Need to examine legal moves to determine ambiguity */
-        m = chess_generate_moves(position, moves);
+        chess_array_init(&moves, sizeof(ChessMove));
+        chess_generate_moves(position, &moves);
 
         file = chess_square_file(from);
         rank = chess_square_rank(from);
 
-        for (i = 0; i < m; i++)
+        for (i = 0; i < chess_array_size(&moves); i++)
         {
-            if (chess_move_to(moves[i]) != to)
+            move2 = *((ChessMove*)chess_array_elem(&moves, i));
+            if (chess_move_to(move2) != to)
                 continue;
 
-            sq = chess_move_from(moves[i]);
+            sq = chess_move_from(move2);
             if (sq == from)
                 continue; /* same move */
             if (chess_position_piece(position, sq) != piece)
@@ -101,6 +105,8 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
             if (chess_square_rank(sq) == rank)
                 rank_ambiguous = CHESS_TRUE;
         }
+        
+        chess_array_cleanup(&moves);
 
         if (piece_ambiguous)
         {

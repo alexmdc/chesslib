@@ -82,3 +82,9 @@ void chess_array_pop(ChessArray* array, void* elem)
     }
     array->size--;
 }
+
+void chess_array_prune(ChessArray* array, size_t size)
+{
+    assert(size <= array->size);
+    array->size = size;
+}

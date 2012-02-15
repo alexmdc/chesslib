@@ -6,6 +6,7 @@
 #include "unmove.h"
 #include "position.h"
 #include "generate.h"
+#include "carray.h"
 
 typedef enum {
     DIR_N = (1 << 0),
@@ -101,16 +102,20 @@ void chess_generate_init()
     }
 }
 
-static int gen_pawn_promotes(ChessSquare from, ChessSquare to, ChessMove* moves)
+static void append_move(ChessArray* moves, ChessMove move)
 {
-    moves[0] = chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_KNIGHT);
-    moves[1] = chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_BISHOP);
-    moves[2] = chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_ROOK);
-    moves[3] = chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_QUEEN);
-    return 4;
+    chess_array_push(moves, &move);
 }
 
-static int gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessMove* moves)
+static void gen_pawn_promotes(ChessSquare from, ChessSquare to, ChessArray* moves)
+{
+    append_move(moves, chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_KNIGHT));
+    append_move(moves, chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_BISHOP));
+    append_move(moves, chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_ROOK));
+    append_move(moves, chess_move_make_promote(from, to, CHESS_MOVE_PROMOTE_QUEEN));
+}
+
+static void gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessArray* moves)
 {
     ChessSquare to;
     ChessPiece piece;
@@ -122,24 +127,24 @@ static int gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessCo
     ChessFile ep_file = chess_position_ep(position);
     ChessSquare ep = (ep_file == CHESS_FILE_INVALID) ? CHESS_SQUARE_INVALID :
         chess_square_from_fr(ep_file, (color == CHESS_COLOR_WHITE) ? CHESS_RANK_6 : CHESS_RANK_3);
-    int d, n = 0;
+    int d;
 
     to = sq + slide;
     if (chess_position_piece(position, to) == CHESS_PIECE_NONE)
     {
         if (chess_square_rank(to) == end_rank)
         {
-            n += gen_pawn_promotes(sq, to, moves + n);
+            gen_pawn_promotes(sq, to, moves);
         }
         else
         {
-            moves[n++] = chess_move_make(sq, to);
+            append_move(moves, chess_move_make(sq, to));
             if (chess_square_rank(sq) == start_rank)
             {
                 to += slide;
                 if (chess_position_piece(position, to) == CHESS_PIECE_NONE)
                 {
-                    moves[n++] = chess_move_make(sq, to);
+                    append_move(moves, chess_move_make(sq, to));
                 }
             }
         }
@@ -154,26 +159,23 @@ static int gen_pawn_moves(const ChessPosition* position, ChessSquare sq, ChessCo
             if (piece != CHESS_PIECE_NONE && chess_piece_color(piece) != color)
             {
                 if (chess_square_rank(to) == end_rank)
-                    n += gen_pawn_promotes(sq, to, moves + n);
+                    gen_pawn_promotes(sq, to, moves);
                 else
-                    moves[n++] = chess_move_make(sq, to);
+                    append_move(moves, chess_move_make(sq, to));
             }
             else if (to == ep)
             {
-                moves[n++] = chess_move_make(sq, to);
+                append_move(moves, chess_move_make(sq, to));
             }
         }
     }
-
-    return n;
 }
 
-static int gen_knight_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessMove* moves)
+static void gen_knight_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessArray* moves)
 {
     ChessSquare to;
     int dirs, dir, d;
     ChessPiece target;
-    int n = 0;
 
     dirs = jump_dirs[sq];
     for (d = 0; d < 8; d++)
@@ -185,18 +187,15 @@ static int gen_knight_moves(const ChessPosition* position, ChessSquare sq, Chess
         to = sq + jumps_array[d];
         target = chess_position_piece(position, to);
         if (target == CHESS_PIECE_NONE || chess_piece_color(target) != color)
-            moves[n++] = chess_move_make(sq, to);
+            append_move(moves, chess_move_make(sq, to));
     }
-
-    return n;
 }
 
-static int gen_king_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessMove* moves)
+static void gen_king_moves(const ChessPosition* position, ChessSquare sq, ChessColor color, ChessArray* moves)
 {
     ChessSquare to;
     int dirs, dir, d;
     ChessPiece target;
-    int n = 0;
 
     dirs = slide_dirs[sq];
     for (d = 0; d < 8; d++)
@@ -208,18 +207,15 @@ static int gen_king_moves(const ChessPosition* position, ChessSquare sq, ChessCo
         to = sq + slides_array[d];
         target = chess_position_piece(position, to);
         if (target == CHESS_PIECE_NONE || chess_piece_color(target) != color)
-            moves[n++] = chess_move_make(sq, to);
+            append_move(moves, chess_move_make(sq, to));
     }
-
-    return n;
 }
 
-static int gen_slide_moves(const ChessPosition* position, ChessSquare sq, int piece_dirs, ChessColor color, ChessMove* moves)
+static void gen_slide_moves(const ChessPosition* position, ChessSquare sq, int piece_dirs, ChessColor color, ChessArray* moves)
 {
     ChessSquare to;
     int dirs, dir, d;
     ChessPiece target;
-    int n = 0;
 
     for (d = 0; d < 8; d++)
     {
@@ -235,17 +231,14 @@ static int gen_slide_moves(const ChessPosition* position, ChessSquare sq, int pi
             to += slides_array[d];
             target = chess_position_piece(position, to);
             if (target == CHESS_PIECE_NONE || chess_piece_color(target) != color)
-                moves[n++] = chess_move_make(sq, to);
+                append_move(moves, chess_move_make(sq, to));
         } while (target == CHESS_PIECE_NONE);
     }
-
-    return n;
 }
 
-static int gen_castle_moves(const ChessPosition* position, ChessColor color, ChessMove* moves)
+static void gen_castle_moves(const ChessPosition* position, ChessColor color, ChessArray* moves)
 {
     ChessCastleState castle = chess_position_castle(position);
-    int n = 0;
 
     if (color == CHESS_COLOR_WHITE)
     {
@@ -254,7 +247,7 @@ static int gen_castle_moves(const ChessPosition* position, ChessColor color, Che
             && chess_position_piece(position, CHESS_SQUARE_G1) == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_F1, CHESS_COLOR_BLACK)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_G1, CHESS_COLOR_BLACK))
-            moves[n++] = chess_move_make(CHESS_SQUARE_E1, CHESS_SQUARE_G1);
+            append_move(moves, chess_move_make(CHESS_SQUARE_E1, CHESS_SQUARE_G1));
 
         if ((castle & CHESS_CASTLE_STATE_WQ)
             && chess_position_piece(position, CHESS_SQUARE_B1) == CHESS_PIECE_NONE
@@ -262,7 +255,7 @@ static int gen_castle_moves(const ChessPosition* position, ChessColor color, Che
             && chess_position_piece(position, CHESS_SQUARE_D1) == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_D1, CHESS_COLOR_BLACK)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_C1, CHESS_COLOR_BLACK))
-            moves[n++] = chess_move_make(CHESS_SQUARE_E1, CHESS_SQUARE_C1);
+            append_move(moves, chess_move_make(CHESS_SQUARE_E1, CHESS_SQUARE_C1));
     }
     else
     {
@@ -271,7 +264,7 @@ static int gen_castle_moves(const ChessPosition* position, ChessColor color, Che
             && chess_position_piece(position, CHESS_SQUARE_G8) == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_F8, CHESS_COLOR_WHITE)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_G8, CHESS_COLOR_WHITE))
-            moves[n++] = chess_move_make(CHESS_SQUARE_E8, CHESS_SQUARE_G8);
+            append_move(moves, chess_move_make(CHESS_SQUARE_E8, CHESS_SQUARE_G8));
 
         if ((castle & CHESS_CASTLE_STATE_BQ)
             && chess_position_piece(position, CHESS_SQUARE_B8) == CHESS_PIECE_NONE
@@ -279,42 +272,40 @@ static int gen_castle_moves(const ChessPosition* position, ChessColor color, Che
             && chess_position_piece(position, CHESS_SQUARE_D8) == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_D8, CHESS_COLOR_WHITE)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_C8, CHESS_COLOR_WHITE))
-            moves[n++] = chess_move_make(CHESS_SQUARE_E8, CHESS_SQUARE_C8);
+            append_move(moves, chess_move_make(CHESS_SQUARE_E8, CHESS_SQUARE_C8));
     }
-
-    return n;
 }
 
-static int filter_illegal_moves(const ChessPosition* position, ChessColor color, ChessMove* moves, int n)
+static void filter_illegal_moves(const ChessPosition* position, ChessColor color, ChessArray* moves)
 {
     ChessPosition* position_copy = chess_position_clone(position);
     ChessColor other = chess_color_other(color);
+    ChessMove move;
     ChessUnmove unmove;
     int i, m = 0;
 
-    for (i = 0; i < n; i++)
+    for (i = 0; i < chess_array_size(moves); i++)
     {
-        unmove = chess_position_make_move(position_copy, moves[i]);
+        move = *((ChessMove*)chess_array_elem(moves, i));
+        unmove = chess_position_make_move(position_copy,  move);
         chess_position_set_to_move(position_copy, color);
         if (!chess_position_is_check(position_copy))
         {
-            moves[m++] = moves[i];
+            chess_array_set_elem(moves, m++, &move);
         }
         chess_position_set_to_move(position_copy, other);
         chess_position_undo_move(position_copy, unmove);
     }
 
     chess_position_destroy(position_copy);
-
-    return m;
+    chess_array_prune(moves, m);
 }
 
-int chess_generate_moves(const ChessPosition* position, ChessMove* moves)
+void chess_generate_moves(const ChessPosition* position, ChessArray* moves)
 {
     ChessSquare sq;
     ChessPiece piece;
     ChessColor color = chess_position_to_move(position);
-    int n = 0;
 
     for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
     {
@@ -329,39 +320,38 @@ int chess_generate_moves(const ChessPosition* position, ChessMove* moves)
         {
             case CHESS_PIECE_WHITE_PAWN:
             case CHESS_PIECE_BLACK_PAWN:
-                n += gen_pawn_moves(position, sq, color, moves + n);
+                gen_pawn_moves(position, sq, color, moves);
                 break;
             case CHESS_PIECE_WHITE_KNIGHT:
             case CHESS_PIECE_BLACK_KNIGHT:
-                n += gen_knight_moves(position, sq, color, moves + n);
+                gen_knight_moves(position, sq, color, moves);
                 break;
             case CHESS_PIECE_WHITE_BISHOP:
             case CHESS_PIECE_BLACK_BISHOP:
-                n += gen_slide_moves(position, sq, bishop_dirs, color, moves + n);
+                gen_slide_moves(position, sq, bishop_dirs, color, moves);
                 break;
             case CHESS_PIECE_WHITE_ROOK:
             case CHESS_PIECE_BLACK_ROOK:
-                n += gen_slide_moves(position, sq, rook_dirs, color, moves + n);
+                gen_slide_moves(position, sq, rook_dirs, color, moves);
                 break;
             case CHESS_PIECE_WHITE_QUEEN:
             case CHESS_PIECE_BLACK_QUEEN:
-                n += gen_slide_moves(position, sq, queen_dirs, color, moves + n);
+                gen_slide_moves(position, sq, queen_dirs, color, moves);
                 break;
             case CHESS_PIECE_WHITE_KING:
             case CHESS_PIECE_BLACK_KING:
-                n += gen_king_moves(position, sq, color, moves + n);
+                gen_king_moves(position, sq, color, moves);
                 break;
             default:
+                assert(0);
                 break;
         }
     }
 
     if (!chess_position_is_check(position))
-        n += gen_castle_moves(position, color, moves + n);
+        gen_castle_moves(position, color, moves);
 
-    n = filter_illegal_moves(position, color, moves, n);
-
-    return n;
+    filter_illegal_moves(position, color, moves);
 }
 
 ChessBoolean chess_generate_is_square_attacked(const ChessPosition* position, ChessSquare sq, ChessColor color)

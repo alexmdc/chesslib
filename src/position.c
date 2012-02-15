@@ -9,6 +9,7 @@
 #include "position.h"
 #include "generate.h"
 #include "fen.h"
+#include "carray.h"
 
 struct ChessPosition
 {
@@ -122,17 +123,23 @@ ChessBoolean chess_position_is_check(const ChessPosition* position)
 
 ChessBoolean chess_position_move_is_legal(const ChessPosition* position, ChessMove move)
 {
-    ChessMove moves[100];
-    int n, i;
+    ChessArray moves;
+    int i;
 
-    n = chess_generate_moves(position, moves);
+    chess_array_init(&moves, sizeof(ChessMove));
+    chess_generate_moves(position, &moves);
 
-    for (i = 0; i < n; ++i)
+    ChessBoolean found = CHESS_FALSE;
+    for (i = 0; i < chess_array_size(&moves); i++)
     {
-        if (moves[i] == move)
-            return CHESS_TRUE;
+        if (*((ChessMove*)chess_array_elem(&moves, i)) == move)
+        {
+            found = CHESS_TRUE;
+            break;
+        }
     }
-    return CHESS_FALSE;
+    chess_array_cleanup(&moves);
+    return found;
 }
 
 ChessBoolean chess_position_move_is_capture(const ChessPosition* position, ChessMove move)
@@ -149,8 +156,13 @@ ChessBoolean chess_position_move_is_capture(const ChessPosition* position, Chess
 
 ChessResult chess_position_check_result(const ChessPosition* position)
 {
-    ChessMove moves[100];
-    int m = chess_generate_moves(position, moves);
+    ChessArray moves;
+    size_t m;
+
+    chess_array_init(&moves, sizeof(ChessMove));
+    chess_generate_moves(position, &moves);
+    m = chess_array_size(&moves);
+    chess_array_cleanup(&moves);
 
     if (m > 0)
         return CHESS_RESULT_NONE;
