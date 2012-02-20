@@ -36,13 +36,25 @@ static void token_init_string(ChessPgnToken* token, const char* s, size_t n)
 
 static ChessBoolean token_init_number(ChessPgnToken* token, const char* s, size_t n)
 {
+    if (n == 0)
+        return CHESS_FALSE;
+
     size_t i;
     for (i = 0; i < n; i++)
         if (!isdigit(s[i]))
             return CHESS_FALSE;
+
     token->type = CHESS_PGN_TOKEN_NUMBER;
     token->data.number = strtol(s, NULL, 10);
     return CHESS_TRUE;
+}
+
+static size_t token_init_nag(ChessPgnToken* token, const char* s)
+{
+    char* end;
+    token->type = CHESS_PGN_TOKEN_NAG;
+    token->data.number = strtol(s + 1, &end, 10);
+    return (end - s);
 }
 
 static void pgn_token_cleanup(ChessPgnToken* token)
@@ -122,6 +134,14 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
         size = s - t - 1;
         token_init_string(token, t + 1, size);
         tokenizer->index += size + 2;
+        return;
+    }
+
+    if (*t == '$' && isnumber(*(t + 1)))
+    {
+        /* NAG token */
+        size = token_init_nag(token, t);
+        tokenizer->index += size;
         return;
     }
 
