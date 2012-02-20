@@ -13,16 +13,22 @@ void chess_string_init(ChessString* string)
 
 void chess_string_init_assign(ChessString* string, const char* s)
 {
+    chess_string_init_assign_size(string, s, strlen(s));
+}
+
+void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
+{
     assert(s);
-    if (!*s)
+    if (n == 0)
     {
         string->size = 0;
         string->data = empty_string;
         return;
     }
-    string->size = strlen(s);
-    char* buf = (char*)malloc(string->size + 1);
-    strcpy(buf, s);
+    string->size = n;
+    char* buf = (char*)malloc(n + 1);
+    strncpy(buf, s, n);
+    buf[n] = '\0';
     string->data = buf;
 }
 
