@@ -23,6 +23,7 @@ void test_game_add_tests();
 void test_pgn_add_tests();
 void test_cstring_add_tests();
 void test_carray_add_tests();
+void test_pgn_tokenizer_add_tests();
 
 int main (int argc, const char* argv[])
 {
@@ -41,6 +42,7 @@ int main (int argc, const char* argv[])
     test_pgn_add_tests();
     test_cstring_add_tests();
     test_carray_add_tests();
+    test_pgn_tokenizer_add_tests();
 
     CU_basic_run_tests();
 
