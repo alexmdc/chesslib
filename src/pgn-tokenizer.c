@@ -34,6 +34,12 @@ static void token_init_string(ChessPgnToken* token, const char* s, size_t n)
     free(buf);
 }
 
+static void token_init_comment(ChessPgnToken* token, const char* s, size_t n)
+{
+    token->type = CHESS_PGN_TOKEN_COMMENT;
+    chess_string_init_assign_size(&token->data.string, s, n);
+}
+
 static ChessBoolean token_init_number(ChessPgnToken* token, const char* s, size_t n)
 {
     if (n == 0)
@@ -57,12 +63,13 @@ static size_t token_init_nag(ChessPgnToken* token, const char* s)
     return (end - s);
 }
 
-static void pgn_token_cleanup(ChessPgnToken* token)
+static void token_cleanup(ChessPgnToken* token)
 {
     switch (token->type)
     {
         case CHESS_PGN_TOKEN_SYMBOL:
         case CHESS_PGN_TOKEN_STRING:
+        case CHESS_PGN_TOKEN_COMMENT:
             chess_string_cleanup(&token->data.string);
             break;
         default:
@@ -93,13 +100,20 @@ static const char* symbol_token_end(const char* s)
     return s;
 }
 
+static const char* comment_token_end(const char* s)
+{
+    while (*s && *s != '}')
+        ++s;
+    return s;
+}
+
 static void skip_token(ChessPgnTokenizer* tokenizer)
 {
     ChessPgnToken* token = tokenizer->last;
     size_t size;
     const char *t, *s;
 
-    pgn_token_cleanup(tokenizer->last);
+    token_cleanup(tokenizer->last);
     tokenizer->last = tokenizer->next;
     tokenizer->next = token;
 
@@ -145,6 +159,16 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
         return;
     }
 
+    if (*t == '{')
+    {
+        /* Comment token */
+        s = comment_token_end(t + 1);
+        size = s - t - 1;
+        token_init_comment(token, t + 1, size);
+        tokenizer->index += size + 2;
+        return;
+    }
+
     if (isalnum(*t))
     {
         /* Symbol or integer token */
@@ -175,14 +199,6 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
             return;
         case ']':
             token_init_simple(token, CHESS_PGN_TOKEN_R_BRACKET);
-            tokenizer->index++;
-            return;
-        case '{':
-            token_init_simple(token, CHESS_PGN_TOKEN_L_BRACE);
-            tokenizer->index++;
-            return;
-        case '}':
-            token_init_simple(token, CHESS_PGN_TOKEN_R_BRACE);
             tokenizer->index++;
             return;
         case '*':
@@ -222,8 +238,8 @@ const ChessPgnToken* chess_pgn_tokenizer_next(ChessPgnTokenizer* tokenizer)
 
 void chess_pgn_tokenizer_destroy(ChessPgnTokenizer* tokenizer)
 {
-    pgn_token_cleanup(tokenizer->last);
-    pgn_token_cleanup(tokenizer->next);
+    token_cleanup(tokenizer->last);
+    token_cleanup(tokenizer->next);
     free((char*)tokenizer->text);
     free(tokenizer);
 }

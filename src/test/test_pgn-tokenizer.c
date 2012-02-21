@@ -136,6 +136,36 @@ static void test_nag()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
+static void test_comment()
+{
+    const char text[] = "1. e4 {A strong move} e6 {The French Defence}";
+    ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(text);
+    const ChessPgnToken* token;
+
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_NUMBER, token->type);
+    CU_ASSERT_EQUAL(1, token->data.number);
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_PERIOD, token->type);
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_SYMBOL, token->type);
+    CU_ASSERT_STRING_EQUAL("e4", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_COMMENT, token->type);
+    CU_ASSERT_STRING_EQUAL("A strong move", chess_string_data(&token->data.string));
+
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_SYMBOL, token->type);
+    CU_ASSERT_STRING_EQUAL("e6", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_COMMENT, token->type);
+    CU_ASSERT_STRING_EQUAL("The French Defence", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_EOF, token->type);
+
+    chess_pgn_tokenizer_destroy(tokenizer);
+}
+
 void test_pgn_tokenizer_add_tests()
 {
     CU_Suite* suite = CU_add_suite("pgn-tokenizer", NULL, NULL);
@@ -143,4 +173,5 @@ void test_pgn_tokenizer_add_tests()
     CU_add_test(suite, "movetext", (CU_TestFunc)test_movetext);
     CU_add_test(suite, "black_movenum", (CU_TestFunc)test_black_movenum);
     CU_add_test(suite, "nag", (CU_TestFunc)test_nag);
+    CU_add_test(suite, "comment", (CU_TestFunc)test_comment);
 }
