@@ -10,6 +10,22 @@
 
 #include "helpers.h"
 
+static void test_empty()
+{
+    ChessPgnTokenizer* tokenizer;
+    const ChessPgnToken* token;
+
+    tokenizer = chess_pgn_tokenizer_new("");
+    token = chess_pgn_tokenizer_peek(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_EOF, token->type);
+    chess_pgn_tokenizer_destroy(tokenizer);
+
+    tokenizer = chess_pgn_tokenizer_new("  \n");
+    token = chess_pgn_tokenizer_peek(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_EOF, token->type);
+    chess_pgn_tokenizer_destroy(tokenizer);
+}
+
 static void test_tag()
 {
     const char tag[] = "[Event \"AUS Champs\"]\n";
@@ -166,12 +182,49 @@ static void test_comment()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
+static void test_error()
+{
+    ChessPgnTokenizer* tokenizer;
+    const ChessPgnToken* token;
+
+    /* Malformed symbol */
+    tokenizer = chess_pgn_tokenizer_new("Qxh7 #");
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_SYMBOL, token->type);
+    CU_ASSERT_STRING_EQUAL("Qxh7", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_ERROR, token->type);
+    chess_pgn_tokenizer_destroy(tokenizer);
+
+    /* Unterminated string */
+    tokenizer = chess_pgn_tokenizer_new("[White \"Capa");
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_L_BRACKET, token->type);
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_SYMBOL, token->type);
+    CU_ASSERT_STRING_EQUAL("White", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_ERROR, token->type);
+    chess_pgn_tokenizer_destroy(tokenizer);
+
+    /* Unterminated comment */
+    tokenizer = chess_pgn_tokenizer_new("h4 {A terrible");
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_SYMBOL, token->type);
+    CU_ASSERT_STRING_EQUAL("h4", chess_string_data(&token->data.string));
+    token = chess_pgn_tokenizer_next(tokenizer);
+    CU_ASSERT_EQUAL(CHESS_PGN_TOKEN_ERROR, token->type);
+    chess_pgn_tokenizer_destroy(tokenizer);
+}
+
 void test_pgn_tokenizer_add_tests()
 {
     CU_Suite* suite = CU_add_suite("pgn-tokenizer", NULL, NULL);
+    CU_add_test(suite, "empty", (CU_TestFunc)test_empty);
     CU_add_test(suite, "tag", (CU_TestFunc)test_tag);
     CU_add_test(suite, "movetext", (CU_TestFunc)test_movetext);
     CU_add_test(suite, "black_movenum", (CU_TestFunc)test_black_movenum);
     CU_add_test(suite, "nag", (CU_TestFunc)test_nag);
     CU_add_test(suite, "comment", (CU_TestFunc)test_comment);
+    CU_add_test(suite, "error", (CU_TestFunc)test_error);
 }

@@ -40,6 +40,12 @@ static void token_init_comment(ChessPgnToken* token, const char* s, size_t n)
     chess_string_init_assign_size(&token->data.string, s, n);
 }
 
+static void token_init_error(ChessPgnToken* token, const char* s)
+{
+    token->type = CHESS_PGN_TOKEN_ERROR;
+    chess_string_init_assign(&token->data.string, s);
+}
+
 static ChessBoolean token_init_number(ChessPgnToken* token, const char* s, size_t n)
 {
     if (n == 0)
@@ -70,6 +76,7 @@ static void token_cleanup(ChessPgnToken* token)
         case CHESS_PGN_TOKEN_SYMBOL:
         case CHESS_PGN_TOKEN_STRING:
         case CHESS_PGN_TOKEN_COMMENT:
+        case CHESS_PGN_TOKEN_ERROR:
             chess_string_cleanup(&token->data.string);
             break;
         default:
@@ -83,14 +90,14 @@ static const char* string_token_end(const char* s)
     while (*s)
     {
         if (*s == '"')
-            break;
+            return s;
 
         if (*s == '\\' && *(s + 1) == '"')
             s++;
 
         s++;
     }
-    return s;
+    return 0; /* Not terminated */
 }
 
 static const char* symbol_token_end(const char* s)
@@ -102,9 +109,13 @@ static const char* symbol_token_end(const char* s)
 
 static const char* comment_token_end(const char* s)
 {
-    while (*s && *s != '}')
+    while (*s)
+    {
+        if (*s == '}')
+            return s;
         ++s;
-    return s;
+    }
+    return 0; /* Not terminated */
 }
 
 static void skip_token(ChessPgnTokenizer* tokenizer)
@@ -145,15 +156,25 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
     {
         /* String token */
         s = string_token_end(t + 1);
+        if (!s)
+        {
+            token_init_error(token, "Unterminated string token.");
+            return;
+        }
         size = s - t - 1;
         token_init_string(token, t + 1, size);
         tokenizer->index += size + 2;
         return;
     }
 
-    if (*t == '$' && isnumber(*(t + 1)))
+    if (*t == '$')
     {
         /* NAG token */
+        if (!isnumber(*(t + 1)))
+        {
+            token_init_error(token, "Invalid NAG token.");
+            return;
+        }
         size = token_init_nag(token, t);
         tokenizer->index += size;
         return;
@@ -163,6 +184,11 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
     {
         /* Comment token */
         s = comment_token_end(t + 1);
+        if (!s)
+        {
+            token_init_error(token, "Unterminated comment token.");
+            return;
+        }
         size = s - t - 1;
         token_init_comment(token, t + 1, size);
         tokenizer->index += size + 2;
@@ -210,6 +236,7 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
             tokenizer->index++;
             return;
         default:
+            token_init_error(token, "Unknown token.");
             break;
     }
 }
