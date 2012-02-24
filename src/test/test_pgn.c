@@ -81,8 +81,42 @@ static void test_pgn_save()
     chess_game_destroy(game);
 }
 
+static void test_pgn_load()
+{
+    const char pgn[] =
+    "[Event \"World Chess Championship 1886\"]\n"
+    "[Site \"New Orleans, USA\"]\n"
+    "[Date \"1886.01.21\"]\n"
+    "[Round \"20\"]\n"
+    "[White \"Steinitz, Wilhelm\"]\n"
+    "[Black \"Zukertort, Johannes\"]\n"
+    "[Result \"1-0\"]\n"
+    "\n"
+    "1. e4 e5 2. Nc3 Nc6 3. f4 exf4 4. d4 d5 5. exd5 Qh4+ 6. Ke2 Qe7+"
+    " 7. Kf2 Qh4+ 8. g3 fxg3+ 9. Kg2 Nxd4 10. hxg3 Qg4 11. Qe1+ Be7"
+    " 12. Bd3 Nf5 13. Nf3 Bd7 14. Bf4 f6 15. Ne4 Ngh6 16. Bxh6 Nxh6"
+    " 17. Rxh6 gxh6 18. Nxf6+ Kf8 19. Nxg4 1-0\n";
+
+    ChessGame* game = chess_game_new();
+    chess_game_reset(game);
+    ChessPgnLoadResult result = chess_pgn_load(pgn, game);
+    CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+
+    CU_ASSERT_STRING_EQUAL("World Chess Championship 1886", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("New Orleans, USA", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("1886.01.21", chess_game_date(game));
+    CU_ASSERT_EQUAL(20, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("Steinitz, Wilhelm", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("Zukertort, Johannes", chess_game_black(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
+    CU_ASSERT_EQUAL(37, chess_game_ply(game));
+
+    chess_game_destroy(game);
+}
+
 void test_pgn_add_tests()
 {
     CU_Suite* suite = CU_add_suite("pgn", NULL, NULL);
     CU_add_test(suite, "pgn_save", (CU_TestFunc)test_pgn_save);
+    CU_add_test(suite, "pgn_load", (CU_TestFunc)test_pgn_load);
 }
