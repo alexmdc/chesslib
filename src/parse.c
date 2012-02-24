@@ -62,7 +62,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     ChessMove move, piece_move;
     ChessPiece pc;
     ChessBoolean pawn_move, pm;
-    int m, i;
+    int i;
 
     assert(s && *s);
 
@@ -144,8 +144,9 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(position, &moves);
     move = 0;
+    piece_move = 0;
     pawn_move = CHESS_FALSE;
-    for (i = 0; i < m; i++)
+    for (i = 0; i < chess_array_size(&moves); i++)
     {
         move = *((ChessMove*)chess_array_elem(&moves, i));
         if (matches_move(position, move, piece, from_file, from_rank, capture, to_file, to_rank, promote))
