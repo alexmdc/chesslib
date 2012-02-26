@@ -14,6 +14,7 @@
 
 void test_chess_add_tests();
 void test_move_add_tests();
+void test_variation_add_tests();
 void test_print_add_tests();
 void test_position_add_tests();
 void test_generate_add_tests();
@@ -33,6 +34,7 @@ int main (int argc, const char* argv[])
 
     test_chess_add_tests();
     test_move_add_tests();
+    test_variation_add_tests();
     test_print_add_tests();
     test_position_add_tests();
     test_generate_add_tests();
