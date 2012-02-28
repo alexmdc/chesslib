@@ -28,13 +28,10 @@ ChessVariation* chess_variation_new(ChessMove move)
 
 void chess_variation_destroy(ChessVariation* variation)
 {
-    ChessVariation* child, *next;
+    ChessVariation* child = NULL;
+    ChessVariation* next = variation;
 
-    assert(variation != NULL);
-
-    next = variation;
-
-    do
+    while (child != variation)
     {
         child = next;
         while (child->right)
@@ -56,7 +53,7 @@ void chess_variation_destroy(ChessVariation* variation)
 
         chess_string_cleanup(&child->comment);
         free(child);
-    } while (child != variation);
+    }
 }
 
 ChessMove chess_variation_move(const ChessVariation* variation)
@@ -116,7 +113,8 @@ ChessVariation* chess_variation_add_child(ChessVariation* variation, ChessMove m
 {
     ChessVariation* child;
 
-    assert(variation != NULL);
+    if (variation == NULL)
+        return chess_variation_new(move);
 
     if (variation->first_child)
         return chess_variation_add_sibling(variation->first_child, move);

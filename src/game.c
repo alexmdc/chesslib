@@ -175,11 +175,9 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
         chess_position_destroy(game->position);
     game->initial = chess_position_clone(position);
     game->position = chess_position_clone(position);
-    if (game->root)
-    {
-        chess_variation_destroy(game->root);
-        game->root = game->variation = NULL;
-    }
+    chess_variation_destroy(game->root);
+    game->root = NULL;
+    game->variation = NULL;
     game->result = chess_position_check_result(position);
     game->round = 0;
     chess_string_clear(&game->event);
@@ -195,23 +193,22 @@ void chess_game_make_move(ChessGame* game, ChessMove move)
     ChessUnmove unmove = chess_position_make_move(game->position, move);
     chess_array_push(&game->unmoves, &unmove);
     game->result = chess_position_check_result(game->position);
-    if (game->root)
-        game->variation = chess_variation_add_child(game->variation, move);
-    else
-        game->root = game->variation = chess_variation_new(move);
+    game->variation = chess_variation_add_child(game->variation, move);
+    if (game->root == NULL)
+        game->root = game->variation;
 }
 
 void chess_game_undo_move(ChessGame* game)
 {
-    ChessVariation* parent;
+    ChessVariation* variation;
     ChessUnmove unmove;
     chess_array_pop(&game->unmoves, &unmove);
     chess_position_undo_move(game->position, unmove);
     game->result = CHESS_RESULT_NONE;
 
-    parent = chess_variation_parent(game->variation);
-    chess_variation_destroy(game->variation);
-    game->variation = parent;
+    variation = game->variation;
+    game->variation = chess_variation_parent(game->variation);
+    chess_variation_destroy(variation);
     if (game->variation == NULL)
         game->root = NULL;
 }

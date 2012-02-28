@@ -41,16 +41,21 @@ static void test_add_child()
 {
     ChessVariation* variation, *child, *child2;
 
-    variation = chess_variation_new(MV(E2,E4));
+    variation = chess_variation_add_child(NULL, MV(E2,E4));
+    CU_ASSERT_EQUAL(NULL, chess_variation_parent(variation));
+    CU_ASSERT_EQUAL(MV(E2,E4), chess_variation_move(variation));
+
     child = chess_variation_add_child(variation, MV(C7,C5));
     CU_ASSERT_EQUAL(child, chess_variation_first_child(variation));
     CU_ASSERT_EQUAL(variation, chess_variation_parent(child));
+    CU_ASSERT_EQUAL(MV(C7,C5), chess_variation_move(child));
 
     child2 = chess_variation_add_child(variation, MV(E7,E6));
     CU_ASSERT_EQUAL(child, chess_variation_first_child(variation));
     CU_ASSERT_EQUAL(variation, chess_variation_parent(child2));
     CU_ASSERT_EQUAL(child2, chess_variation_right(child));
     CU_ASSERT_EQUAL(child, chess_variation_left(child2));
+    CU_ASSERT_EQUAL(MV(E7,E6), chess_variation_move(child2));
 
     chess_variation_destroy(variation);
 }
@@ -69,6 +74,7 @@ static void test_add_sibling()
     CU_ASSERT_EQUAL(NULL, chess_variation_parent(sibling));
     CU_ASSERT_EQUAL(NULL, chess_variation_first_child(sibling));
     CU_ASSERT_EQUAL(NULL, chess_variation_right(sibling));
+    CU_ASSERT_EQUAL(MV(D2,D4), chess_variation_move(sibling));
 
     sibling2 = chess_variation_add_sibling(variation, MV(C2,C4));
     CU_ASSERT_EQUAL(sibling2, chess_variation_right(sibling));
@@ -76,6 +82,7 @@ static void test_add_sibling()
     CU_ASSERT_EQUAL(NULL, chess_variation_parent(sibling2));
     CU_ASSERT_EQUAL(NULL, chess_variation_first_child(sibling2));
     CU_ASSERT_EQUAL(NULL, chess_variation_right(sibling2));
+    CU_ASSERT_EQUAL(MV(C2,C4), chess_variation_move(sibling2));
 
     chess_variation_destroy(variation);
 }
@@ -83,6 +90,8 @@ static void test_add_sibling()
 static void test_destroy()
 {
     ChessVariation* variation, *child, *sibling;
+
+    chess_variation_destroy(NULL);
 
     variation = chess_variation_new(MV(E2,E4));
     child = chess_variation_add_child(variation, MV(C7,C5));
