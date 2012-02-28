@@ -9,18 +9,15 @@
 #include "game.h"
 #include "carray.h"
 #include "cstring.h"
-
-typedef struct
-{
-    ChessMove move;
-    ChessUnmove unmove;
-} GameMove;
+#include "variation.h"
 
 struct ChessGame
 {
     const ChessPosition* initial;
     ChessPosition* position;
-    ChessArray moves;
+    ChessVariation* root;
+    ChessVariation* variation;
+    ChessArray unmoves;
     ChessString event;
     ChessString site;
     ChessString date;
@@ -35,7 +32,7 @@ ChessGame* chess_game_new()
 {
     ChessGame* game = malloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
-    chess_array_init(&game->moves, sizeof(GameMove));
+    chess_array_init(&game->unmoves, sizeof(ChessUnmove));
     chess_string_init(&game->event);
     chess_string_init(&game->site);
     chess_string_init(&game->date);
@@ -51,7 +48,8 @@ void chess_game_destroy(ChessGame* game)
         chess_position_destroy((ChessPosition*)game->initial);
     if (game->position)
         chess_position_destroy(game->position);
-    chess_array_cleanup(&game->moves);
+    if (game->root)
+        chess_variation_destroy(game->variation);
     chess_string_cleanup(&game->event);
     chess_string_cleanup(&game->site);
     chess_string_cleanup(&game->date);
@@ -73,13 +71,13 @@ const ChessPosition* chess_game_initial_position(const ChessGame* game)
 
 size_t chess_game_ply(const ChessGame* game)
 {
-    return chess_array_size(&game->moves);
+    return chess_variation_length(game->root);
 }
 
 ChessMove chess_game_move(const ChessGame* game, size_t ply)
 {
-    const GameMove* gameMove = chess_array_elem(&game->moves, ply);
-    return gameMove->move;
+    ChessVariation* variation = chess_variation_ply(game->root, ply);
+    return chess_variation_move(variation);
 }
 
 const char* chess_game_event(const ChessGame* game)
@@ -157,7 +155,7 @@ void chess_game_set_result(ChessGame* game, ChessResult result)
     ChessResult boardResult = chess_position_check_result(game->position);
     if (boardResult != CHESS_RESULT_NONE)
         return;
-    
+
     game->result = result;
 }
 
@@ -177,7 +175,11 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
         chess_position_destroy(game->position);
     game->initial = chess_position_clone(position);
     game->position = chess_position_clone(position);
-    chess_array_clear(&game->moves);
+    if (game->root)
+    {
+        chess_variation_destroy(game->root);
+        game->root = game->variation = NULL;
+    }
     game->result = chess_position_check_result(position);
     game->round = 0;
     chess_string_clear(&game->event);
@@ -191,15 +193,25 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
 void chess_game_make_move(ChessGame* game, ChessMove move)
 {
     ChessUnmove unmove = chess_position_make_move(game->position, move);
-    GameMove gameMove = { move, unmove };
-    chess_array_push(&game->moves, &gameMove);
+    chess_array_push(&game->unmoves, &unmove);
     game->result = chess_position_check_result(game->position);
+    if (game->root)
+        game->variation = chess_variation_add_child(game->variation, move);
+    else
+        game->root = game->variation = chess_variation_new(move);
 }
 
 void chess_game_undo_move(ChessGame* game)
 {
-    GameMove gameMove;
-    chess_array_pop(&game->moves, &gameMove);
-    chess_position_undo_move(game->position, gameMove.unmove);
+    ChessVariation* parent;
+    ChessUnmove unmove;
+    chess_array_pop(&game->unmoves, &unmove);
+    chess_position_undo_move(game->position, unmove);
     game->result = CHESS_RESULT_NONE;
+
+    parent = chess_variation_parent(game->variation);
+    chess_variation_destroy(game->variation);
+    game->variation = parent;
+    if (game->variation == NULL)
+        game->root = NULL;
 }
