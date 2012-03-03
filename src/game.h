@@ -33,5 +33,6 @@ void chess_game_undo_move(ChessGame*);
 
 void chess_game_reset(ChessGame*);
 void chess_game_reset_position(ChessGame*, const ChessPosition*);
+void chess_game_set_variation(ChessGame*, ChessVariation*);
 
 #endif /* CHESSLIB_GAME_H_ */

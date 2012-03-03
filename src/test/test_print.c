@@ -4,6 +4,8 @@
 #include "../move.h"
 #include "../unmove.h"
 #include "../position.h"
+#include "../cstring.h"
+#include "../variation.h"
 #include "../game.h"
 #include "../fen.h"
 #include "../print.h"
@@ -74,18 +76,18 @@ static void test_print_game_moves()
     ChessGame* game;
     ChessPosition* position;
     char buf[1024];
-    
+
     game = chess_game_new();
     chess_game_reset(game);
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL("*", buf);
-    
+
     chess_game_make_move(game, MV(G1,F3));
     chess_game_make_move(game, MV(D7,D5));
     chess_game_make_move(game, MV(C2,C4));
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL("1. Nf3 d5 2. c4 *", buf);
-    
+
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL("1. Nf3 d5 2. c4 1-0", buf);

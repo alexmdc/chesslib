@@ -5,6 +5,8 @@
 #include "../unmove.h"
 #include "../position.h"
 #include "../fen.h"
+#include "../cstring.h"
+#include "../variation.h"
 #include "../game.h"
 
 #include "helpers.h"
@@ -13,21 +15,21 @@ static void test_game_new()
 {
     ChessPosition* start_position;
     ChessGame* game;
-    
+
     game = chess_game_new();
     chess_game_destroy(game);
-    
+
     game = chess_game_new();
     chess_game_reset(game);
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
-    
+
     start_position = chess_position_new();
     chess_position_init(start_position);
     CU_ASSERT_NOT_EQUAL(chess_game_initial_position(game), chess_game_position(game));
     ASSERT_POSITIONS_EQUAL(start_position, chess_game_initial_position(game));
     ASSERT_POSITIONS_EQUAL(start_position, chess_game_position(game));
-    
+
     chess_position_destroy(start_position);
     chess_game_destroy(game);
 }
@@ -39,7 +41,7 @@ static void test_game_move()
     ChessMove moves[] = { MV(E2,E4), MV(D7,D5) };
 
     game = chess_game_new();
-    chess_game_reset(game);    
+    chess_game_reset(game);
     chess_game_make_move(game, moves[0]);
     CU_ASSERT_EQUAL(1, chess_game_ply(game));
     chess_game_make_move(game, moves[1]);
@@ -67,7 +69,7 @@ static void test_game_move()
 static void test_game_result()
 {
     ChessGame* game;
-    
+
     game = chess_game_new();
     chess_game_reset(game);
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
@@ -147,7 +149,7 @@ static void test_game_set_result()
 
     chess_game_set_result(game, CHESS_RESULT_NONE);
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
-    
+
     chess_game_destroy(game);
 }
 
@@ -186,7 +188,7 @@ static void test_game_tags()
     CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
-    
+
     chess_game_destroy(game);
 }
 

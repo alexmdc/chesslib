@@ -5,12 +5,14 @@
 #include "move.h"
 #include "unmove.h"
 #include "position.h"
+#include "cstring.h"
+#include "variation.h"
 #include "game.h"
 #include "pgn.h"
-#include "cstring.h"
 #include "pgn-tokenizer.h"
 #include "print.h"
 #include "parse.h"
+#include "variation.h"
 
 static int append_tag(const char* name, const char* value, char* s)
 {
@@ -115,28 +117,31 @@ error:
     return result;
 }
 
-static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer, ChessGame* game)
+static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
+    const ChessPosition* position, ChessMove* move)
 {
     ChessParseResult result;
-    ChessMove move;
     const ChessPgnToken* token;
 
     token = chess_pgn_tokenizer_peek(tokenizer); /* SYMBOL */
-    result = chess_parse_move(chess_string_data(&token->data.string), chess_game_position(game), &move);
+    result = chess_parse_move(chess_string_data(&token->data.string), position, move);
     if (result != CHESS_PARSE_OK)
         return CHESS_PGN_LOAD_ILLEGAL_MOVE;
 
-    chess_game_make_move(game, move);
     chess_pgn_tokenizer_next(tokenizer);
     return CHESS_PGN_LOAD_OK;
 }
 
-static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer, ChessGame* game)
+static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
+    const ChessPosition* position, ChessVariation** variation)
 {
     const ChessPgnToken* token;
-    ChessPgnLoadResult result;
+    ChessMove move;
+    ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
+    ChessPosition* current_position = chess_position_clone(position);
+    ChessVariation* current_variation = NULL;
 
-    for (;;)
+    while (result == CHESS_PGN_LOAD_OK)
     {
         token = chess_pgn_tokenizer_peek(tokenizer);
         switch (token->type)
@@ -148,37 +153,72 @@ static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer, ChessGame
                 chess_pgn_tokenizer_next(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_SYMBOL:
-                result = parse_move(tokenizer, game);
+                result = parse_move(tokenizer, current_position, &move);
                 if (result != CHESS_PGN_LOAD_OK)
-                    return result;
+                    break;
+
+                chess_position_make_move(current_position, move);
+                current_variation = chess_variation_add_child(current_variation, move);
+
                 break;
-            case CHESS_PGN_TOKEN_ASTERISK:
-                chess_pgn_tokenizer_next(tokenizer);
-                chess_game_set_result(game, CHESS_RESULT_IN_PROGRESS);
-                return CHESS_PGN_LOAD_OK;
-            case CHESS_PGN_TOKEN_ONE_ZERO:
-                chess_pgn_tokenizer_next(tokenizer);
-                chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
-                return CHESS_PGN_LOAD_OK;
-            case CHESS_PGN_TOKEN_ZERO_ONE:
-                chess_pgn_tokenizer_next(tokenizer);
-                chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
-                return CHESS_PGN_LOAD_OK;
-            case CHESS_PGN_TOKEN_HALF_HALF:
-                chess_pgn_tokenizer_next(tokenizer);
-                chess_game_set_result(game, CHESS_RESULT_DRAW);
-                return CHESS_PGN_LOAD_OK;
             default:
-                return CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+                result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+                break;
         }
     }
 
-    return CHESS_PGN_LOAD_OK;
+    while (current_variation != NULL && chess_variation_parent(current_variation))
+        current_variation = chess_variation_parent(current_variation);
+
+    chess_position_destroy(current_position);
+    *variation = current_variation;
+    return result;
+}
+
+static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
+    ChessVariation** variation, ChessResult* game_result)
+{
+    const ChessPgnToken* token;
+    ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
+    ChessPosition* position;
+
+    position = chess_position_new();
+    chess_position_init(position);
+    parse_variation(tokenizer, position, variation);
+    chess_position_destroy(position);
+
+    token = chess_pgn_tokenizer_peek(tokenizer);
+    switch (token->type)
+    {
+        case CHESS_PGN_TOKEN_ASTERISK:
+            chess_pgn_tokenizer_next(tokenizer);
+            *game_result = CHESS_RESULT_IN_PROGRESS;
+            break;
+        case CHESS_PGN_TOKEN_ONE_ZERO:
+            chess_pgn_tokenizer_next(tokenizer);
+            *game_result = CHESS_RESULT_WHITE_WINS;
+            break;
+        case CHESS_PGN_TOKEN_ZERO_ONE:
+            chess_pgn_tokenizer_next(tokenizer);
+            *game_result = CHESS_RESULT_BLACK_WINS;
+            break;
+        case CHESS_PGN_TOKEN_HALF_HALF:
+            chess_pgn_tokenizer_next(tokenizer);
+            *game_result = CHESS_RESULT_DRAW;
+            break;
+        default:
+            result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+            break;
+    }
+
+    return result;
 }
 
 static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* game)
 {
     const ChessPgnToken* token;
+    ChessVariation* variation;
+    ChessResult game_result;
     ChessPgnLoadResult result;
 
     for (;;)
@@ -192,12 +232,15 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
                     return result;
                 break;
             default:
-                result = parse_movetext(tokenizer, game);
+                result = parse_movetext(tokenizer, &variation, &game_result);
+                if (result == CHESS_PGN_LOAD_OK)
+                {
+                    chess_game_set_variation(game, variation);
+                    chess_game_set_result(game, game_result);
+                }
                 return result;
         }
     }
-
-    return CHESS_PGN_LOAD_OK;
 }
 
 ChessPgnLoadResult chess_pgn_load(const char* s, ChessGame* game)

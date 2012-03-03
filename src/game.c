@@ -6,6 +6,8 @@
 #include "move.h"
 #include "unmove.h"
 #include "position.h"
+#include "cstring.h"
+#include "variation.h"
 #include "game.h"
 #include "carray.h"
 #include "cstring.h"
@@ -186,6 +188,15 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
     chess_string_clear(&game->result_text);
+}
+
+void chess_game_set_variation(ChessGame* game, ChessVariation* variation)
+{
+    assert(chess_variation_parent(variation) == NULL);
+    assert(chess_variation_left(variation) == NULL);
+    chess_variation_destroy(game->root);
+    game->root = variation;
+    game->variation = game->root;
 }
 
 void chess_game_make_move(ChessGame* game, ChessMove move)
