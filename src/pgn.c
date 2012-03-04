@@ -137,41 +137,78 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
 {
     const ChessPgnToken* token;
     ChessMove move;
+    ChessUnmove unmove;
     ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
     ChessPosition* current_position = chess_position_clone(position);
-    ChessVariation* current_variation = NULL;
+    ChessVariation* current_variation = NULL, *subvariation;
 
     while (result == CHESS_PGN_LOAD_OK)
     {
         token = chess_pgn_tokenizer_peek(tokenizer);
         switch (token->type)
         {
-            case CHESS_PGN_TOKEN_NUMBER:
-            case CHESS_PGN_TOKEN_PERIOD:
             case CHESS_PGN_TOKEN_COMMENT:
-                /* Skip these tokens */
+                /* Skip comments for now */
                 chess_pgn_tokenizer_next(tokenizer);
+                break;
+            case CHESS_PGN_TOKEN_NUMBER:
+                chess_pgn_tokenizer_next(tokenizer);
+                /* Move number may be followed by zero or more periods */
+                while (chess_pgn_tokenizer_peek(tokenizer)->type == CHESS_PGN_TOKEN_PERIOD)
+                    chess_pgn_tokenizer_next(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_SYMBOL:
                 result = parse_move(tokenizer, current_position, &move);
                 if (result != CHESS_PGN_LOAD_OK)
                     break;
 
-                chess_position_make_move(current_position, move);
+                unmove = chess_position_make_move(current_position, move);
                 current_variation = chess_variation_add_child(current_variation, move);
+                break;
+            case CHESS_PGN_TOKEN_L_PARENTHESIS:
+                if (current_variation == NULL)
+                {
+                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+                    break;
+                }
+                chess_pgn_tokenizer_next(tokenizer);
 
+                /* Subvariation, back up a move and parse it */
+                chess_position_undo_move(current_position, unmove);
+                result = parse_variation(tokenizer, current_position, &subvariation);
+                if (result != CHESS_PGN_LOAD_OK)
+                    break;
+
+                chess_position_make_move(current_position, move);
+
+                token = chess_pgn_tokenizer_peek(tokenizer);
+                if (token->type != CHESS_PGN_TOKEN_R_PARENTHESIS)
+                {
+                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+                    chess_variation_destroy(subvariation);
+                    break;
+                }
+
+                chess_pgn_tokenizer_next(tokenizer); /* R_PARENTHESIS */
+                chess_variation_attach_subvariation(current_variation, subvariation);
                 break;
             default:
+                /* Stop parsing on unexpected token */
                 result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
                 break;
         }
     }
 
-    while (current_variation != NULL && chess_variation_parent(current_variation))
-        current_variation = chess_variation_parent(current_variation);
+    if (result == CHESS_PGN_LOAD_UNEXPECTED_TOKEN)
+    {
+        /* Rewind back to the head of the variation */
+        while (current_variation != NULL && chess_variation_parent(current_variation))
+            current_variation = chess_variation_parent(current_variation);
+        *variation = current_variation;
+        result = CHESS_PGN_LOAD_OK;
+    }
 
     chess_position_destroy(current_position);
-    *variation = current_variation;
     return result;
 }
 

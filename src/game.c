@@ -51,7 +51,7 @@ void chess_game_destroy(ChessGame* game)
     if (game->position)
         chess_position_destroy(game->position);
     if (game->root)
-        chess_variation_destroy(game->variation);
+        chess_variation_destroy(game->root);
     chess_string_cleanup(&game->event);
     chess_string_cleanup(&game->site);
     chess_string_cleanup(&game->date);
@@ -69,6 +69,11 @@ const ChessPosition* chess_game_position(const ChessGame* game)
 const ChessPosition* chess_game_initial_position(const ChessGame* game)
 {
     return game->initial;
+}
+
+ChessVariation* chess_game_variation(const ChessGame* game)
+{
+    return game->root;
 }
 
 size_t chess_game_ply(const ChessGame* game)

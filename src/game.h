@@ -8,6 +8,7 @@ void chess_game_destroy(ChessGame*);
 
 const ChessPosition* chess_game_position(const ChessGame*);
 const ChessPosition* chess_game_initial_position(const ChessGame*);
+ChessVariation* chess_game_variation(const ChessGame*);
 size_t chess_game_ply(const ChessGame*);
 ChessMove chess_game_move(const ChessGame*, size_t ply);
 

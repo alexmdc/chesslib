@@ -18,5 +18,6 @@ ChessVariation* chess_variation_ply(ChessVariation*, size_t ply);
 
 ChessVariation* chess_variation_add_child(ChessVariation*, ChessMove);
 ChessVariation* chess_variation_add_sibling(ChessVariation*, ChessMove);
+void chess_variation_attach_subvariation(ChessVariation*, ChessVariation*);
 
 #endif /* CHESSLIB_VARIATION_H_ */

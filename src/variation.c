@@ -140,3 +140,17 @@ ChessVariation* chess_variation_add_sibling(ChessVariation* variation, ChessMove
     sibling->parent = variation->parent;
     return sibling;
 }
+
+void chess_variation_attach_subvariation(ChessVariation* variation, ChessVariation* subvariation)
+{
+    assert(variation != NULL);
+    assert(subvariation->parent == NULL);
+    assert(subvariation->left == NULL);
+
+    while (variation->right != NULL)
+        variation = variation->right;
+
+    variation->right = subvariation;
+    subvariation->left = variation;
+    subvariation->parent = variation->parent;
+}
