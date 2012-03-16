@@ -8,7 +8,10 @@
 #include "../move.h"
 #include "../unmove.h"
 #include "../position.h"
+#include "../cstring.h"
+#include "../variation.h"
 #include "../game.h"
+#include "../carray.h"
 #include "../generate.h"
 #include "../fen.h"
 #include "../pgn.h"
@@ -65,14 +68,16 @@ static ChessBoolean parse_line(char* s, char** cmd, char** args)
 static void list_moves(const ChessGame* game)
 {
     const ChessPosition* position = chess_game_position(game);
-    ChessMove moves[100];
+    ChessArray moves;
     char buf[1024];
-    int n, i;
+    int i;
 
-    n = chess_generate_moves(position, moves);
-    for (i = 0; i < n; i++)
+	chess_array_init(&moves, sizeof(ChessMove));
+    chess_generate_moves(position, &moves);
+    for (i = 0; i < chess_array_size(&moves); i++)
     {
-        chess_print_move_san(moves[i], position, buf);
+        ChessMove move = *((ChessMove*)chess_array_elem(&moves, i));
+        chess_print_move_san(move, position, buf);
         printf("%s ", buf);
     }
     putchar('\n');
