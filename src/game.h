@@ -1,6 +1,10 @@
 #ifndef CHESSLIB_GAME_H_
 #define CHESSLIB_GAME_H_
 
+#include "position.h"
+#include "move.h"
+#include "variation.h"
+
 typedef struct ChessGame ChessGame;
 
 ChessGame* chess_game_new();

@@ -1,6 +1,10 @@
 #ifndef CHESSLIB_POSITION_H_
 #define CHESSLIB_POSITION_H_
 
+#include "chess.h"
+#include "move.h"
+#include "unmove.h"
+
 typedef struct ChessPosition ChessPosition;
 
 ChessPosition* chess_position_new();

@@ -1,9 +1,6 @@
 #include <assert.h>
 
-#include "chess.h"
-#include "move.h"
 #include "unmove.h"
-#include "position.h"
 
 ChessUnmove chess_unmove_make(
     ChessSquare from, ChessSquare to, ChessUnmoveCaptured captured,

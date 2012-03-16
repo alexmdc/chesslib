@@ -1,12 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
-#include "position.h"
 #include "generate.h"
-#include "carray.h"
 
 typedef enum {
     DIR_N = (1 << 0),

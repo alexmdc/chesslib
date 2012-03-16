@@ -1,6 +1,8 @@
 #ifndef CHESSLIB_PGN_H_
 #define CHESSLIB_PGN_H_
 
+#include "game.h"
+
 typedef enum {
     CHESS_PGN_LOAD_OK = 0,
     CHESS_PGN_LOAD_BAD_TOKEN,

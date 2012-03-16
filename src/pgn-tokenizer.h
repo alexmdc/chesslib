@@ -1,6 +1,8 @@
 #ifndef CHESSLIB_PGN_TOKENIZER_H_
 #define CHESSLIB_PGN_TOKENIZER_H_
 
+#include "cstring.h"
+
 typedef enum
 {
     CHESS_PGN_TOKEN_NONE = 0,

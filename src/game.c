@@ -2,16 +2,9 @@
 #include <stdlib.h>
 #include <memory.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
-#include "position.h"
-#include "cstring.h"
-#include "variation.h"
 #include "game.h"
-#include "carray.h"
 #include "cstring.h"
-#include "variation.h"
+#include "carray.h"
 
 struct ChessGame
 {

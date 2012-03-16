@@ -1,6 +1,9 @@
 #ifndef CHESSLIB_VARIATION_H_
 #define CHESSLIB_VARIATION_H_
 
+#include "move.h"
+#include "cstring.h"
+
 typedef struct ChessVariation ChessVariation;
 
 ChessVariation* chess_variation_new(ChessMove move);

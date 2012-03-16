@@ -1,6 +1,8 @@
 #ifndef CHESSLIB_UNMOVE_H_
 #define CHESSLIB_UNMOVE_H_
 
+#include "chess.h"
+
 typedef unsigned int ChessUnmove;
 
 typedef enum

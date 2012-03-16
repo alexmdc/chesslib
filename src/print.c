@@ -3,16 +3,9 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
-#include "position.h"
-#include "cstring.h"
-#include "variation.h"
-#include "game.h"
 #include "print.h"
-#include "generate.h"
 #include "carray.h"
+#include "generate.h"
 
 int chess_print_move(ChessMove move, char* s)
 {

@@ -3,9 +3,6 @@
 #include <memory.h>
 #include <stdio.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
 #include "position.h"
 #include "generate.h"
 #include "fen.h"

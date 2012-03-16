@@ -3,11 +3,9 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
-#include "position.h"
 #include "fen.h"
+#include "chess.h"
+#include "position.h"
 
 void chess_fen_load(const char* s, ChessPosition* position)
 {

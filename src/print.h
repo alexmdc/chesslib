@@ -1,6 +1,10 @@
 #ifndef CHESSLIB_PRINT_H_
 #define CHESSLIB_PRINT_H_
 
+#include "move.h"
+#include "position.h"
+#include "game.h"
+
 int chess_print_move(ChessMove, char* s);
 int chess_print_move_san(ChessMove, const ChessPosition*, char* s);
 int chess_print_position(const ChessPosition*, char* s);

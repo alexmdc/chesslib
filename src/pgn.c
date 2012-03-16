@@ -1,18 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "chess.h"
-#include "move.h"
-#include "unmove.h"
-#include "position.h"
-#include "cstring.h"
-#include "variation.h"
-#include "game.h"
 #include "pgn.h"
 #include "pgn-tokenizer.h"
-#include "print.h"
 #include "parse.h"
-#include "variation.h"
+#include "print.h"
 
 static int append_tag(const char* name, const char* value, char* s)
 {

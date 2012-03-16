@@ -3,9 +3,8 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "chess.h"
-#include "cstring.h"
 #include "pgn-tokenizer.h"
+#include "chess.h"
 
 static void token_init_simple(ChessPgnToken* token, ChessPgnTokenType type)
 {
