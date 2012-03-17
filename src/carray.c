@@ -31,7 +31,7 @@ const void* chess_array_data(const ChessArray* array)
 const void* chess_array_elem(const ChessArray* array, size_t index)
 {
     assert(index < array->size);
-    return array->data + (index * array->elem_size);
+    return (const char*)array->data + (index * array->elem_size);
 }
 
 void chess_array_clear(ChessArray* array)
@@ -46,8 +46,9 @@ void chess_array_clear(ChessArray* array)
 
 void chess_array_set_elem(ChessArray* array, size_t index, const void* value)
 {
+    void* dest;
     assert(index < array->size);
-    void* dest = array->data + (index * array->elem_size);
+    dest = (char*)array->data + (index * array->elem_size);
     memcpy(dest, value, array->elem_size);
 }
 
@@ -77,7 +78,7 @@ void chess_array_pop(ChessArray* array, void* elem)
     if (elem)
     {
         size_t index = array->size - 1;
-        void* src = array->data + (index * array->elem_size);
+        void* src = (char*)array->data + (index * array->elem_size);
         memcpy(elem, src, array->elem_size);
     }
     array->size--;

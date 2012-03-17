@@ -47,10 +47,10 @@ static void token_init_error(ChessPgnToken* token, const char* s)
 
 static ChessBoolean token_init_number(ChessPgnToken* token, const char* s, size_t n)
 {
+    size_t i;
     if (n == 0)
         return CHESS_FALSE;
 
-    size_t i;
     for (i = 0; i < n; i++)
         if (!isdigit(s[i]))
             return CHESS_FALSE;

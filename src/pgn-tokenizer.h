@@ -21,7 +21,7 @@ typedef enum
     CHESS_PGN_TOKEN_ONE_ZERO,
     CHESS_PGN_TOKEN_ZERO_ONE,
     CHESS_PGN_TOKEN_HALF_HALF,
-    CHESS_PGN_TOKEN_EOF,
+    CHESS_PGN_TOKEN_EOF
 } ChessPgnTokenType;
 
 typedef union

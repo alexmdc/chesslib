@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall -c
+CFLAGS=-g -Wall -ansi -pedantic
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 SUBDIRS=test shell
@@ -11,7 +11,7 @@ $(LIB): $(OBJS)
 	libtool -static -o $@ $(OBJS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean: $(SUBDIRS)
 	rm -f *.o $(LIB)

@@ -18,6 +18,7 @@ void chess_string_init_assign(ChessString* string, const char* s)
 
 void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
 {
+    char* buf;
     assert(s);
     if (n == 0)
     {
@@ -26,7 +27,7 @@ void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
         return;
     }
     string->size = n;
-    char* buf = (char*)malloc(n + 1);
+    buf = (char*)malloc(n + 1);
     strncpy(buf, s, n);
     buf[n] = '\0';
     string->data = buf;

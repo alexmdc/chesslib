@@ -116,12 +116,12 @@ ChessBoolean chess_position_is_check(const ChessPosition* position)
 ChessBoolean chess_position_move_is_legal(const ChessPosition* position, ChessMove move)
 {
     ChessArray moves;
+    ChessBoolean found = CHESS_FALSE;
     int i;
 
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(position, &moves);
 
-    ChessBoolean found = CHESS_FALSE;
     for (i = 0; i < chess_array_size(&moves); i++)
     {
         if (*((ChessMove*)chess_array_elem(&moves, i)) == move)

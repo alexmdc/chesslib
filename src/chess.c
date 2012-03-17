@@ -43,17 +43,17 @@ ChessSquare chess_square_from_fr(ChessFile file, ChessRank rank)
     assert(file >= CHESS_FILE_A && file <= CHESS_FILE_H);
     assert(rank >= CHESS_RANK_1 && rank <= CHESS_RANK_8);
     return rank * 8 + file;
-};
+}
 
 ChessFile chess_square_file(ChessSquare square)
 {
     return (square % 8);
-};
+}
 
 ChessRank chess_square_rank(ChessSquare square)
 {
     return (square / 8);
-};
+}
 
 ChessFile chess_file_from_char(char c)
 {

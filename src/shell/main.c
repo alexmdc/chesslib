@@ -65,7 +65,7 @@ static void list_moves(const ChessGame* game)
     char buf[1024];
     int i;
 
-	chess_array_init(&moves, sizeof(ChessMove));
+    chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(position, &moves);
     for (i = 0; i < chess_array_size(&moves); i++)
     {
@@ -125,6 +125,7 @@ static void handle_move(ChessGame* game, const char* cmd)
     const ChessPosition* position = chess_game_current_position(game);
     ChessMove move = 0;
     ChessParseResult result = chess_parse_move(cmd, position, &move);
+    ChessResult game_result;
     char buf[10];
 
     if (result == CHESS_PARSE_ERROR)
@@ -147,10 +148,10 @@ static void handle_move(ChessGame* game, const char* cmd)
         chess_game_append_move(game, move);
         print_board(game);
 
-        ChessResult result = chess_game_result(game);
-        if (result != CHESS_RESULT_NONE)
+        game_result = chess_game_result(game);
+        if (game_result != CHESS_RESULT_NONE)
         {
-            chess_print_result(result, buf);
+            chess_print_result(game_result, buf);
             puts(buf);
         }
     }
@@ -188,7 +189,7 @@ static void set_round(ChessGame* game, const char* arg)
         printf("%d\n", chess_game_round(game));
     else
     {
-        if (sscanf(arg, "%d", &round) == 1)
+        if (sscanf(arg, "%u", &round) == 1)
             chess_game_set_round(game, round);
         else
             printf("Error (parse error): %s\n", arg);

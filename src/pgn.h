@@ -7,7 +7,7 @@ typedef enum {
     CHESS_PGN_LOAD_OK = 0,
     CHESS_PGN_LOAD_BAD_TOKEN,
     CHESS_PGN_LOAD_UNEXPECTED_TOKEN,
-    CHESS_PGN_LOAD_ILLEGAL_MOVE,
+    CHESS_PGN_LOAD_ILLEGAL_MOVE
 } ChessPgnLoadResult;
 
 ChessPgnLoadResult chess_pgn_load(const char*, ChessGame*);

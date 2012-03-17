@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -ansi -pedantic
 LDFLAGS=-L.. -lchesslib
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)

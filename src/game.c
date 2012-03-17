@@ -44,7 +44,7 @@ ChessGame* chess_game_new(void)
     game->current_variation = game->root_variation;
     chess_array_init(&game->unmoves, sizeof(ChessUnmove));
     return game;
-};
+}
 
 void chess_game_destroy(ChessGame* game)
 {
@@ -60,7 +60,7 @@ void chess_game_destroy(ChessGame* game)
     chess_position_destroy(game->current_position);
     chess_array_cleanup(&game->unmoves);
     free(game);
-};
+}
 
 void chess_game_init(ChessGame* game)
 {
@@ -106,7 +106,7 @@ ChessVariation* chess_game_root_variation(const ChessGame* game)
 
 size_t chess_game_ply(const ChessGame* game)
 {
-    // TODO: More efficient implementation
+    /* TODO: More efficient implementation */
     return chess_variation_length(game->root_variation);
 }
 

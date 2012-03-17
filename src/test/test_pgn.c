@@ -92,9 +92,10 @@ static void test_pgn_load(void)
     " 12. Bd3 Nf5 13. Nf3 Bd7 14. Bf4 f6 15. Ne4 Ngh6 16. Bxh6 Nxh6"
     " 17. Rxh6 gxh6 18. Nxf6+ Kf8 19. Nxg4 1-0\n";
 
+    ChessPgnLoadResult result;
     ChessGame* game = chess_game_new();
     chess_game_init(game);
-    ChessPgnLoadResult result = chess_pgn_load(pgn, game);
+    result = chess_pgn_load(pgn, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
     CU_ASSERT_STRING_EQUAL("World Chess Championship 1886", chess_game_event(game));
