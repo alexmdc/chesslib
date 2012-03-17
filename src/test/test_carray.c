@@ -4,16 +4,16 @@
 
 #include "helpers.h"
 
-static void test_carray_init()
+static void test_carray_init(void)
 {
     ChessArray array;
-    
+
     chess_array_init(&array, sizeof(int));
     CU_ASSERT_EQUAL(0, chess_array_size(&array));
     chess_array_cleanup(&array);
 }
 
-static void test_carray_push()
+static void test_carray_push(void)
 {
     const int values[] = { 2, 3, 5, 7, 11, 13, 17, 19, 23, 29 };
     const int* value;
@@ -37,22 +37,22 @@ static void test_carray_push()
     chess_array_cleanup(&array);
 }
 
-static void test_carray_pop()
+static void test_carray_pop(void)
 {
     const double values[] = { 10.0, 5.0, 2.5, 1.25, 0.625 };
     double value;
     const size_t values_size = sizeof(values) / sizeof(double);
     int i;
     ChessArray array;
-    
+
     chess_array_init(&array, sizeof(double));
-    
+
     for (i = 0; i < values_size; i++)
     {
         chess_array_push(&array, &values[i]);
     }
     CU_ASSERT_EQUAL(values_size, chess_array_size(&array));
-    
+
     for (i = values_size - 1; i >= 0; i--)
     {
         chess_array_pop(&array, &value);
@@ -63,11 +63,11 @@ static void test_carray_pop()
     chess_array_cleanup(&array);
 }
 
-static void test_carray_clear()
+static void test_carray_clear(void)
 {
     const int values[] = { 1, 4, 9, 16, 25 };
     ChessArray array;
-    
+
     chess_array_init(&array, sizeof(int));
     chess_array_clear(&array);
     CU_ASSERT_EQUAL(0, chess_array_size(&array));
@@ -88,12 +88,12 @@ static void test_carray_clear()
     chess_array_cleanup(&array);
 }
 
-static void test_carray_set_elem()
+static void test_carray_set_elem(void)
 {
     const char values[] = "Rabbit";
     char value;
     ChessArray array;
-    
+
     chess_array_init(&array, sizeof(char));
     chess_array_push(&array, &values[0]);
     chess_array_push(&array, &values[1]);
@@ -115,7 +115,7 @@ static void test_carray_set_elem()
     value = 'z';
     chess_array_set_elem(&array, 6, &value);
     CU_ASSERT_NSTRING_EQUAL("Wabbidz", (const char*)chess_array_data(&array), 7);
-    
+
     value = '\0';
     chess_array_set_elem(&array, 3, &value);
     CU_ASSERT_STRING_EQUAL("Wab", (const char*)chess_array_data(&array));
@@ -123,7 +123,7 @@ static void test_carray_set_elem()
     chess_array_cleanup(&array);
 }
 
-void test_carray_add_tests()
+void test_carray_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("carray", NULL, NULL);
     CU_add_test(suite, "carray_init", (CU_TestFunc)test_carray_init);

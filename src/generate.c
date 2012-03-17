@@ -47,7 +47,7 @@ static int rook_dirs = DIR_N | DIR_E | DIR_S | DIR_W;
 static int bishop_dirs = DIR_NE | DIR_SE | DIR_SW | DIR_NW;
 static int queen_dirs = 0xff;
 
-void chess_generate_init()
+void chess_generate_init(void)
 {
     static int initialized = 0;
     ChessSquare sq;

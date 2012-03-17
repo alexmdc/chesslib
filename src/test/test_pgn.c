@@ -4,7 +4,7 @@
 
 #include "helpers.h"
 
-static void test_pgn_save()
+static void test_pgn_save(void)
 {
     const char game1[] =
         "[Event \"\"]\n"
@@ -76,7 +76,7 @@ static void test_pgn_save()
     chess_game_destroy(game);
 }
 
-static void test_pgn_load()
+static void test_pgn_load(void)
 {
     const char pgn[] =
     "[Event \"World Chess Championship 1886\"]\n"
@@ -109,7 +109,7 @@ static void test_pgn_load()
     chess_game_destroy(game);
 }
 
-static void test_pgn_load_subvariations()
+static void test_pgn_load_subvariations(void)
 {
     const char pgn1[] =
         "1. e4 (1. d4 Nf6) e5 *";
@@ -195,7 +195,7 @@ static void test_pgn_load_subvariations()
     chess_game_destroy(game);
 }
 
-void test_pgn_add_tests()
+void test_pgn_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("pgn", NULL, NULL);
     CU_add_test(suite, "pgn_save", (CU_TestFunc)test_pgn_save);

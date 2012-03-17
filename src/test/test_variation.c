@@ -4,7 +4,7 @@
 
 #include "helpers.h"
 
-static void test_new()
+static void test_new(void)
 {
     ChessVariation* root = chess_variation_new();
     CU_ASSERT_EQUAL(NULL, chess_variation_parent(root));
@@ -16,7 +16,7 @@ static void test_new()
     chess_variation_destroy(root);
 }
 
-static void test_length()
+static void test_length(void)
 {
     ChessVariation* root, *variation;
 
@@ -35,7 +35,7 @@ static void test_length()
     chess_variation_destroy(variation);
 }
 
-static void test_add_child()
+static void test_add_child(void)
 {
     ChessVariation* variation, *child, *child2;
     ChessVariation* root = chess_variation_new();
@@ -59,7 +59,7 @@ static void test_add_child()
     chess_variation_destroy(root);
 }
 
-static void test_add_sibling()
+static void test_add_sibling(void)
 {
     ChessVariation* variation, *sibling, *sibling2;
     ChessVariation* root = chess_variation_new();
@@ -87,7 +87,7 @@ static void test_add_sibling()
     chess_variation_destroy(root);
 }
 
-static void test_destroy()
+static void test_destroy(void)
 {
     ChessVariation* root, *variation, *child, *sibling;
 
@@ -121,7 +121,7 @@ static void test_destroy()
     chess_variation_destroy(root);
 }
 
-void test_variation_add_tests()
+void test_variation_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("variation", NULL, NULL);
     CU_add_test(suite, "new", (CU_TestFunc)test_new);

@@ -8,19 +8,19 @@
 
 #include "../generate.h"
 
-void test_chess_add_tests();
-void test_move_add_tests();
-void test_variation_add_tests();
-void test_print_add_tests();
-void test_position_add_tests();
-void test_generate_add_tests();
-void test_fen_add_tests();
-void test_unmove_add_tests();
-void test_game_add_tests();
-void test_pgn_add_tests();
-void test_cstring_add_tests();
-void test_carray_add_tests();
-void test_pgn_tokenizer_add_tests();
+void test_chess_add_tests(void);
+void test_move_add_tests(void);
+void test_variation_add_tests(void);
+void test_print_add_tests(void);
+void test_position_add_tests(void);
+void test_generate_add_tests(void);
+void test_fen_add_tests(void);
+void test_unmove_add_tests(void);
+void test_game_add_tests(void);
+void test_pgn_add_tests(void);
+void test_cstring_add_tests(void);
+void test_carray_add_tests(void);
+void test_pgn_tokenizer_add_tests(void);
 
 int main (int argc, const char* argv[])
 {

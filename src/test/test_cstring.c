@@ -2,7 +2,7 @@
 
 #include "../cstring.h"
 
-static void test_cstring_init()
+static void test_cstring_init(void)
 {
     ChessString string;
 
@@ -27,15 +27,15 @@ static void test_cstring_init()
     chess_string_cleanup(&string);
 }
 
-static void test_cstring_clear()
+static void test_cstring_clear(void)
 {
     ChessString string;
-    
+
     chess_string_init(&string);
     chess_string_clear(&string);
     CU_ASSERT_EQUAL(0, chess_string_size(&string));
     CU_ASSERT_STRING_EQUAL("", chess_string_data(&string));
-    
+
     chess_string_init_assign(&string, "Black");
     CU_ASSERT_EQUAL(5, chess_string_size(&string));
     CU_ASSERT_STRING_EQUAL("Black", chess_string_data(&string));
@@ -45,10 +45,10 @@ static void test_cstring_clear()
     chess_string_cleanup(&string);
 }
 
-static void test_cstring_assign()
+static void test_cstring_assign(void)
 {
     ChessString string;
-    
+
     chess_string_init(&string);
     chess_string_assign(&string, "Wilhelm Steinitz");
     CU_ASSERT_EQUAL(16, chess_string_size(&string));
@@ -64,7 +64,7 @@ static void test_cstring_assign()
     chess_string_cleanup(&string);
 }
 
-void test_cstring_add_tests()
+void test_cstring_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("cstring", NULL, NULL);
     CU_add_test(suite, "cstring_init", (CU_TestFunc)test_cstring_init);

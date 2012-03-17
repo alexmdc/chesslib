@@ -58,7 +58,7 @@ static void test_position_meta(const ChessPosition* position, ChessColor to_move
 #define TEST_POSITION_META(position, to_move, castle, ep, fifty, move_num) \
     test_position_meta(position, to_move, castle, ep, fifty, move_num, __FILE__, __LINE__)
 
-static void test_fen_load()
+static void test_fen_load(void)
 {
     const char* fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     const ChessPiece pieces[] = {
@@ -80,7 +80,7 @@ static void test_fen_load()
     chess_position_destroy(position);
 }
 
-static void test_fen_load2()
+static void test_fen_load2(void)
 {
     const char* fen = "8/2k5/8/8/8/8/5K2/8 b - - 10 50";
     const ChessPiece pieces[] = {
@@ -101,7 +101,7 @@ static void test_fen_load2()
     chess_position_destroy(position);
 }
 
-static void test_fen_save()
+static void test_fen_save(void)
 {
     char fen[100];
 
@@ -112,7 +112,7 @@ static void test_fen_save()
     chess_position_destroy(position);
 }
 
-static void test_fen_save2()
+static void test_fen_save2(void)
 {
     char fen[100];
 
@@ -125,7 +125,7 @@ static void test_fen_save2()
     chess_position_destroy(position);
 }
 
-static void test_fen_save3()
+static void test_fen_save3(void)
 {
     char fen[100];
 
@@ -138,7 +138,7 @@ static void test_fen_save3()
     chess_position_destroy(position);
 }
 
-void test_fen_add_tests()
+void test_fen_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("fen", NULL, NULL);
     CU_add_test(suite, "fen_load", (CU_TestFunc)test_fen_load);

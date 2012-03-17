@@ -4,7 +4,7 @@
 
 #include "helpers.h"
 
-static void test_game_new()
+static void test_game_new(void)
 {
     ChessPosition* start_position;
     ChessGame* game;
@@ -27,7 +27,7 @@ static void test_game_new()
     chess_game_destroy(game);
 }
 
-static void test_game_move()
+static void test_game_move(void)
 {
     ChessGame* game;
     ChessPosition* position;
@@ -60,7 +60,7 @@ static void test_game_move()
     chess_game_destroy(game);
 }
 
-static void test_game_result()
+static void test_game_result(void)
 {
     ChessGame* game;
 
@@ -115,7 +115,7 @@ static void test_game_result()
     chess_game_destroy(game);
 }
 
-static void test_game_set_result()
+static void test_game_set_result(void)
 {
     ChessGame* game;
 
@@ -149,7 +149,7 @@ static void test_game_set_result()
     chess_game_destroy(game);
 }
 
-static void test_game_tags()
+static void test_game_tags(void)
 {
     ChessGame* game = chess_game_new();
     chess_game_init(game);
@@ -188,7 +188,7 @@ static void test_game_tags()
     chess_game_destroy(game);
 }
 
-void test_game_add_tests()
+void test_game_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("game", NULL, NULL);
     CU_add_test(suite, "game_new", (CU_TestFunc)test_game_new);

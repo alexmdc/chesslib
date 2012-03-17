@@ -16,7 +16,7 @@ typedef struct
     ChessSquare wking, bking;
 } ChessPosition;
 
-ChessPosition* chess_position_new();
+ChessPosition* chess_position_new(void);
 ChessPosition* chess_position_clone(const ChessPosition*);
 void chess_position_destroy(ChessPosition*);
 

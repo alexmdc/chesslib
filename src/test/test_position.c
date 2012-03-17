@@ -5,10 +5,10 @@
 
 #include "helpers.h"
 
-static void test_position_init()
+static void test_position_init(void)
 {
     ChessPosition* position;
-    
+ 
     position = chess_position_new();
     chess_position_destroy(position);
 
@@ -32,7 +32,7 @@ static void test_position_init()
     chess_position_destroy(position);
 }
 
-static void test_position_make_move()
+static void test_position_make_move(void)
 {
     ChessPosition* position = chess_position_new();
     chess_position_init(position);
@@ -84,7 +84,7 @@ static void test_position_make_move()
     chess_position_destroy(position);
 }
 
-void test_position_check_result()
+void test_position_check_result(void)
 {
     ChessPosition* position = chess_position_new();
     chess_position_init(position);
@@ -111,7 +111,7 @@ void test_position_check_result()
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_position_check_result(position));
 }
 
-void test_position_add_tests()
+void test_position_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("position", NULL, NULL);
     CU_add_test(suite, "position_init", (CU_TestFunc)test_position_init);

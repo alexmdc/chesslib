@@ -4,7 +4,7 @@
 
 #include "helpers.h"
 
-static void test_empty()
+static void test_empty(void)
 {
     ChessPgnTokenizer* tokenizer;
     const ChessPgnToken* token;
@@ -20,7 +20,7 @@ static void test_empty()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_tag()
+static void test_tag(void)
 {
     const char tag[] = "[Event \"AUS Champs\"]\n";
     ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(tag);
@@ -46,7 +46,7 @@ static void test_tag()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_movetext()
+static void test_movetext(void)
 {
     const char text[] = "1. e4 e5 2. f4 1-0";
     ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(text);
@@ -80,7 +80,7 @@ static void test_movetext()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_black_movenum()
+static void test_black_movenum(void)
 {
     const char text[] = "13... O-O 14. Rd1";
     ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(text);
@@ -113,7 +113,7 @@ static void test_black_movenum()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_nag()
+static void test_nag(void)
 {
     const char text[] = "7. Bg5 $2 h6 $3 $17";
     ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(text);
@@ -146,7 +146,7 @@ static void test_nag()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_comment()
+static void test_comment(void)
 {
     const char text[] = "1. e4 {A strong move} e6 {The French Defence}";
     ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(text);
@@ -176,7 +176,7 @@ static void test_comment()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-static void test_error()
+static void test_error(void)
 {
     ChessPgnTokenizer* tokenizer;
     const ChessPgnToken* token;
@@ -211,7 +211,7 @@ static void test_error()
     chess_pgn_tokenizer_destroy(tokenizer);
 }
 
-void test_pgn_tokenizer_add_tests()
+void test_pgn_tokenizer_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("pgn-tokenizer", NULL, NULL);
     CU_add_test(suite, "empty", (CU_TestFunc)test_empty);

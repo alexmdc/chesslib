@@ -26,7 +26,7 @@ struct ChessGame
     ChessArray unmoves;
 };
 
-ChessGame* chess_game_new()
+ChessGame* chess_game_new(void)
 {
     ChessGame* game = malloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));

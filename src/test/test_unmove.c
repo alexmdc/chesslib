@@ -2,7 +2,7 @@
 
 #include "../unmove.h"
 
-static void test_unmove_make()
+static void test_unmove_make(void)
 {
     ChessUnmove unmove;
 
@@ -62,7 +62,7 @@ static void test_unmove_make()
     CU_ASSERT_EQUAL(255, chess_unmove_fifty(unmove));
 }
 
-void test_unmove_add_tests()
+void test_unmove_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("unmove", NULL, NULL);
     CU_add_test(suite, "unmove_make", (CU_TestFunc)test_unmove_make);

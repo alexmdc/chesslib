@@ -2,7 +2,7 @@
 
 #include "../move.h"
 
-static void test_move_promote_to_char()
+static void test_move_promote_to_char(void)
 {
     CU_ASSERT_EQUAL('n', chess_move_promote_to_char(CHESS_MOVE_PROMOTE_KNIGHT));
     CU_ASSERT_EQUAL('b', chess_move_promote_to_char(CHESS_MOVE_PROMOTE_BISHOP));
@@ -10,7 +10,7 @@ static void test_move_promote_to_char()
     CU_ASSERT_EQUAL('q', chess_move_promote_to_char(CHESS_MOVE_PROMOTE_QUEEN));
 }
 
-static void test_move_promote_from_char()
+static void test_move_promote_from_char(void)
 {
     CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_KNIGHT, chess_move_promote_from_char('n'));
     CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_BISHOP, chess_move_promote_from_char('b'));
@@ -20,7 +20,7 @@ static void test_move_promote_from_char()
     CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_NONE, chess_move_promote_from_char('k'));
 }
 
-static void test_move_make()
+static void test_move_make(void)
 {
     ChessMove move;
 
@@ -40,7 +40,7 @@ static void test_move_make()
     CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_KNIGHT, chess_move_promotes(move));
 }
 
-void test_move_add_tests()
+void test_move_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("move", NULL, NULL);
     CU_add_test(suite, "move_promote_to_char", (CU_TestFunc)test_move_promote_to_char);

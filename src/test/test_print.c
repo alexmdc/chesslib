@@ -5,7 +5,7 @@
 
 #include "helpers.h"
 
-static void test_print_move()
+static void test_print_move(void)
 {
     char buf[10];
 
@@ -16,7 +16,7 @@ static void test_print_move()
     CU_ASSERT_STRING_EQUAL("g8f6", buf);
 }
 
-static void test_print_move_san()
+static void test_print_move_san(void)
 {
     char buf[10];
     ChessPosition* position = chess_position_new();
@@ -64,7 +64,7 @@ static void test_print_move_san()
     chess_position_destroy(position);
 }
 
-static void test_print_game_moves()
+static void test_print_game_moves(void)
 {
     ChessGame* game;
     ChessPosition* position;
@@ -99,7 +99,7 @@ static void test_print_game_moves()
     chess_game_destroy(game);
 }
 
-static void test_print_result()
+static void test_print_result(void)
 {
     char buf[10];
 
@@ -113,7 +113,7 @@ static void test_print_result()
     CU_ASSERT_STRING_EQUAL("*", buf);
 }
 
-void test_print_add_tests()
+void test_print_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("print", NULL, NULL);
     CU_add_test(suite, "print_move", (CU_TestFunc)test_print_move);

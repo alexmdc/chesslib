@@ -7,7 +7,7 @@
 
 typedef struct ChessGame ChessGame;
 
-ChessGame* chess_game_new();
+ChessGame* chess_game_new(void);
 void chess_game_destroy(ChessGame*);
 
 void chess_game_init(ChessGame*);

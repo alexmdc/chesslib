@@ -8,7 +8,7 @@
 #include "fen.h"
 #include "carray.h"
 
-ChessPosition* chess_position_new()
+ChessPosition* chess_position_new(void)
 {
     ChessPosition* position = malloc(sizeof(ChessPosition));
     memset(position, 0, sizeof(ChessPosition));

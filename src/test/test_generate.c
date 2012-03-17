@@ -5,13 +5,13 @@
 
 #include "helpers.h"
 
-static int initialize()
+static int initialize(void)
 {
     chess_generate_init();
     return 0;
 }
 
-static void test_generate_moves()
+static void test_generate_moves(void)
 {
     ChessMove expected_moves[] = {
         MV(A2,A3), MV(A2,A4),
@@ -38,7 +38,7 @@ static void test_generate_moves()
     chess_position_destroy(position);
 }
 
-static void test_generate_moves2()
+static void test_generate_moves2(void)
 {
     ChessMove expected_moves[] = {
         MV(A2,A3), MV(A2,A4),
@@ -67,7 +67,7 @@ static void test_generate_moves2()
     chess_position_destroy(position);
 }
 
-static void test_generate_moves3()
+static void test_generate_moves3(void)
 {
     ChessMove expected_moves[] = {
         MV(A7,A6), MV(A7,A5),
@@ -97,7 +97,7 @@ static void test_generate_moves3()
     chess_position_destroy(position);
 }
 
-static void test_generate_moves4()
+static void test_generate_moves4(void)
 {
     ChessMove expected_moves[] = {
         MV(A2,A3), MV(A2,A4),
@@ -127,7 +127,7 @@ static void test_generate_moves4()
     chess_position_destroy(position);
 }
 
-static void test_generate_moves5()
+static void test_generate_moves5(void)
 {
     ChessMove expected_moves[] = {
         MV(A7,A6),
@@ -156,7 +156,7 @@ static void test_generate_moves5()
     chess_position_destroy(position);
 }
 
-static void test_generate_moves6()
+static void test_generate_moves6(void)
 {
     ChessMove expected_moves[] = {
         MV(A7,A6), MV(A7,A5),
@@ -186,7 +186,7 @@ static void test_generate_moves6()
     chess_position_destroy(position);
 }
 
-void test_generate_add_tests()
+void test_generate_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("generate", (CU_InitializeFunc)initialize, NULL);
     CU_add_test(suite, "generate_moves", (CU_TestFunc)test_generate_moves);
