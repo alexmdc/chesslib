@@ -132,7 +132,8 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
     ChessUnmove unmove;
     ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
     ChessPosition* current_position = chess_position_clone(position);
-    ChessVariation* current_variation = NULL, *subvariation;
+    ChessVariation* current_variation = chess_variation_new();
+    ChessVariation* subvariation;
 
     while (result == CHESS_PGN_LOAD_OK)
     {

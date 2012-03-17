@@ -17,13 +17,18 @@ struct ChessVariation
     struct ChessVariation* right;
 };
 
-ChessVariation* chess_variation_new(ChessMove move)
+ChessVariation* chess_variation_new(void)
 {
     ChessVariation* variation = malloc(sizeof(ChessVariation));
     memset(variation, 0, sizeof(ChessVariation));
-    variation->move = move;
     chess_string_init(&variation->comment);
     return variation;
+}
+
+static void free_node(ChessVariation* node)
+{
+    chess_string_cleanup(&node->comment);
+    free(node);
 }
 
 void chess_variation_destroy(ChessVariation* variation)
@@ -31,6 +36,7 @@ void chess_variation_destroy(ChessVariation* variation)
     ChessVariation* child = NULL;
     ChessVariation* next = variation;
 
+    assert(variation != NULL);
     while (child != variation)
     {
         child = next;
@@ -51,9 +57,14 @@ void chess_variation_destroy(ChessVariation* variation)
             next->first_child = NULL;
         }
 
-        chess_string_cleanup(&child->comment);
-        free(child);
+        free_node(child);
     }
+}
+
+ChessBoolean chess_variation_is_root(const ChessVariation* variation)
+{
+    assert(variation != NULL);
+    return variation->parent == NULL;
 }
 
 ChessMove chess_variation_move(const ChessVariation* variation)
@@ -96,7 +107,8 @@ size_t chess_variation_length(const ChessVariation* variation)
 {
     size_t length = 0;
 
-    for (; variation; variation = variation->first_child)
+    assert(variation != NULL);
+    while ((variation = variation->first_child))
         length++;
 
     return length;
@@ -104,41 +116,41 @@ size_t chess_variation_length(const ChessVariation* variation)
 
 ChessVariation* chess_variation_ply(ChessVariation* variation, size_t ply)
 {
-    for (; ply > 0 && variation; ply--)
-        variation = variation->first_child;
+    assert(chess_variation_is_root(variation));
+
+    while ((variation = variation->first_child) && ply > 0)
+        ply--;
     return variation;
+}
+
+static ChessVariation* chess_variation_add_sibling(ChessVariation* variation, ChessMove move)
+{
+    ChessVariation* sibling;
+
+    while (variation->right)
+        variation = variation->right;
+
+    sibling = chess_variation_new();
+    sibling->move = move;
+    variation->right = sibling;
+    sibling->left = variation;
+    sibling->parent = variation->parent;
+    return sibling;
 }
 
 ChessVariation* chess_variation_add_child(ChessVariation* variation, ChessMove move)
 {
     ChessVariation* child;
 
-    if (variation == NULL)
-        return chess_variation_new(move);
-
+    assert(variation != NULL);
     if (variation->first_child)
         return chess_variation_add_sibling(variation->first_child, move);
 
-    child = chess_variation_new(move);
+    child = chess_variation_new();
+    child->move = move;
     variation->first_child = child;
     child->parent = variation;
     return child;
-}
-
-ChessVariation* chess_variation_add_sibling(ChessVariation* variation, ChessMove move)
-{
-    ChessVariation* sibling;
-
-    assert(variation != NULL);
-
-    while (variation->right)
-        variation = variation->right;
-
-    sibling = chess_variation_new(move);
-    variation->right = sibling;
-    sibling->left = variation;
-    sibling->parent = variation->parent;
-    return sibling;
 }
 
 void chess_variation_attach_subvariation(ChessVariation* variation, ChessVariation* subvariation)
@@ -150,7 +162,18 @@ void chess_variation_attach_subvariation(ChessVariation* variation, ChessVariati
     while (variation->right != NULL)
         variation = variation->right;
 
-    variation->right = subvariation;
-    subvariation->left = variation;
-    subvariation->parent = variation->parent;
+    ChessVariation* child = subvariation->first_child;
+    variation->right = child;
+    if (child != NULL)
+    {
+        child->left = variation;
+        child->parent = variation->parent;
+    }
+}
+
+void chess_variation_truncate(ChessVariation* variation)
+{
+    assert(variation != NULL);
+    if (variation->first_child)
+        chess_variation_destroy(variation->first_child);
 }

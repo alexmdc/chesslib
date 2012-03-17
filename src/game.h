@@ -12,7 +12,8 @@ void chess_game_destroy(ChessGame*);
 
 const ChessPosition* chess_game_position(const ChessGame*);
 const ChessPosition* chess_game_initial_position(const ChessGame*);
-ChessVariation* chess_game_variation(const ChessGame*);
+ChessVariation* chess_game_root_variation(const ChessGame*);
+ChessVariation* chess_game_current_variation(const ChessGame*);
 size_t chess_game_ply(const ChessGame*);
 ChessMove chess_game_move(const ChessGame*, size_t ply);
 
@@ -38,6 +39,6 @@ void chess_game_undo_move(ChessGame*);
 
 void chess_game_reset(ChessGame*);
 void chess_game_reset_position(ChessGame*, const ChessPosition*);
-void chess_game_set_variation(ChessGame*, ChessVariation*);
+void chess_game_set_root_variation(ChessGame*, ChessVariation*);
 
 #endif /* CHESSLIB_GAME_H_ */

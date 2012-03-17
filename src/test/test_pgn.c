@@ -128,7 +128,8 @@ static void test_pgn_load_subvariations()
     result = chess_pgn_load(pgn1, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
-    variation = chess_game_variation(game);
+    variation = chess_game_root_variation(game);
+    variation = chess_variation_first_child(variation);
     CU_ASSERT_EQUAL(MV(E2,E4), chess_variation_move(variation));
 
     subvariation = chess_variation_right(variation);
@@ -148,7 +149,8 @@ static void test_pgn_load_subvariations()
     result = chess_pgn_load(pgn2, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
-    variation = chess_game_variation(game);
+    variation = chess_game_root_variation(game);
+    variation = chess_variation_first_child(variation);
     CU_ASSERT_EQUAL(MV(D2,D4), chess_variation_move(variation));
     variation = chess_variation_first_child(variation);
     CU_ASSERT_EQUAL(MV(D7,D5), chess_variation_move(variation));
@@ -173,7 +175,8 @@ static void test_pgn_load_subvariations()
     result = chess_pgn_load(pgn3, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
-    variation = chess_game_variation(game);
+    variation = chess_game_root_variation(game);
+    variation = chess_variation_first_child(variation);
     CU_ASSERT_EQUAL(MV(C2,C4), chess_variation_move(variation));
     variation = chess_variation_first_child(variation);
     CU_ASSERT_EQUAL(MV(E7,E5), chess_variation_move(variation));

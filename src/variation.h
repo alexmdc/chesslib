@@ -6,9 +6,10 @@
 
 typedef struct ChessVariation ChessVariation;
 
-ChessVariation* chess_variation_new(ChessMove move);
+ChessVariation* chess_variation_new(void);
 void chess_variation_destroy(ChessVariation*);
 
+ChessBoolean chess_variation_is_root(const ChessVariation*);
 ChessMove chess_variation_move(const ChessVariation*);
 ChessString* chess_variation_comment(ChessVariation*);
 ChessVariation* chess_variation_parent(ChessVariation*);
@@ -20,7 +21,7 @@ size_t chess_variation_length(const ChessVariation*);
 ChessVariation* chess_variation_ply(ChessVariation*, size_t ply);
 
 ChessVariation* chess_variation_add_child(ChessVariation*, ChessMove);
-ChessVariation* chess_variation_add_sibling(ChessVariation*, ChessMove);
 void chess_variation_attach_subvariation(ChessVariation*, ChessVariation*);
+void chess_variation_truncate(ChessVariation*);
 
 #endif /* CHESSLIB_VARIATION_H_ */
