@@ -8,11 +8,10 @@
 
 struct ChessGame
 {
-    const ChessPosition* initial;
-    ChessPosition* position;
+    ChessPosition* initial_position;
     ChessVariation* root_variation;
-    ChessVariation* current_variation;
-    ChessArray unmoves;
+
+    /* PGN tags */
     ChessString event;
     ChessString site;
     ChessString date;
@@ -20,58 +19,89 @@ struct ChessGame
     ChessString white;
     ChessString black;
     ChessResult result;
-    ChessString result_text;
+
+    /* For iterating */
+    ChessPosition* current_position;
+    ChessVariation* current_variation;
+    ChessArray unmoves;
 };
 
 ChessGame* chess_game_new()
 {
     ChessGame* game = malloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
-    chess_array_init(&game->unmoves, sizeof(ChessUnmove));
+
+    game->initial_position = chess_position_new();
+    game->root_variation = chess_variation_new();
+
     chess_string_init(&game->event);
     chess_string_init(&game->site);
     chess_string_init(&game->date);
     chess_string_init(&game->white);
     chess_string_init(&game->black);
-    chess_string_init(&game->result_text);
+
+    game->current_position = chess_position_new();
+    game->current_variation = game->root_variation;
+    chess_array_init(&game->unmoves, sizeof(ChessUnmove));
     return game;
 };
 
 void chess_game_destroy(ChessGame* game)
 {
-    if (game->initial)
-        chess_position_destroy((ChessPosition*)game->initial);
-    if (game->position)
-        chess_position_destroy(game->position);
-    if (game->root_variation)
-        chess_variation_destroy(game->root_variation);
+    chess_position_destroy(game->initial_position);
+    chess_variation_destroy(game->root_variation);
+
     chess_string_cleanup(&game->event);
     chess_string_cleanup(&game->site);
     chess_string_cleanup(&game->date);
     chess_string_cleanup(&game->white);
     chess_string_cleanup(&game->black);
-    chess_string_cleanup(&game->result_text);
+
+    chess_position_destroy(game->current_position);
+    chess_array_cleanup(&game->unmoves);
     free(game);
 };
 
-const ChessPosition* chess_game_position(const ChessGame* game)
+void chess_game_init(ChessGame* game)
 {
-    return game->position;
+    ChessPosition* start = chess_position_new();
+    chess_position_init(start);
+    chess_game_init_position(game, start);
+    chess_position_destroy(start);
+}
+
+void chess_game_init_position(ChessGame* game, const ChessPosition* position)
+{
+    chess_position_copy(position, game->initial_position);
+    chess_variation_truncate(game->root_variation);
+
+    game->result = chess_position_check_result(position);
+    game->round = 0;
+    chess_string_clear(&game->event);
+    chess_string_clear(&game->site);
+    chess_string_clear(&game->date);
+    chess_string_clear(&game->white);
+    chess_string_clear(&game->black);
+
+    chess_game_reset_to_start(game);
+}
+
+void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
+{
+    assert(chess_variation_is_root(variation));
+    chess_variation_truncate(game->root_variation);
+    chess_variation_attach_subvariation(game->root_variation, variation);
+    game->current_variation = game->root_variation;
 }
 
 const ChessPosition* chess_game_initial_position(const ChessGame* game)
 {
-    return game->initial;
+    return game->initial_position;
 }
 
 ChessVariation* chess_game_root_variation(const ChessGame* game)
 {
     return game->root_variation;
-}
-
-ChessVariation* chess_game_current_variation(const ChessGame* game)
-{
-    return game->current_variation;
 }
 
 size_t chess_game_ply(const ChessGame* game)
@@ -80,7 +110,7 @@ size_t chess_game_ply(const ChessGame* game)
     return chess_variation_length(game->root_variation);
 }
 
-ChessMove chess_game_move(const ChessGame* game, size_t ply)
+ChessMove chess_game_move_at_ply(const ChessGame* game, size_t ply)
 {
     ChessVariation* variation = chess_variation_ply(game->root_variation, ply);
     return chess_variation_move(variation);
@@ -121,11 +151,6 @@ ChessResult chess_game_result(const ChessGame* game)
     return (game->result == CHESS_RESULT_NONE) ? CHESS_RESULT_IN_PROGRESS : game->result;
 }
 
-const char* chess_game_result_text(const ChessGame* game)
-{
-    return chess_string_data(&game->result_text);
-}
-
 void chess_game_set_event(ChessGame* game, const char* value)
 {
     chess_string_assign(&game->event, value);
@@ -158,69 +183,72 @@ void chess_game_set_black(ChessGame* game, const char* value)
 
 void chess_game_set_result(ChessGame* game, ChessResult result)
 {
-    ChessResult boardResult = chess_position_check_result(game->position);
+    ChessResult boardResult = chess_position_check_result(game->current_position);
     if (boardResult != CHESS_RESULT_NONE)
         return;
 
     game->result = result;
 }
 
-void chess_game_reset(ChessGame* game)
+const ChessPosition* chess_game_current_position(const ChessGame* game)
 {
-    ChessPosition* start = chess_position_new();
-    chess_position_init(start);
-    chess_game_reset_position(game, start);
-    chess_position_destroy(start);
+    return game->current_position;
 }
 
-void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
+ChessVariation* chess_game_current_variation(const ChessGame* game)
 {
-    if (game->initial)
-        chess_position_destroy((ChessPosition*)game->initial);
-    if (game->position)
-        chess_position_destroy(game->position);
-    game->initial = chess_position_clone(position);
-    game->position = chess_position_clone(position);
-    if (game->root_variation)
-        chess_variation_destroy(game->root_variation);
-    game->root_variation = chess_variation_new();
-    game->current_variation = game->root_variation;
-    game->result = chess_position_check_result(position);
-    game->round = 0;
-    chess_string_clear(&game->event);
-    chess_string_clear(&game->site);
-    chess_string_clear(&game->date);
-    chess_string_clear(&game->white);
-    chess_string_clear(&game->black);
-    chess_string_clear(&game->result_text);
+    return game->current_variation;
 }
 
-void chess_game_set_variation(ChessGame* game, ChessVariation* variation)
+ChessMove chess_game_current_move(const ChessGame* game)
 {
-    assert(chess_variation_parent(variation) == NULL);
-    assert(chess_variation_left(variation) == NULL);
-    chess_variation_destroy(game->root_variation);
-    game->root_variation = variation;
-    game->current_variation = game->root_variation;
+    assert(!chess_variation_is_root(game->current_variation));
+    return chess_variation_move(game->current_variation);
 }
 
-void chess_game_make_move(ChessGame* game, ChessMove move)
+static void advance_current_position(ChessGame* game, ChessMove move)
 {
-    ChessUnmove unmove = chess_position_make_move(game->position, move);
+    ChessUnmove unmove = chess_position_make_move(game->current_position, move);
     chess_array_push(&game->unmoves, &unmove);
-    game->result = chess_position_check_result(game->position);
+    game->result = chess_position_check_result(game->current_position);
+}
+
+static void retreat_current_position(ChessGame* game)
+{
+    ChessUnmove unmove;
+    chess_array_pop(&game->unmoves, &unmove);
+    chess_position_undo_move(game->current_position, unmove);
+    game->result = CHESS_RESULT_NONE;
+}
+
+void chess_game_append_move(ChessGame* game, ChessMove move)
+{
+    advance_current_position(game, move);
     game->current_variation = chess_variation_add_child(game->current_variation, move);
 }
 
-void chess_game_undo_move(ChessGame* game)
+void chess_game_truncate_moves(ChessGame* game)
 {
-    ChessVariation* variation;
-    ChessUnmove unmove;
-    chess_array_pop(&game->unmoves, &unmove);
-    chess_position_undo_move(game->position, unmove);
-    game->result = CHESS_RESULT_NONE;
+    chess_variation_truncate(game->current_variation);
+}
 
-    variation = game->current_variation;
-    game->current_variation = chess_variation_parent(variation);
-    chess_variation_destroy(variation);
+void chess_game_step_forward(ChessGame* game)
+{
+    ChessVariation* next = chess_variation_first_child(game->current_variation);
+    assert(next != NULL);
+    advance_current_position(game, chess_variation_move(next));
+}
+
+void chess_game_step_back(ChessGame* game)
+{
+    assert(!chess_variation_is_root(game->current_variation));
+    game->current_variation = chess_variation_parent(game->current_variation);
+    retreat_current_position(game);
+}
+
+void chess_game_reset_to_start(ChessGame* game)
+{
+    chess_position_copy(game->initial_position, game->current_position);
+    game->current_variation = game->root_variation;
+    chess_array_clear(&game->unmoves);
 }

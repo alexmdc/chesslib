@@ -155,20 +155,35 @@ ChessVariation* chess_variation_add_child(ChessVariation* variation, ChessMove m
 
 void chess_variation_attach_subvariation(ChessVariation* variation, ChessVariation* subvariation)
 {
+    ChessVariation* child, *attach_point;
     assert(variation != NULL);
-    assert(subvariation->parent == NULL);
-    assert(subvariation->left == NULL);
+    assert(chess_variation_is_root(subvariation));
 
-    while (variation->right != NULL)
-        variation = variation->right;
+    attach_point = subvariation->first_child;
+    free_node(subvariation);
 
-    ChessVariation* child = subvariation->first_child;
-    variation->right = child;
-    if (child != NULL)
+    if (attach_point == NULL)
     {
-        child->left = variation;
-        child->parent = variation->parent;
+        /* Nothing to do */
+        return;
     }
+
+    attach_point->parent = variation;
+
+    child = variation->first_child;
+    if (child == NULL)
+    {
+        /* Attach directly under variation */
+        variation->first_child = attach_point;
+        return;
+    }
+
+    /* Attach to the right of existing child */
+    while (child->right != NULL)
+        child = child->right;
+
+    child->right = attach_point;
+    attach_point->left = child;
 }
 
 void chess_variation_truncate(ChessVariation* variation)

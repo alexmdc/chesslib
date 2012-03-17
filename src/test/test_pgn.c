@@ -56,11 +56,11 @@ static void test_pgn_save()
     int i;
 
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     chess_pgn_save(game, buf);
     CU_ASSERT_STRING_EQUAL(game1, buf);
 
-    chess_game_reset(game);
+    chess_game_init(game);
     chess_game_set_event(game, "World Chess Championship 1886");
     chess_game_set_site(game, "New Orleans, USA");
     chess_game_set_date(game, "1886.01.21");
@@ -68,7 +68,7 @@ static void test_pgn_save()
     chess_game_set_white(game, "Steinitz, Wilhelm");
     chess_game_set_black(game, "Zukertort, Johannes");
     for (i = 0; i < sizeof(game2_moves) / sizeof(ChessMove); i++)
-        chess_game_make_move(game, game2_moves[i]);
+        chess_game_append_move(game, game2_moves[i]);
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     chess_pgn_save(game, buf);
     CU_ASSERT_STRING_EQUAL(game2, buf);
@@ -93,7 +93,7 @@ static void test_pgn_load()
     " 17. Rxh6 gxh6 18. Nxf6+ Kf8 19. Nxg4 1-0\n";
 
     ChessGame* game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     ChessPgnLoadResult result = chess_pgn_load(pgn, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
@@ -124,7 +124,7 @@ static void test_pgn_load_subvariations()
 
     /* Test 1 */
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     result = chess_pgn_load(pgn1, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
@@ -145,7 +145,7 @@ static void test_pgn_load_subvariations()
 
     /* Test 2 */
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     result = chess_pgn_load(pgn2, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 
@@ -171,7 +171,7 @@ static void test_pgn_load_subvariations()
 
     /* Test 3 */
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     result = chess_pgn_load(pgn3, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
 

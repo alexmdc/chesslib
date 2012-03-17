@@ -183,7 +183,8 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                 }
 
                 chess_pgn_tokenizer_next(tokenizer); /* R_PARENTHESIS */
-                chess_variation_attach_subvariation(current_variation, subvariation);
+                chess_variation_attach_subvariation(
+                    chess_variation_parent(current_variation), subvariation);
                 break;
             default:
                 /* Stop parsing on unexpected token */
@@ -265,7 +266,7 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
                 result = parse_movetext(tokenizer, &variation, &game_result);
                 if (result == CHESS_PGN_LOAD_OK)
                 {
-                    chess_game_set_variation(game, variation);
+                    chess_game_set_root_variation(game, variation);
                     chess_game_set_result(game, game_result);
                 }
                 return result;

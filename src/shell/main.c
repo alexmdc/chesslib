@@ -60,7 +60,7 @@ static ChessBoolean parse_line(char* s, char** cmd, char** args)
 
 static void list_moves(const ChessGame* game)
 {
-    const ChessPosition* position = chess_game_position(game);
+    const ChessPosition* position = chess_game_current_position(game);
     ChessArray moves;
     char buf[1024];
     int i;
@@ -85,7 +85,7 @@ static void game_moves(const ChessGame* game)
 
 static void print_board(const ChessGame* game)
 {
-    const ChessPosition* position = chess_game_position(game);
+    const ChessPosition* position = chess_game_current_position(game);
     char buf[1024];
     chess_print_position(position, buf);
     fputs(buf, stdout);
@@ -95,7 +95,7 @@ static void load_fen(ChessGame* game, const char* fen)
 {
     ChessPosition* position = chess_position_new();
     chess_fen_load(fen, position);
-    chess_game_reset_position(game, position);
+    chess_game_init_position(game, position);
     print_board(game);
     chess_position_destroy(position);
 }
@@ -115,14 +115,14 @@ static void undo_move(ChessGame* game)
     }
     else
     {
-        chess_game_undo_move(game);
+        chess_game_step_back(game);
         print_board(game);
     }
 }
 
 static void handle_move(ChessGame* game, const char* cmd)
 {
-    const ChessPosition* position = chess_game_position(game);
+    const ChessPosition* position = chess_game_current_position(game);
     ChessMove move = 0;
     ChessParseResult result = chess_parse_move(cmd, position, &move);
     char buf[10];
@@ -144,7 +144,7 @@ static void handle_move(ChessGame* game, const char* cmd)
         chess_print_move_san(move, position, buf);
         puts(buf);
 
-        chess_game_make_move(game, move);
+        chess_game_append_move(game, move);
         print_board(game);
 
         ChessResult result = chess_game_result(game);
@@ -263,7 +263,7 @@ int main (int argc, const char* argv[])
     chess_generate_init();
 
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     print_board(game);
 
     line = 0;
@@ -286,7 +286,7 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "new"))
         {
-            chess_game_reset(game);
+            chess_game_init(game);
             print_board(game);
         }
         else if (!strcmp(cmd, "fen"))

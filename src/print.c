@@ -100,7 +100,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
             if (chess_square_rank(sq) == rank)
                 rank_ambiguous = CHESS_TRUE;
         }
-        
+
         chess_array_cleanup(&moves);
 
         if (piece_ambiguous)
@@ -212,8 +212,8 @@ int chess_print_game_moves(const ChessGame* game, char *s)
     {
         if (chess_position_to_move(position) == CHESS_COLOR_WHITE)
             n += sprintf(s + n, "%d. ", chess_position_move_num(position));
-        
-        move = chess_game_move(game, i);
+
+        move = chess_game_move_at_ply(game, i);
         n += chess_print_move_san(move, position, s + n);
         s[n++] = ' ';
         chess_position_make_move(position, move);

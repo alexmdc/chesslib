@@ -71,13 +71,13 @@ static void test_print_game_moves()
     char buf[1024];
 
     game = chess_game_new();
-    chess_game_reset(game);
+    chess_game_init(game);
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL("*", buf);
 
-    chess_game_make_move(game, MV(G1,F3));
-    chess_game_make_move(game, MV(D7,D5));
-    chess_game_make_move(game, MV(C2,C4));
+    chess_game_append_move(game, MV(G1,F3));
+    chess_game_append_move(game, MV(D7,D5));
+    chess_game_append_move(game, MV(C2,C4));
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL("1. Nf3 d5 2. c4 *", buf);
 
@@ -87,10 +87,10 @@ static void test_print_game_moves()
 
     position = chess_position_new();
     chess_fen_load("5k2/3b2p1/1p4qp/p1pPp1pn/P1P1P3/2PQ4/6PP/3BB1K1 b - - 1 26", position);
-    chess_game_reset_position(game, position);
-    chess_game_make_move(game, MV(H5,F4));
-    chess_game_make_move(game, MV(D3,C2));
-    chess_game_make_move(game, MV(D7,A4));
+    chess_game_init_position(game, position);
+    chess_game_append_move(game, MV(H5,F4));
+    chess_game_append_move(game, MV(D3,C2));
+    chess_game_append_move(game, MV(D7,A4));
     chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
     chess_print_game_moves(game, buf);
     CU_ASSERT_STRING_EQUAL(buf, "26... Nf4 27. Qc2 Bxa4 0-1");
