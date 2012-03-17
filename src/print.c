@@ -41,7 +41,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessSquare sq;
     ChessFile file;
     ChessRank rank;
-    ChessPosition* position_copy;
+    ChessPosition temp_position;
     int n = 0, i;
 
     assert(piece != CHESS_PIECE_NONE);
@@ -135,19 +135,17 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     }
 
     /* Add check or mate symbol */
-    position_copy = chess_position_clone(position);
-    chess_position_make_move(position_copy, move);
-    if (chess_position_is_check(position_copy))
+    chess_position_copy(position, &temp_position);
+    chess_position_make_move(&temp_position, move);
+    if (chess_position_is_check(&temp_position))
     {
-        if (chess_position_check_result(position_copy) == CHESS_RESULT_NONE)
+        if (chess_position_check_result(&temp_position) == CHESS_RESULT_NONE)
             s[n++] = '+';
         else
             s[n++] = '#';
     }
-    chess_position_destroy(position_copy);
 
     s[n] = 0;
-
     return n;
 }
 

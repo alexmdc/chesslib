@@ -8,17 +8,6 @@
 #include "fen.h"
 #include "carray.h"
 
-struct ChessPosition
-{
-    ChessPiece piece[64];
-    ChessColor to_move;
-    ChessCastleState castle;
-    ChessFile ep;
-    int fifty;
-    int move_num;
-    ChessSquare wking, bking;
-};
-
 ChessPosition* chess_position_new()
 {
     ChessPosition* position = malloc(sizeof(ChessPosition));
@@ -26,17 +15,6 @@ ChessPosition* chess_position_new()
     position->move_num = 1;
     position->ep = CHESS_FILE_INVALID;
     return position;
-};
-
-void chess_position_destroy(ChessPosition* position)
-{
-    assert(position != NULL);
-    free(position);
-};
-
-void chess_position_copy(const ChessPosition* from, ChessPosition* to)
-{
-    memcpy(to, from, sizeof(ChessPosition));
 }
 
 ChessPosition* chess_position_clone(const ChessPosition* position)
@@ -44,6 +22,23 @@ ChessPosition* chess_position_clone(const ChessPosition* position)
     ChessPosition* clone = chess_position_new();
     memcpy(clone, position, sizeof(ChessPosition));
     return clone;
+}
+
+void chess_position_destroy(ChessPosition* position)
+{
+    assert(position != NULL);
+    free(position);
+}
+
+void chess_position_init(ChessPosition* position)
+{
+    memset(position, 0, sizeof(ChessPosition));
+    chess_fen_load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", position);
+}
+
+void chess_position_copy(const ChessPosition* from, ChessPosition* to)
+{
+    memcpy(to, from, sizeof(ChessPosition));
 }
 
 ChessPiece chess_position_piece(const ChessPosition* position, ChessSquare square)
@@ -170,12 +165,6 @@ ChessResult chess_position_check_result(const ChessPosition* position)
     return (position->to_move == CHESS_COLOR_WHITE) ?
         CHESS_RESULT_BLACK_WINS : CHESS_RESULT_WHITE_WINS;
 }
-
-void chess_position_init(ChessPosition* position)
-{
-    memset(position, 0, sizeof(ChessPosition));
-    chess_fen_load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", position);
-};
 
 static ChessUnmoveCaptured capture_piece(ChessPiece piece)
 {

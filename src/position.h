@@ -5,12 +5,23 @@
 #include "move.h"
 #include "unmove.h"
 
-typedef struct ChessPosition ChessPosition;
+typedef struct
+{
+    ChessPiece piece[64];
+    ChessColor to_move;
+    ChessCastleState castle;
+    ChessFile ep;
+    int fifty;
+    int move_num;
+    ChessSquare wking, bking;
+} ChessPosition;
 
 ChessPosition* chess_position_new();
-void chess_position_destroy(ChessPosition*);
-void chess_position_copy(const ChessPosition* from, ChessPosition* to);
 ChessPosition* chess_position_clone(const ChessPosition*);
+void chess_position_destroy(ChessPosition*);
+
+void chess_position_init(ChessPosition*);
+void chess_position_copy(const ChessPosition* from, ChessPosition* to);
 
 ChessPiece chess_position_piece(const ChessPosition*, ChessSquare);
 ChessColor chess_position_to_move(const ChessPosition*);
@@ -30,8 +41,6 @@ ChessBoolean chess_position_is_check(const ChessPosition*);
 ChessBoolean chess_position_move_is_legal(const ChessPosition*, ChessMove);
 ChessBoolean chess_position_move_is_capture(const ChessPosition*, ChessMove);
 ChessResult chess_position_check_result(const ChessPosition*);
-
-void chess_position_init(ChessPosition*);
 
 ChessUnmove chess_position_make_move(ChessPosition*, ChessMove);
 void chess_position_undo_move(ChessPosition*, ChessUnmove);

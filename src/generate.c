@@ -273,26 +273,26 @@ static void gen_castle_moves(const ChessPosition* position, ChessColor color, Ch
 
 static void filter_illegal_moves(const ChessPosition* position, ChessColor color, ChessArray* moves)
 {
-    ChessPosition* position_copy = chess_position_clone(position);
+    ChessPosition temp_position;
     ChessColor other = chess_color_other(color);
     ChessMove move;
     ChessUnmove unmove;
     int i, m = 0;
 
+    chess_position_copy(position, &temp_position);
     for (i = 0; i < chess_array_size(moves); i++)
     {
         move = *((ChessMove*)chess_array_elem(moves, i));
-        unmove = chess_position_make_move(position_copy,  move);
-        chess_position_set_to_move(position_copy, color);
-        if (!chess_position_is_check(position_copy))
+        unmove = chess_position_make_move(&temp_position,  move);
+        chess_position_set_to_move(&temp_position, color);
+        if (!chess_position_is_check(&temp_position))
         {
             chess_array_set_elem(moves, m++, &move);
         }
-        chess_position_set_to_move(position_copy, other);
-        chess_position_undo_move(position_copy, unmove);
+        chess_position_set_to_move(&temp_position, other);
+        chess_position_undo_move(&temp_position, unmove);
     }
 
-    chess_position_destroy(position_copy);
     chess_array_prune(moves, m);
 }
 
