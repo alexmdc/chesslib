@@ -1,6 +1,8 @@
 #ifndef CHESSLIB_TEST_HELPERS_H_
 #define CHESSLIB_TEST_HELPERS_H_
 
+#include "../position.h"
+
 #define ASSERT_IMPL(value, condition, file, line) CU_assertImplementation(value, line, condition, file, "", CU_FALSE)
 #define ASSERT_FAIL(condition, file, line) CU_assertImplementation(CU_FALSE, line, condition, file, "", CU_FALSE)
 #define ASSERT_PASS(condition, file, line) CU_assertImplementation(CU_TRUE, line, condition, file, "", CU_FALSE)

@@ -1,6 +1,5 @@
 #include <CUnit/CUnit.h>
 
-#include "../chess.h"
 #include "../move.h"
 
 static void test_move_promote_to_char()

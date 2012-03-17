@@ -1,8 +1,5 @@
 #include <CUnit/CUnit.h>
 
-#include "../chess.h"
-#include "../move.h"
-#include "../unmove.h"
 #include "../position.h"
 #include "../fen.h"
 

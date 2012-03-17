@@ -1,11 +1,6 @@
 #include <CUnit/CUnit.h>
 
-#include "../chess.h"
-#include "../move.h"
-#include "../cstring.h"
 #include "../variation.h"
-#include "../unmove.h"
-#include "../position.h"
 
 #include "helpers.h"
 

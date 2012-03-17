@@ -1,9 +1,5 @@
 #include <CUnit/CUnit.h>
 
-#include "../chess.h"
-#include "../move.h"
-#include "../unmove.h"
-#include "../position.h"
 #include "../unmove.h"
 
 static void test_unmove_make()

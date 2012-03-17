@@ -1,11 +1,5 @@
 #include <CUnit/CUnit.h>
 
-#include "../cstring.h"
-#include "../chess.h"
-#include "../move.h"
-#include "../unmove.h"
-#include "../position.h"
-
 #include "../pgn-tokenizer.h"
 
 #include "helpers.h"

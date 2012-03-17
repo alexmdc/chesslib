@@ -6,10 +6,6 @@
 #include <CUnit/Console.h>
 #include <CUnit/CUCurses.h>
 
-#include "../chess.h"
-#include "../move.h"
-#include "../unmove.h"
-#include "../position.h"
 #include "../generate.h"
 
 void test_chess_add_tests();

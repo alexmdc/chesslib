@@ -4,19 +4,12 @@
 #include <string.h>
 #include <ctype.h>
 
-#include "../chess.h"
-#include "../move.h"
-#include "../unmove.h"
-#include "../position.h"
-#include "../cstring.h"
-#include "../variation.h"
 #include "../game.h"
-#include "../carray.h"
 #include "../generate.h"
+#include "../parse.h"
+#include "../print.h"
 #include "../fen.h"
 #include "../pgn.h"
-#include "../print.h"
-#include "../parse.h"
 
 static char* read_line(const char* prompt)
 {
