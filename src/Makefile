@@ -2,9 +2,10 @@ CC=gcc
 CFLAGS=-g -Wall -c
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
+SUBDIRS=test shell
 LIB=libchesslib.a
 
-all: $(LIB)
+all: $(LIB) $(SUBDIRS)
 
 $(LIB): $(OBJS)
 	libtool -static -o $@ $(OBJS)
@@ -12,5 +13,10 @@ $(LIB): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) $< -o $@
 
-clean:
-	rm *.o $(LIB)
+clean: $(SUBDIRS)
+	rm -f *.o $(LIB)
+
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKEOPTS) $(MAKECMDGOALS)
+
+.PHONY: clean $(SUBDIRS)
