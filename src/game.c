@@ -83,7 +83,7 @@ void chess_game_init_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
 
-    chess_game_reset_to_start(game);
+    chess_game_step_to_start(game);
 }
 
 void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
@@ -246,9 +246,37 @@ void chess_game_step_back(ChessGame* game)
     retreat_current_position(game);
 }
 
-void chess_game_reset_to_start(ChessGame* game)
+void chess_game_step_to_start(ChessGame* game)
 {
     chess_position_copy(game->initial_position, game->current_position);
     game->current_variation = game->root_variation;
     chess_array_clear(&game->unmoves);
+}
+
+void chess_game_step_to_move(ChessGame* game, ChessVariation* variation)
+{
+    ChessArray moves;
+    ChessMove move;
+
+    assert(chess_variation_root(variation) == game->root_variation);
+
+    chess_array_init(&moves, sizeof(ChessMove));
+
+    while (variation != game->root_variation)
+    {
+        move = chess_variation_move(variation);
+        chess_array_push(&moves, &move);
+        variation = chess_variation_parent(variation);
+    }
+
+    chess_game_step_to_start(game);
+    while (chess_array_size(&moves) > 0)
+    {
+        chess_array_pop(&moves, &move);
+        advance_current_position(game, move);
+        variation = chess_variation_add_child(variation, move);
+    }
+    game->current_variation = variation;
+
+    chess_array_cleanup(&moves);
 }

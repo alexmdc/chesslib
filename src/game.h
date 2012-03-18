@@ -46,6 +46,7 @@ void chess_game_truncate_moves(ChessGame*);
 
 void chess_game_step_forward(ChessGame*);
 void chess_game_step_back(ChessGame*);
-void chess_game_reset_to_start(ChessGame*);
+void chess_game_step_to_start(ChessGame*);
+void chess_game_step_to_move(ChessGame*, ChessVariation*);
 
 #endif /* CHESSLIB_GAME_H_ */
