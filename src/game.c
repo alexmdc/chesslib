@@ -237,6 +237,7 @@ void chess_game_step_forward(ChessGame* game)
     ChessVariation* next = chess_variation_first_child(game->current_variation);
     assert(next != NULL);
     advance_current_position(game, chess_variation_move(next));
+    game->current_variation = next;
 }
 
 void chess_game_step_back(ChessGame* game)
@@ -251,6 +252,17 @@ void chess_game_step_to_start(ChessGame* game)
     chess_position_copy(game->initial_position, game->current_position);
     game->current_variation = game->root_variation;
     chess_array_clear(&game->unmoves);
+}
+
+void chess_game_step_to_end(ChessGame* game)
+{
+    ChessVariation* next = chess_variation_first_child(game->current_variation);
+    while (next)
+    {
+        advance_current_position(game, chess_variation_move(next));
+        game->current_variation = next;
+        next = chess_variation_first_child(next);
+    }
 }
 
 void chess_game_step_to_move(ChessGame* game, ChessVariation* variation)

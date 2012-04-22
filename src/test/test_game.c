@@ -188,6 +188,35 @@ static void test_game_tags(void)
     chess_game_destroy(game);
 }
 
+static void test_game_step_to_end(void)
+{
+    ChessGame* game;
+    ChessPosition position_temp;
+
+    game = chess_game_new();
+    chess_game_init(game);
+
+    chess_game_step_to_end(game);
+    CU_ASSERT_EQUAL(0, chess_game_ply(game));
+    ASSERT_POSITIONS_EQUAL(chess_game_initial_position(game), chess_game_current_position(game));
+
+    chess_game_append_move(game, MV(E2,E4));
+    chess_game_append_move(game, MV(E7,E5));
+    chess_game_append_move(game, MV(G1,F3));
+    chess_position_copy(chess_game_current_position(game), &position_temp);
+
+    chess_game_step_to_end(game);
+    ASSERT_POSITIONS_EQUAL(&position_temp, chess_game_current_position(game));
+	CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
+
+    chess_game_step_to_start(game);
+    ASSERT_POSITIONS_EQUAL(chess_game_initial_position(game), chess_game_current_position(game));
+
+    chess_game_step_to_end(game);
+    ASSERT_POSITIONS_EQUAL(&position_temp, chess_game_current_position(game));
+	CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
+}
+
 static void test_game_step_to_move(void)
 {
     ChessGame* game;
@@ -243,5 +272,6 @@ void test_game_add_tests(void)
     CU_add_test(suite, "game_result", (CU_TestFunc)test_game_result);
     CU_add_test(suite, "game_set_result", (CU_TestFunc)test_game_set_result);
     CU_add_test(suite, "game_tags", (CU_TestFunc)test_game_tags);
+    CU_add_test(suite, "game_step_to_end", (CU_TestFunc)test_game_step_to_end);
     CU_add_test(suite, "game_step_to_move", (CU_TestFunc)test_game_step_to_move);
 }
