@@ -1,0 +1,10 @@
+ChessLib is a C library for working with chess games and positions.
+
+The initial goal is to support loading and saving of complete libraries of
+games in PGN format, including comments, sub-variations, and custom PGN tags.
+
+Hopefully it could be used as the back-end of of some PGN processing software
+or even a GUI-based chess client :)
+
+This code currently lives at github:
+https://github.com/alexmdc/chesslib
