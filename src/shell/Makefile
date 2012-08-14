@@ -16,4 +16,4 @@ $(EXE): $(OBJS)
 .PHONY: clean
 
 clean:
-	rm *.o $(EXE)
+	rm -f *.o $(EXE)
