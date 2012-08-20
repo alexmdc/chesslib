@@ -277,7 +277,7 @@ static void filter_illegal_moves(const ChessPosition* position, ChessColor color
     ChessColor other = chess_color_other(color);
     ChessMove move;
     ChessUnmove unmove;
-    int i, m = 0;
+    size_t i, m = 0;
 
     chess_position_copy(position, &temp_position);
     for (i = 0; i < chess_array_size(moves); i++)

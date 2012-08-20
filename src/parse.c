@@ -52,17 +52,17 @@ static ChessBoolean matches_move(const ChessPosition* position, ChessMove move,
 
 ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, ChessMove* ret_move)
 {
-    char piece = 0;
-    char from_file = 0, from_rank = 0;
-    char to_file = 0, to_rank = 0;
-    char capture = 0;
-    char equals = 0, promote = 0;
+    char piece = '\0';
+    char from_file = '\0', from_rank = '\0';
+    char to_file = '\0', to_rank = '\0';
+    char capture = '\0';
+    char equals = '\0', promote = '\0';
     const char* c;
     ChessArray moves;
     ChessMove move, piece_move;
     ChessPiece pc;
     ChessBoolean pawn_move, pm;
-    int i;
+    size_t i;
 
     assert(s && *s);
 

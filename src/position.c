@@ -117,7 +117,7 @@ ChessBoolean chess_position_move_is_legal(const ChessPosition* position, ChessMo
 {
     ChessArray moves;
     ChessBoolean found = CHESS_FALSE;
-    int i;
+    size_t i;
 
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(position, &moves);
@@ -323,7 +323,7 @@ ChessUnmove chess_position_make_move(ChessPosition* position, ChessMove move)
 
     /* Update fifty counter only if a reversible move was played */
     if (piece == CHESS_PIECE_WHITE_PAWN || piece == CHESS_PIECE_BLACK_PAWN
-        || captured != CHESS_PIECE_NONE || castle != position->castle)
+        || captured != CHESS_UNMOVE_CAPTURED_NONE || castle != position->castle)
         position->fifty = 0;
     else
         position->fifty++;

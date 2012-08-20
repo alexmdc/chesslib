@@ -19,7 +19,7 @@ void chess_string_init_assign(ChessString* string, const char* s)
 void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
 {
     char* buf;
-    assert(s);
+    assert(s != NULL);
     if (n == 0)
     {
         string->size = 0;

@@ -23,7 +23,7 @@ int chess_print_move(ChessMove move, char* s)
         static const char chars[] = " nbrq";
         s[n++] = chars[promote];
     }
-    s[n] = 0;
+    s[n] = '\0';
     return n;
 }
 
@@ -42,7 +42,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessFile file;
     ChessRank rank;
     ChessPosition temp_position;
-    int n = 0, i;
+    size_t n = 0, i;
 
     assert(piece != CHESS_PIECE_NONE);
 
@@ -145,7 +145,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
             s[n++] = '#';
     }
 
-    s[n] = 0;
+    s[n] = '\0';
     return n;
 }
 
@@ -200,7 +200,7 @@ int chess_print_game_moves(const ChessGame* game, char *s)
     ChessPosition* position;
     ChessMove move;
     ChessResult result;
-    int n = 0, i;
+    size_t n = 0, i;
 
     position = chess_position_clone(chess_game_initial_position(game));
     if (chess_position_to_move(position) == CHESS_COLOR_BLACK)
@@ -222,7 +222,7 @@ int chess_print_game_moves(const ChessGame* game, char *s)
     if (result == CHESS_RESULT_NONE)
         result = CHESS_RESULT_IN_PROGRESS;
     n += chess_print_result(result, s + n);
-    s[n] = 0;
+    s[n] = '\0';
 
     return n;
 }

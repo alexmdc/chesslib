@@ -21,7 +21,7 @@ void chess_pgn_save(const ChessGame* game, char* s)
     n += append_tag("Date", chess_game_date(game), s + n);
     round = chess_game_round(game);
     if (round > 0)
-        sprintf(buf, "%d", chess_game_round(game));
+        sprintf(buf, "%d", round);
     else
         buf[0] = '\0';
     n += append_tag("Round", buf, s + n);
