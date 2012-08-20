@@ -64,7 +64,7 @@ static void test_pgn_save(void)
     chess_game_set_event(game, "World Chess Championship 1886");
     chess_game_set_site(game, "New Orleans, USA");
     chess_game_set_date(game, "1886.01.21");
-    chess_game_set_round(game, 20);
+    chess_game_set_round(game, "20");
     chess_game_set_white(game, "Steinitz, Wilhelm");
     chess_game_set_black(game, "Zukertort, Johannes");
     for (i = 0; i < sizeof(game2_moves) / sizeof(ChessMove); i++)
@@ -101,7 +101,7 @@ static void test_pgn_load(void)
     CU_ASSERT_STRING_EQUAL("World Chess Championship 1886", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("New Orleans, USA", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("1886.01.21", chess_game_date(game));
-    CU_ASSERT_EQUAL(20, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("20", chess_game_round(game));
     CU_ASSERT_STRING_EQUAL("Steinitz, Wilhelm", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("Zukertort, Johannes", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));

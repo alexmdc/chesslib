@@ -14,17 +14,12 @@ static int append_tag(const char* name, const char* value, char* s)
 void chess_pgn_save(const ChessGame* game, char* s)
 {
     char buf[16];
-    int round, n = 0;
+    int n = 0;
 
     n += append_tag("Event", chess_game_event(game), s + n);
     n += append_tag("Site", chess_game_site(game), s + n);
     n += append_tag("Date", chess_game_date(game), s + n);
-    round = chess_game_round(game);
-    if (round > 0)
-        sprintf(buf, "%d", round);
-    else
-        buf[0] = '\0';
-    n += append_tag("Round", buf, s + n);
+    n += append_tag("Round", chess_game_round(game), s + n);
     n += append_tag("White", chess_game_white(game), s + n);
     n += append_tag("Black", chess_game_black(game), s + n);
     chess_print_result(chess_game_result(game), buf);
@@ -33,13 +28,12 @@ void chess_pgn_save(const ChessGame* game, char* s)
 
     n += chess_print_game_moves(game, s + n);
     s[n++] = '\n';
-    s[n] = 0;
+    s[n] = '\0';
 }
 
 static void assign_tag(ChessGame* game, const ChessString* tag, const ChessString* value)
 {
     const char* s = chess_string_data(tag);
-    unsigned int round;
 
     if (strcmp(s, "Event") == 0)
     {
@@ -53,6 +47,10 @@ static void assign_tag(ChessGame* game, const ChessString* tag, const ChessStrin
     {
         chess_game_set_date(game, chess_string_data(value));
     }
+    else if (strcmp(s, "Round") == 0)
+    {
+        chess_game_set_round(game, chess_string_data(value));
+    }
     else if (strcmp(s, "White") == 0)
     {
         chess_game_set_white(game, chess_string_data(value));
@@ -60,11 +58,6 @@ static void assign_tag(ChessGame* game, const ChessString* tag, const ChessStrin
     else if (strcmp(s, "Black") == 0)
     {
         chess_game_set_black(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "Round") == 0)
-    {
-        if (sscanf(chess_string_data(value), "%u", &round) > 0)
-            chess_game_set_round(game, round);
     }
 }
 

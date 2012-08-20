@@ -183,17 +183,10 @@ static void set_date(ChessGame* game, const char* arg)
 
 static void set_round(ChessGame* game, const char* arg)
 {
-    unsigned int round;
-
     if (strlen(arg) == 0)
-        printf("%d\n", chess_game_round(game));
+        puts(chess_game_round(game));
     else
-    {
-        if (sscanf(arg, "%u", &round) == 1)
-            chess_game_set_round(game, round);
-        else
-            printf("Error (parse error): %s\n", arg);
-    }
+        chess_game_set_round(game, arg);
 }
 
 static void set_white(ChessGame* game, const char* arg)

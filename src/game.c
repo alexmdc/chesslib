@@ -15,7 +15,7 @@ struct ChessGame
     ChessString event;
     ChessString site;
     ChessString date;
-    unsigned int round;
+    ChessString round;
     ChessString white;
     ChessString black;
     ChessResult result;
@@ -37,6 +37,7 @@ ChessGame* chess_game_new(void)
     chess_string_init(&game->event);
     chess_string_init(&game->site);
     chess_string_init(&game->date);
+    chess_string_init(&game->round);
     chess_string_init(&game->white);
     chess_string_init(&game->black);
 
@@ -54,6 +55,7 @@ void chess_game_destroy(ChessGame* game)
     chess_string_cleanup(&game->event);
     chess_string_cleanup(&game->site);
     chess_string_cleanup(&game->date);
+    chess_string_cleanup(&game->round);
     chess_string_cleanup(&game->white);
     chess_string_cleanup(&game->black);
 
@@ -76,10 +78,10 @@ void chess_game_init_position(ChessGame* game, const ChessPosition* position)
     chess_variation_truncate(game->root_variation);
 
     game->result = chess_position_check_result(position);
-    game->round = 0;
     chess_string_clear(&game->event);
     chess_string_clear(&game->site);
     chess_string_clear(&game->date);
+    chess_string_clear(&game->round);
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
 
@@ -131,9 +133,9 @@ const char* chess_game_date(const ChessGame* game)
     return chess_string_data(&game->date);
 }
 
-unsigned int chess_game_round(const ChessGame* game)
+const char* chess_game_round(const ChessGame* game)
 {
-    return game->round;
+    return chess_string_data(&game->round);
 }
 
 const char* chess_game_white(const ChessGame* game)
@@ -166,9 +168,9 @@ void chess_game_set_date(ChessGame* game, const char* value)
     chess_string_assign(&game->date, value);
 }
 
-void chess_game_set_round(ChessGame* game, unsigned int value)
+void chess_game_set_round(ChessGame* game, const char* value)
 {
-    game->round = value;
+    chess_string_assign(&game->round, value);
 }
 
 void chess_game_set_white(ChessGame* game, const char* value)

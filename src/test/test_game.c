@@ -156,7 +156,7 @@ static void test_game_tags(void)
     CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
-    CU_ASSERT_EQUAL(0, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_round(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
@@ -164,14 +164,14 @@ static void test_game_tags(void)
     chess_game_set_event(game, "F/S Return Match");
     chess_game_set_site(game, "Belgrade, Serbia JUG");
     chess_game_set_date(game, "1992.11.04");
-    chess_game_set_round(game, 29);
+    chess_game_set_round(game, "29");
     chess_game_set_white(game, "Fischer, Robert J.");
     chess_game_set_black(game, "Spassky, Boris V.");
     chess_game_set_result(game, CHESS_RESULT_DRAW);
     CU_ASSERT_STRING_EQUAL("F/S Return Match", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("Belgrade, Serbia JUG", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("1992.11.04", chess_game_date(game));
-    CU_ASSERT_EQUAL(29, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("29", chess_game_round(game));
     CU_ASSERT_STRING_EQUAL("Fischer, Robert J.", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("Spassky, Boris V.", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
@@ -180,7 +180,7 @@ static void test_game_tags(void)
     CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
-    CU_ASSERT_EQUAL(0, chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_round(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
