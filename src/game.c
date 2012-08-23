@@ -6,6 +6,14 @@
 #include "cstring.h"
 #include "carray.h"
 
+struct ExtraTag
+{
+    ChessString name;
+    ChessString value;
+    struct ExtraTag* next;
+};
+typedef struct ExtraTag ExtraTag;
+
 struct ChessGame
 {
     ChessPosition* initial_position;
@@ -19,6 +27,7 @@ struct ChessGame
     ChessString white;
     ChessString black;
     ChessResult result;
+    ExtraTag* extra;
 
     /* For iterating */
     ChessPosition* current_position;
@@ -47,6 +56,17 @@ ChessGame* chess_game_new(void)
     return game;
 }
 
+static void cleanup_extra_tags(ChessGame* game)
+{
+    ExtraTag* extra, *next;
+    for (next = game->extra; (extra = next) != NULL; next = extra->next)
+    {
+        chess_string_cleanup(&extra->name);
+        chess_string_cleanup(&extra->value);
+        free(extra);
+    }
+}
+
 void chess_game_destroy(ChessGame* game)
 {
     chess_position_destroy(game->initial_position);
@@ -58,6 +78,7 @@ void chess_game_destroy(ChessGame* game)
     chess_string_cleanup(&game->round);
     chess_string_cleanup(&game->white);
     chess_string_cleanup(&game->black);
+    cleanup_extra_tags(game);
 
     chess_position_destroy(game->current_position);
     chess_array_cleanup(&game->unmoves);
@@ -84,6 +105,7 @@ void chess_game_init_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->round);
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
+    cleanup_extra_tags(game);
 
     chess_game_step_to_start(game);
 }
@@ -190,6 +212,153 @@ void chess_game_set_result(ChessGame* game, ChessResult result)
         return;
 
     game->result = result;
+}
+
+void chess_game_set_tag(ChessGame* game, const char* name, const char* value)
+{
+    /* Check STR tags */
+    if (strcasecmp(name, "Event") == 0)
+        chess_game_set_event(game, value);
+    else if (strcasecmp(name, "Site") == 0)
+        chess_game_set_site(game, value);
+    else if (strcasecmp(name, "Date") == 0)
+        chess_game_set_date(game, value);
+    else if (strcasecmp(name, "Round") == 0)
+        chess_game_set_round(game, value);
+    else if (strcasecmp(name, "White") == 0)
+        chess_game_set_white(game, value);
+    else if (strcasecmp(name, "Black") == 0)
+        chess_game_set_black(game, value);
+    else if (strcasecmp(name, "Result") == 0)
+    {
+        if (strcasecmp(value, "1-0") == 0)
+            chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
+        else if (strcasecmp(value, "0-1") == 0)
+            chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
+        else if (strcasecmp(value, "1/2-1/2") == 0)
+            chess_game_set_result(game, CHESS_RESULT_DRAW);
+        else if (strcasecmp(value, "*") == 0)
+            chess_game_set_result(game, CHESS_RESULT_IN_PROGRESS);
+        return;
+    }
+    else
+    {
+        /* Maybe an extra tag */
+        ExtraTag* extra = game->extra;
+        ExtraTag* last = extra;
+        while (extra != NULL)
+        {
+            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
+            {
+                chess_string_assign(&extra->value, value);
+                return;
+            }
+            last = extra;
+            extra = extra->next;
+        }
+
+        /* Add it as a new tag */
+        extra = malloc(sizeof(ExtraTag));
+        chess_string_init_assign(&extra->name, name);
+        chess_string_init_assign(&extra->value, value);
+        extra->next = NULL;
+
+        if (last != NULL)
+            last->next = extra;
+        else
+            game->extra = extra;
+    }
+}
+
+void chess_game_remove_tag(ChessGame* game, const char* name)
+{
+    /* Check STR tags */
+    if (strcasecmp(name, "Event") == 0)
+        chess_game_set_event(game, "");
+    else if (strcasecmp(name, "Site") == 0)
+        chess_game_set_site(game, "");
+    else if (strcasecmp(name, "Date") == 0)
+        chess_game_set_date(game, "");
+    else if (strcasecmp(name, "Round") == 0)
+        chess_game_set_round(game, "");
+    else if (strcasecmp(name, "White") == 0)
+        chess_game_set_white(game, "");
+    else if (strcasecmp(name, "Black") == 0)
+        chess_game_set_black(game, "");
+    else if (strcasecmp(name, "Result") == 0)
+        chess_game_set_result(game, CHESS_RESULT_NONE);
+    else
+    {
+        /* Maybe an extra tag */
+        ExtraTag* extra = game->extra;
+        ExtraTag* last = NULL;
+        while (extra != NULL)
+        {
+            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
+                break;
+
+            last = extra;
+            extra = extra->next;
+        }
+
+        if (extra == NULL)
+            return; /* Not found */
+
+        if (last != NULL)
+        {
+            last->next = extra->next;
+        }
+        else
+        {
+            game->extra = extra->next;
+        }
+        free(extra);
+    }
+}
+
+const char* chess_game_tag_value(ChessGame* game, const char* name)
+{
+    ExtraTag* extra;
+
+    /* Check STR tags */
+    if (strcasecmp(name, "Event") == 0)
+        return chess_game_event(game);
+    else if (strcasecmp(name, "Site") == 0)
+        return chess_game_site(game);
+    else if (strcasecmp(name, "Date") == 0)
+        return chess_game_date(game);
+    else if (strcasecmp(name, "Round") == 0)
+        return chess_game_round(game);
+    else if (strcasecmp(name, "White") == 0)
+        return chess_game_white(game);
+    else if (strcasecmp(name, "Black") == 0)
+        return chess_game_black(game);
+    else if (strcasecmp(name, "Result") == 0)
+    {
+        switch (chess_game_result(game)) {
+            case CHESS_RESULT_WHITE_WINS:
+                return "1-0";
+            case CHESS_RESULT_BLACK_WINS:
+                return "0-1";
+            case CHESS_RESULT_DRAW:
+                return "1/2-1/2";
+            case CHESS_RESULT_IN_PROGRESS:
+                return "*";
+            default:
+                return "";
+        }
+    }
+    else
+    {
+        /* Maybe an extra tag */
+        for (extra = game->extra; extra != NULL; extra = extra->next)
+        {
+            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
+                return chess_string_data(&extra->value);
+        }
+
+        return NULL;
+    }
 }
 
 const ChessPosition* chess_game_current_position(const ChessGame* game)

@@ -36,6 +36,10 @@ void chess_game_set_white(ChessGame*, const char*);
 void chess_game_set_black(ChessGame*, const char*);
 void chess_game_set_result(ChessGame*, ChessResult);
 
+void chess_game_set_tag(ChessGame*, const char* name, const char* value);
+void chess_game_remove_tag(ChessGame*, const char* name);
+const char* chess_game_tag_value(ChessGame*, const char* name);
+
 /* Iterator interface */
 const ChessPosition* chess_game_current_position(const ChessGame*);
 ChessVariation* chess_game_current_variation(const ChessGame*);

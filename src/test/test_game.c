@@ -188,9 +188,135 @@ static void test_game_tags(void)
     chess_game_destroy(game);
 }
 
-static void test_game_step_to_end(void)
+static void test_game_extra_tags(void)
 {
     ChessGame* game;
+
+    game = chess_game_new();
+    chess_game_init(game);
+
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_set_tag(game, "Annotator", "Fritz");
+    CU_ASSERT_STRING_EQUAL("Fritz", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_set_tag(game, "ECO", "B47");
+    CU_ASSERT_STRING_EQUAL("B47", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("Fritz", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_set_tag(game, "PlyCount", "65");
+    CU_ASSERT_STRING_EQUAL("B47", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("Fritz", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("65", chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_set_tag(game, "ECO", "C80");
+    CU_ASSERT_STRING_EQUAL("C80", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("Fritz", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("65", chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_set_tag(game, "Annotator", "Junior");
+    CU_ASSERT_STRING_EQUAL("C80", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("Junior", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("65", chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_remove_tag(game, "Annotator");
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("C80", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("65", chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_remove_tag(game, "PlyCount");
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("C80", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_remove_tag(game, "ECO");
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+
+    chess_game_destroy(game);
+
+    /* Check tags are properly cleaned up on delete */
+    game = chess_game_new();
+    chess_game_init(game);
+    chess_game_set_tag(game, "Annotator", "Fritz");
+    chess_game_set_tag(game, "ECO", "B47");
+    chess_game_set_tag(game, "PlyCount", "65");
+    chess_game_destroy(game);
+
+    /* Check that extra tags interact with STR tags */
+    game = chess_game_new();
+    chess_game_init(game);
+    chess_game_set_event(game, "F/S Return Match");
+    chess_game_set_site(game, "Belgrade, Serbia JUG");
+    chess_game_set_date(game, "1992.11.04");
+    chess_game_set_round(game, "29");
+    chess_game_set_white(game, "Fischer, Robert J.");
+    chess_game_set_black(game, "Spassky, Boris V.");
+    chess_game_set_result(game, CHESS_RESULT_DRAW);
+    CU_ASSERT_STRING_EQUAL("F/S Return Match", chess_game_tag_value(game, "Event"));
+    CU_ASSERT_STRING_EQUAL("Belgrade, Serbia JUG", chess_game_tag_value(game, "Site"));
+    CU_ASSERT_STRING_EQUAL("1992.11.04", chess_game_tag_value(game, "Date"));
+    CU_ASSERT_STRING_EQUAL("29", chess_game_tag_value(game, "Round"));
+    CU_ASSERT_STRING_EQUAL("Fischer, Robert J.", chess_game_tag_value(game, "White"));
+    CU_ASSERT_STRING_EQUAL("Spassky, Boris V.", chess_game_tag_value(game, "Black"));
+    CU_ASSERT_STRING_EQUAL("1/2-1/2", chess_game_tag_value(game, "Result"));
+    chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
+    CU_ASSERT_STRING_EQUAL("1-0", chess_game_tag_value(game, "Result"));
+    chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
+    CU_ASSERT_STRING_EQUAL("0-1", chess_game_tag_value(game, "Result"));
+    chess_game_set_result(game, CHESS_RESULT_IN_PROGRESS);
+    CU_ASSERT_STRING_EQUAL("*", chess_game_tag_value(game, "Result"));
+    /* chess_game_set_result(game, CHESS_RESULT_NONE);
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_value(game, "Result")); */
+
+    chess_game_set_tag(game, "Event", "Eurotel Trophy");
+    chess_game_set_tag(game, "Site", "Prague CZE");
+    chess_game_set_tag(game, "Date", "2002.04.29");
+    chess_game_set_tag(game, "Round", "1.2");
+    chess_game_set_tag(game, "White", "Kramnik, Vladimir");
+    chess_game_set_tag(game, "Black", "Hracek, Z.");
+    chess_game_set_tag(game, "Result", "1-0");
+    CU_ASSERT_STRING_EQUAL("Eurotel Trophy", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("Prague CZE", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("2002.04.29", chess_game_date(game));
+    CU_ASSERT_STRING_EQUAL("1.2", chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("Kramnik, Vladimir", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("Hracek, Z.", chess_game_black(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
+    chess_game_set_tag(game, "Result", "0-1");
+    CU_ASSERT_EQUAL(CHESS_RESULT_BLACK_WINS, chess_game_result(game));
+    chess_game_set_tag(game, "Result", "1/2-1/2");
+    CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
+    chess_game_set_tag(game, "Result", "*");
+    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+
+    chess_game_remove_tag(game, "Event");
+    chess_game_remove_tag(game, "Site");
+    chess_game_remove_tag(game, "Date");
+    chess_game_remove_tag(game, "Round");
+    chess_game_remove_tag(game, "White");
+    chess_game_remove_tag(game, "Black");
+    chess_game_remove_tag(game, "Result");
+    CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_round(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_white(game));
+    CU_ASSERT_STRING_EQUAL("", chess_game_black(game));
+    /* CU_ASSERT_EQUAL(CHESS_RESULT_NONE, chess_game_result(game)); */
+
+    chess_game_destroy(game);
+}
+
+static void test_game_step_to_end(void)
+{
+    ChessGame *game;
     ChessPosition position_temp;
 
     game = chess_game_new();
@@ -207,14 +333,14 @@ static void test_game_step_to_end(void)
 
     chess_game_step_to_end(game);
     ASSERT_POSITIONS_EQUAL(&position_temp, chess_game_current_position(game));
-	CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
+    CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
 
     chess_game_step_to_start(game);
     ASSERT_POSITIONS_EQUAL(chess_game_initial_position(game), chess_game_current_position(game));
 
     chess_game_step_to_end(game);
     ASSERT_POSITIONS_EQUAL(&position_temp, chess_game_current_position(game));
-	CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
+    CU_ASSERT_EQUAL(MV(G1,F3), chess_game_current_move(game));
 }
 
 static void test_game_step_to_move(void)
@@ -248,7 +374,7 @@ static void test_game_step_to_move(void)
     chess_game_append_move(game, MV(G7,G6));
     chess_game_append_move(game, MV(B1,C3));
     variation_d4_Nf6_c4_g6_Nc3 = chess_game_current_variation(game);
-    chess_position_copy(chess_game_current_position(game), &position_d4_Nf6_c4_g6_Nc3);    
+    chess_position_copy(chess_game_current_position(game), &position_d4_Nf6_c4_g6_Nc3);
 
     chess_game_step_to_move(game, chess_game_root_variation(game));
     ASSERT_POSITIONS_EQUAL(chess_game_initial_position(game), chess_game_current_position(game));
@@ -256,12 +382,12 @@ static void test_game_step_to_move(void)
     chess_game_step_to_move(game, variation_e4_e5_Nf3_Nc6_d4);
     ASSERT_POSITIONS_EQUAL(&position_e4_e5_Nf3_Nc6_d4, chess_game_current_position(game));
     CU_ASSERT_EQUAL(variation_e4_e5_Nf3_Nc6_d4, chess_game_current_variation(game));
-	CU_ASSERT_EQUAL(MV(D2,D4), chess_game_current_move(game));
+    CU_ASSERT_EQUAL(MV(D2,D4), chess_game_current_move(game));
 
     chess_game_step_to_move(game, variation_d4_Nf6_c4_g6_Nc3);
     ASSERT_POSITIONS_EQUAL(&position_d4_Nf6_c4_g6_Nc3, chess_game_current_position(game));
     CU_ASSERT_EQUAL(variation_d4_Nf6_c4_g6_Nc3, chess_game_current_variation(game));
-	CU_ASSERT_EQUAL(MV(B1,C3), chess_game_current_move(game));
+    CU_ASSERT_EQUAL(MV(B1,C3), chess_game_current_move(game));
 }
 
 void test_game_add_tests(void)
@@ -272,6 +398,7 @@ void test_game_add_tests(void)
     CU_add_test(suite, "game_result", (CU_TestFunc)test_game_result);
     CU_add_test(suite, "game_set_result", (CU_TestFunc)test_game_set_result);
     CU_add_test(suite, "game_tags", (CU_TestFunc)test_game_tags);
+    CU_add_test(suite, "game_extra_tags", (CU_TestFunc)test_game_extra_tags);
     CU_add_test(suite, "game_step_to_end", (CU_TestFunc)test_game_step_to_end);
     CU_add_test(suite, "game_step_to_move", (CU_TestFunc)test_game_step_to_move);
 }
