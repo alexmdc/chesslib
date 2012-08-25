@@ -24,6 +24,7 @@ static void test_pgn_save(void)
         "[White \"Steinitz, Wilhelm\"]\n"
         "[Black \"Zukertort, Johannes\"]\n"
         "[Result \"1-0\"]\n"
+        "[PlyCount \"37\"]\n"
         "\n"
         "1. e4 e5 2. Nc3 Nc6 3. f4 exf4 4. d4 d5 5. exd5 Qh4+ 6. Ke2 Qe7+"
         " 7. Kf2 Qh4+ 8. g3 fxg3+ 9. Kg2 Nxd4 10. hxg3 Qg4 11. Qe1+ Be7"
@@ -70,6 +71,7 @@ static void test_pgn_save(void)
     for (i = 0; i < sizeof(game2_moves) / sizeof(ChessMove); i++)
         chess_game_append_move(game, game2_moves[i]);
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
+    chess_game_set_tag(game, "PlyCount", "37");
     chess_pgn_save(game, buf);
     CU_ASSERT_STRING_EQUAL(game2, buf);
 
@@ -86,6 +88,7 @@ static void test_pgn_load(void)
     "[White \"Steinitz, Wilhelm\"]\n"
     "[Black \"Zukertort, Johannes\"]\n"
     "[Result \"1-0\"]\n"
+    "[PlyCount \"37\"]\n"
     "\n"
     "1. e4 e5 2. Nc3 Nc6 3. f4 exf4 4. d4 d5 5. exd5 Qh4+ 6. Ke2 Qe7+"
     " 7. Kf2 Qh4+ 8. g3 fxg3+ 9. Kg2 Nxd4 10. hxg3 Qg4 11. Qe1+ Be7"
@@ -105,6 +108,7 @@ static void test_pgn_load(void)
     CU_ASSERT_STRING_EQUAL("Steinitz, Wilhelm", chess_game_white(game));
     CU_ASSERT_STRING_EQUAL("Zukertort, Johannes", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
+    CU_ASSERT_STRING_EQUAL("37", chess_game_tag_value(game, "PlyCount"));
     CU_ASSERT_EQUAL(37, chess_game_ply(game));
 
     chess_game_destroy(game);

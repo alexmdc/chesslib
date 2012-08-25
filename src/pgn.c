@@ -13,52 +13,19 @@ static int append_tag(const char* name, const char* value, char* s)
 
 void chess_pgn_save(const ChessGame* game, char* s)
 {
-    char buf[16];
     int n = 0;
+    ChessGameTagIterator iter = chess_game_get_tag_iterator((ChessGame*)game);
 
-    n += append_tag("Event", chess_game_event(game), s + n);
-    n += append_tag("Site", chess_game_site(game), s + n);
-    n += append_tag("Date", chess_game_date(game), s + n);
-    n += append_tag("Round", chess_game_round(game), s + n);
-    n += append_tag("White", chess_game_white(game), s + n);
-    n += append_tag("Black", chess_game_black(game), s + n);
-    chess_print_result(chess_game_result(game), buf);
-    n += append_tag("Result", buf, s + n);
+    while (chess_game_tag_iterator_next(&iter))
+    {
+        n += append_tag(chess_game_tag_iterator_name(&iter),
+            chess_game_tag_iterator_value(&iter), s + n);
+    }
     s[n++] = '\n';
 
     n += chess_print_game_moves(game, s + n);
     s[n++] = '\n';
     s[n] = '\0';
-}
-
-static void assign_tag(ChessGame* game, const ChessString* tag, const ChessString* value)
-{
-    const char* s = chess_string_data(tag);
-
-    if (strcmp(s, "Event") == 0)
-    {
-        chess_game_set_event(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "Site") == 0)
-    {
-        chess_game_set_site(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "Date") == 0)
-    {
-        chess_game_set_date(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "Round") == 0)
-    {
-        chess_game_set_round(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "White") == 0)
-    {
-        chess_game_set_white(game, chess_string_data(value));
-    }
-    else if (strcmp(s, "Black") == 0)
-    {
-        chess_game_set_black(game, chess_string_data(value));
-    }
 }
 
 static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* game)
@@ -94,7 +61,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         goto error;
     }
 
-    assign_tag(game, &tag, &value);
+    chess_game_set_tag(game, chess_string_data(&tag), chess_string_data(&value));
 
 error:
     chess_string_cleanup(&tag);
