@@ -314,6 +314,85 @@ static void test_game_extra_tags(void)
     chess_game_destroy(game);
 }
 
+static void test_game_tag_iterator(void)
+{
+    ChessGame *game;
+    ChessGameTagIterator iter;
+
+    game = chess_game_new();
+    chess_game_init(game);
+
+    iter = chess_game_get_tag_iterator(game);
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Event", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Site", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Date", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Round", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("White", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Black", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Result", chess_game_tag_iterator_name(&iter));
+    /* CU_ASSERT_STRING_EQUAL("", chess_game_tag_iterator_value(&iter)); */
+    CU_ASSERT(!chess_game_tag_iterator_next(&iter));
+
+    chess_game_set_event(game, "F/S Return Match");
+    chess_game_set_site(game, "Belgrade, Serbia JUG");
+    chess_game_set_date(game, "1992.11.04");
+    chess_game_set_round(game, "29");
+    chess_game_set_white(game, "Fischer, Robert J.");
+    chess_game_set_black(game, "Spassky, Boris V.");
+    chess_game_set_result(game, CHESS_RESULT_DRAW);
+    chess_game_set_tag(game, "Annotator", "Fritz");
+    chess_game_set_tag(game, "ECO", "B47");
+    chess_game_set_tag(game, "PlyCount", "65");
+
+    iter = chess_game_get_tag_iterator(game);
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Event", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("F/S Return Match", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Site", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("Belgrade, Serbia JUG", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Date", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("1992.11.04", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Round", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("29", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("White", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("Fischer, Robert J.", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Black", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("Spassky, Boris V.", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Result", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("1/2-1/2", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("Annotator", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("Fritz", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("ECO", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("B47", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(chess_game_tag_iterator_next(&iter));
+    CU_ASSERT_STRING_EQUAL("PlyCount", chess_game_tag_iterator_name(&iter));
+    CU_ASSERT_STRING_EQUAL("65", chess_game_tag_iterator_value(&iter));
+    CU_ASSERT(!chess_game_tag_iterator_next(&iter));
+
+    chess_game_destroy(game);
+}
+
 static void test_game_step_to_end(void)
 {
     ChessGame *game;
@@ -399,6 +478,7 @@ void test_game_add_tests(void)
     CU_add_test(suite, "game_set_result", (CU_TestFunc)test_game_set_result);
     CU_add_test(suite, "game_tags", (CU_TestFunc)test_game_tags);
     CU_add_test(suite, "game_extra_tags", (CU_TestFunc)test_game_extra_tags);
+    CU_add_test(suite, "game_tag_iterator", (CU_TestFunc)test_game_tag_iterator);
     CU_add_test(suite, "game_step_to_end", (CU_TestFunc)test_game_step_to_end);
     CU_add_test(suite, "game_step_to_move", (CU_TestFunc)test_game_step_to_move);
 }

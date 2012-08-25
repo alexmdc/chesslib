@@ -463,3 +463,61 @@ void chess_game_step_to_move(ChessGame* game, ChessVariation* variation)
 
     chess_array_cleanup(&moves);
 }
+
+ChessGameTagIterator chess_game_get_tag_iterator(ChessGame* game)
+{
+    ChessGameTagIterator iter;
+    iter.game = game;
+    iter.index = -1;
+    iter.extra = NULL;
+    return iter;
+}
+
+const char* chess_game_tag_iterator_name(const ChessGameTagIterator* iter)
+{
+    if (iter->extra)
+        return chess_string_data(&((ExtraTag*)iter->extra)->name);
+
+    switch (iter->index)
+    {
+        case 0: return "Event";
+        case 1: return "Site";
+        case 2: return "Date";
+        case 3: return "Round";
+        case 4: return "White";
+        case 5: return "Black";
+        case 6: return "Result";
+        default: return NULL;
+    }
+}
+
+const char* chess_game_tag_iterator_value(const ChessGameTagIterator* iter)
+{
+    if (iter->extra)
+        return chess_string_data(&((ExtraTag*)iter->extra)->value);
+
+    switch (iter->index)
+    {
+        case 0: return chess_game_event(iter->game);
+        case 1: return chess_game_site(iter->game);
+        case 2: return chess_game_date(iter->game);
+        case 3: return chess_game_round(iter->game);
+        case 4: return chess_game_white(iter->game);
+        case 5: return chess_game_black(iter->game);
+        case 6: return chess_game_tag_value(iter->game, "Result");
+        default: return NULL;
+    }
+}
+
+ChessBoolean chess_game_tag_iterator_next(ChessGameTagIterator* iter)
+{
+    ++iter->index;
+
+    if (iter->index < 7)
+        return CHESS_TRUE;
+    else if (iter->index == 7)
+        return (iter->extra = iter->game->extra) != NULL;
+    else
+        return (iter->extra != NULL)
+            && (iter->extra = ((ExtraTag*)iter->extra)->next) != NULL;
+}
