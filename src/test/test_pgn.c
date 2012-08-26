@@ -53,6 +53,7 @@ static void test_pgn_save(void)
     };
 
     ChessGame* game;
+    ChessGameIterator* iter;
     char buf[1024];
     int i;
 
@@ -68,13 +69,17 @@ static void test_pgn_save(void)
     chess_game_set_round(game, "20");
     chess_game_set_white(game, "Steinitz, Wilhelm");
     chess_game_set_black(game, "Zukertort, Johannes");
+
+    iter = chess_game_get_iterator(game);
     for (i = 0; i < sizeof(game2_moves) / sizeof(ChessMove); i++)
-        chess_game_append_move(game, game2_moves[i]);
+        chess_game_iterator_append_move(iter, game2_moves[i]);
+
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     chess_game_set_tag(game, "PlyCount", "37");
     chess_pgn_save(game, buf);
     CU_ASSERT_STRING_EQUAL(game2, buf);
 
+    chess_game_iterator_destroy(iter);
     chess_game_destroy(game);
 }
 

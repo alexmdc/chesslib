@@ -28,10 +28,13 @@ struct ChessGame
     ChessString black;
     ChessResult result;
     ExtraTag* extra;
+};
 
-    /* For iterating */
-    ChessPosition* current_position;
-    ChessVariation* current_variation;
+struct ChessGameIterator
+{
+    ChessGame* game;
+    ChessVariation* variation;
+    ChessPosition position;
     ChessArray unmoves;
 };
 
@@ -50,9 +53,6 @@ ChessGame* chess_game_new(void)
     chess_string_init(&game->white);
     chess_string_init(&game->black);
 
-    game->current_position = chess_position_new();
-    game->current_variation = game->root_variation;
-    chess_array_init(&game->unmoves, sizeof(ChessUnmove));
     return game;
 }
 
@@ -80,8 +80,6 @@ void chess_game_destroy(ChessGame* game)
     chess_string_cleanup(&game->black);
     cleanup_extra_tags(game);
 
-    chess_position_destroy(game->current_position);
-    chess_array_cleanup(&game->unmoves);
     free(game);
 }
 
@@ -106,8 +104,6 @@ void chess_game_init_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
     cleanup_extra_tags(game);
-
-    chess_game_step_to_start(game);
 }
 
 void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
@@ -115,7 +111,6 @@ void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
     assert(chess_variation_is_root(variation));
     chess_variation_truncate(game->root_variation);
     chess_variation_attach_subvariation(game->root_variation, variation);
-    game->current_variation = game->root_variation;
 }
 
 const ChessPosition* chess_game_initial_position(const ChessGame* game)
@@ -207,10 +202,6 @@ void chess_game_set_black(ChessGame* game, const char* value)
 
 void chess_game_set_result(ChessGame* game, ChessResult result)
 {
-    ChessResult boardResult = chess_position_check_result(game->current_position);
-    if (boardResult != CHESS_RESULT_NONE)
-        return;
-
     game->result = result;
 }
 
@@ -361,105 +352,120 @@ const char* chess_game_tag_value(ChessGame* game, const char* name)
     }
 }
 
-const ChessPosition* chess_game_current_position(const ChessGame* game)
+ChessGameIterator* chess_game_get_iterator(ChessGame* game)
 {
-    return game->current_position;
+    ChessGameIterator* iter = malloc(sizeof(ChessGameIterator));
+    memset(iter, 0, sizeof(ChessGameIterator));
+    iter->game = game;
+    chess_position_copy(game->initial_position, &iter->position);
+    iter->variation = game->root_variation;
+    chess_array_init(&iter->unmoves, sizeof(ChessUnmove));
+    return iter;
 }
 
-ChessVariation* chess_game_current_variation(const ChessGame* game)
+void chess_game_iterator_destroy(ChessGameIterator* iter)
 {
-    return game->current_variation;
+    chess_array_cleanup(&iter->unmoves);
+    free(iter);
 }
 
-ChessMove chess_game_current_move(const ChessGame* game)
+const ChessPosition* chess_game_iterator_position(const ChessGameIterator* iter)
 {
-    assert(!chess_variation_is_root(game->current_variation));
-    return chess_variation_move(game->current_variation);
+    return &iter->position;
 }
 
-static void advance_current_position(ChessGame* game, ChessMove move)
+ChessVariation* chess_game_iterator_variation(ChessGameIterator* iter)
 {
-    ChessUnmove unmove = chess_position_make_move(game->current_position, move);
-    chess_array_push(&game->unmoves, &unmove);
-    game->result = chess_position_check_result(game->current_position);
+    return iter->variation;
 }
 
-static void retreat_current_position(ChessGame* game)
+ChessMove chess_game_iterator_move(const ChessGameIterator* iter)
+{
+    assert(!chess_variation_is_root(iter->variation));
+    return chess_variation_move(iter->variation);
+}
+
+static void advance_current_position(ChessGameIterator* iter, ChessMove move)
+{
+    ChessUnmove unmove = chess_position_make_move(&iter->position, move);
+    chess_array_push(&iter->unmoves, &unmove);
+}
+
+static void retreat_current_position(ChessGameIterator* iter)
 {
     ChessUnmove unmove;
-    chess_array_pop(&game->unmoves, &unmove);
-    chess_position_undo_move(game->current_position, unmove);
-    game->result = CHESS_RESULT_NONE;
+    chess_array_pop(&iter->unmoves, &unmove);
+    chess_position_undo_move(&iter->position, unmove);
 }
 
-void chess_game_append_move(ChessGame* game, ChessMove move)
+void chess_game_iterator_append_move(ChessGameIterator* iter, ChessMove move)
 {
-    advance_current_position(game, move);
-    game->current_variation = chess_variation_add_child(game->current_variation, move);
+    advance_current_position(iter, move);
+    iter->variation = chess_variation_add_child(iter->variation, move);
 }
 
-void chess_game_truncate_moves(ChessGame* game)
+void chess_game_iterator_truncate_moves(ChessGameIterator* iter)
 {
-    chess_variation_truncate(game->current_variation);
+    chess_variation_truncate(iter->variation);
 }
 
-void chess_game_step_forward(ChessGame* game)
+void chess_game_iterator_step_forward(ChessGameIterator* iter)
 {
-    ChessVariation* next = chess_variation_first_child(game->current_variation);
+    ChessVariation* next = chess_variation_first_child(iter->variation);
     assert(next != NULL);
-    advance_current_position(game, chess_variation_move(next));
-    game->current_variation = next;
+    advance_current_position(iter, chess_variation_move(next));
+    iter->variation = next;
 }
 
-void chess_game_step_back(ChessGame* game)
+void chess_game_iterator_step_back(ChessGameIterator* iter)
 {
-    assert(!chess_variation_is_root(game->current_variation));
-    game->current_variation = chess_variation_parent(game->current_variation);
-    retreat_current_position(game);
+    assert(!chess_variation_is_root(iter->variation));
+    iter->variation = chess_variation_parent(iter->variation);
+    retreat_current_position(iter);
 }
 
-void chess_game_step_to_start(ChessGame* game)
+void chess_game_iterator_step_to_start(ChessGameIterator* iter)
 {
-    chess_position_copy(game->initial_position, game->current_position);
-    game->current_variation = game->root_variation;
-    chess_array_clear(&game->unmoves);
+    chess_position_copy(iter->game->initial_position, &iter->position);
+    iter->variation = iter->game->root_variation;
+    chess_array_clear(&iter->unmoves);
 }
 
-void chess_game_step_to_end(ChessGame* game)
+void chess_game_iterator_step_to_end(ChessGameIterator* iter)
 {
-    ChessVariation* next = chess_variation_first_child(game->current_variation);
+    ChessVariation* next = chess_variation_first_child(iter->variation);
     while (next)
     {
-        advance_current_position(game, chess_variation_move(next));
-        game->current_variation = next;
+        advance_current_position(iter, chess_variation_move(next));
+        iter->variation = next;
         next = chess_variation_first_child(next);
     }
 }
 
-void chess_game_step_to_move(ChessGame* game, ChessVariation* variation)
+void chess_game_iterator_step_to_move(ChessGameIterator* iter, ChessVariation* variation)
 {
     ChessArray moves;
     ChessMove move;
 
-    assert(chess_variation_root(variation) == game->root_variation);
+    assert(chess_variation_root(variation) == iter->game->root_variation);
 
     chess_array_init(&moves, sizeof(ChessMove));
 
-    while (variation != game->root_variation)
+    while (variation != iter->game->root_variation)
     {
         move = chess_variation_move(variation);
         chess_array_push(&moves, &move);
         variation = chess_variation_parent(variation);
     }
 
-    chess_game_step_to_start(game);
+    chess_game_iterator_step_to_start(iter);
     while (chess_array_size(&moves) > 0)
     {
         chess_array_pop(&moves, &move);
-        advance_current_position(game, move);
+        advance_current_position(iter, move);
         variation = chess_variation_add_child(variation, move);
     }
-    game->current_variation = variation;
+    iter->variation = variation;
 
     chess_array_cleanup(&moves);
 }

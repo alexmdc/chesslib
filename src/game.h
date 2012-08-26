@@ -4,6 +4,7 @@
 #include "position.h"
 #include "move.h"
 #include "variation.h"
+#include "carray.h"
 
 typedef struct ChessGame ChessGame;
 
@@ -54,17 +55,22 @@ const char* chess_game_tag_iterator_value(const ChessGameTagIterator*);
 ChessBoolean chess_game_tag_iterator_next(ChessGameTagIterator*);
 
 /* Iterator interface */
-const ChessPosition* chess_game_current_position(const ChessGame*);
-ChessVariation* chess_game_current_variation(const ChessGame*);
-ChessMove chess_game_current_move(const ChessGame*);
+typedef struct ChessGameIterator ChessGameIterator;
 
-void chess_game_append_move(ChessGame*, ChessMove move);
-void chess_game_truncate_moves(ChessGame*);
+ChessGameIterator* chess_game_get_iterator(ChessGame*);
+void chess_game_iterator_destroy(ChessGameIterator*);
 
-void chess_game_step_forward(ChessGame*);
-void chess_game_step_back(ChessGame*);
-void chess_game_step_to_start(ChessGame*);
-void chess_game_step_to_end(ChessGame*);
-void chess_game_step_to_move(ChessGame*, ChessVariation*);
+const ChessPosition* chess_game_iterator_position(const ChessGameIterator*);
+ChessVariation* chess_game_iterator_variation(ChessGameIterator*);
+ChessMove chess_game_iterator_move(const ChessGameIterator*);
+
+void chess_game_iterator_append_move(ChessGameIterator*, ChessMove move);
+void chess_game_iterator_truncate_moves(ChessGameIterator*);
+
+void chess_game_iterator_step_forward(ChessGameIterator*);
+void chess_game_iterator_step_back(ChessGameIterator*);
+void chess_game_iterator_step_to_start(ChessGameIterator*);
+void chess_game_iterator_step_to_end(ChessGameIterator*);
+void chess_game_iterator_step_to_move(ChessGameIterator*, ChessVariation*);
 
 #endif /* CHESSLIB_GAME_H_ */
