@@ -18,6 +18,74 @@ static void test_new(void)
     chess_variation_destroy(root);
 }
 
+static void test_annotations(void)
+{
+    ChessVariation* root, *variation;
+    ChessAnnotation annotations[4] = { 0, 0, 0, 0 };
+
+    root = chess_variation_new();
+    variation = chess_variation_add_child(root, MV(E2,E4));
+    CU_ASSERT_EQUAL(0, chess_variation_annotations(variation, annotations));
+
+    chess_variation_add_annotation(variation, 3);
+    CU_ASSERT_EQUAL(1, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+
+    chess_variation_add_annotation(variation, 7);
+    CU_ASSERT_EQUAL(2, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+    CU_ASSERT_EQUAL(7, annotations[1]);
+
+    /* Adding the same annotation twice should fail */
+    chess_variation_add_annotation(variation, 3);
+    CU_ASSERT_EQUAL(2, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+    CU_ASSERT_EQUAL(7, annotations[1]);
+
+    chess_variation_add_annotation(variation, 128);
+    chess_variation_add_annotation(variation, 255);
+    CU_ASSERT_EQUAL(4, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+    CU_ASSERT_EQUAL(7, annotations[1]);
+    CU_ASSERT_EQUAL(128, annotations[2]);
+    CU_ASSERT_EQUAL(255, annotations[3]);
+
+    /* Adding more than 4 should fail (for now) */
+    chess_variation_add_annotation(variation, 12);
+    CU_ASSERT_EQUAL(4, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+    CU_ASSERT_EQUAL(7, annotations[1]);
+    CU_ASSERT_EQUAL(128, annotations[2]);
+    CU_ASSERT_EQUAL(255, annotations[3]);
+
+    /* Passing in a NULL should just give us the count */
+    CU_ASSERT_EQUAL(4, chess_variation_annotations(variation, NULL));
+
+    /* Try removing the last one */
+    chess_variation_remove_annotation(variation, 255);
+    CU_ASSERT_EQUAL(3, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(3, annotations[0]);
+    CU_ASSERT_EQUAL(7, annotations[1]);
+    CU_ASSERT_EQUAL(128, annotations[2]);
+
+    /* Try removing the first one */
+    chess_variation_remove_annotation(variation, 3);
+    CU_ASSERT_EQUAL(2, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(7, annotations[0]);
+    CU_ASSERT_EQUAL(128, annotations[1]);
+
+    /* Try removing nonexistant one */
+    chess_variation_remove_annotation(variation, 12);
+    CU_ASSERT_EQUAL(2, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(7, annotations[0]);
+    CU_ASSERT_EQUAL(128, annotations[1]);
+
+    /* Try removing the rest */
+    chess_variation_remove_annotation(variation, 7);
+    chess_variation_remove_annotation(variation, 128);
+    CU_ASSERT_EQUAL(0, chess_variation_annotations(variation, annotations));
+}
+
 static void test_add_child(void)
 {
     ChessVariation* root, *child, *grandchild, *grandchild2;
@@ -251,6 +319,7 @@ void test_variation_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("variation", NULL, NULL);
     CU_add_test(suite, "new", (CU_TestFunc)test_new);
+    CU_add_test(suite, "annotations", (CU_TestFunc)test_annotations);
     CU_add_test(suite, "add_child", (CU_TestFunc)test_add_child);
     CU_add_test(suite, "add_sibling", (CU_TestFunc)test_add_sibling);
     CU_add_test(suite, "length", (CU_TestFunc)test_length);

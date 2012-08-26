@@ -11,6 +11,7 @@ struct ChessVariation
 {
     ChessMove move;
     ChessString comment;
+    ChessAnnotation annotations[4];
     struct ChessVariation* root;
     struct ChessVariation* parent;
     struct ChessVariation* first_child;
@@ -118,6 +119,19 @@ ChessString* chess_variation_comment(ChessVariation* variation)
     return &variation->comment;
 }
 
+size_t chess_variation_annotations(const ChessVariation* variation, ChessAnnotation* annotations)
+{
+    size_t n, max;
+    assert(variation != NULL);
+    max = sizeof(variation->annotations) / sizeof(ChessAnnotation);
+    for (n = 0; n < max && variation->annotations[n]; ++n)
+    {
+        if (annotations != NULL)
+            annotations[n] = variation->annotations[n];
+    }
+    return n;
+}
+
 ChessVariation* chess_variation_root(ChessVariation* variation)
 {
     assert(variation != NULL);
@@ -175,6 +189,46 @@ ChessVariation* chess_variation_ply(ChessVariation* variation, size_t ply)
     while ((variation = variation->first_child) && ply > 0)
         ply--;
     return variation;
+}
+
+void chess_variation_add_annotation(ChessVariation* variation, ChessAnnotation annotation)
+{
+    size_t n, max;
+    assert(variation != NULL && annotation != 0);
+    max = sizeof(variation->annotations) / sizeof(ChessAnnotation);
+    for (n = 0; n < max; ++n)
+    {
+        ChessAnnotation ann = variation->annotations[n];
+        if (ann == 0)
+        {
+            variation->annotations[n] = annotation;
+            break;
+        }
+        if (ann == annotation)
+            break;
+    }
+}
+
+void chess_variation_remove_annotation(ChessVariation* variation, ChessAnnotation annotation)
+{
+    size_t n, max;
+    assert(variation != NULL && annotation != 0);
+    max = sizeof(variation->annotations) / sizeof(ChessAnnotation);
+    for (n = 0; n < max; ++n)
+    {
+        if (variation->annotations[n] == annotation)
+        {
+            /* Remove this annotation and shift the rest down */
+            for (; n + 1 < max; ++n)
+            {
+                if (variation->annotations[n + 1] == 0)
+                    break;
+                variation->annotations[n] = variation->annotations[n + 1];
+            }
+            variation->annotations[n] = 0;
+            return;
+        }
+    }
 }
 
 static ChessVariation* chess_variation_add_sibling(ChessVariation* variation, ChessMove move)
