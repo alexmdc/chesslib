@@ -195,28 +195,65 @@ int chess_print_position(const ChessPosition* position, char* s)
     return n;
 }
 
+static int print_variation(const ChessPosition* position, ChessVariation* variation, char* s)
+{
+    ChessMove move;
+    ChessPosition temp_position;
+    ChessVariation* alternate;
+    ChessBoolean showBlackNum = CHESS_TRUE, showSep = CHESS_FALSE;
+    size_t n = 0;
+
+    chess_position_copy(position, &temp_position);
+
+    do
+    {
+        if (showSep)
+            s[n++] = ' ';
+
+        if (chess_position_to_move(&temp_position) == CHESS_COLOR_WHITE)
+            n += sprintf(s + n, "%d. ", chess_position_move_num(&temp_position));
+        else if (showBlackNum)
+            n += sprintf(s + n, "%d... ", chess_position_move_num(&temp_position));
+
+        move = chess_variation_move(variation);
+        n += chess_print_move_san(move, &temp_position, s + n);
+        showBlackNum = CHESS_FALSE;
+
+        if (chess_variation_left(variation) == NULL)
+        {
+            for (alternate = chess_variation_right(variation);
+                 alternate != NULL; alternate = chess_variation_right(alternate))
+            {
+                s[n++] = ' ';
+                s[n++] = '(';
+                n += print_variation(&temp_position, alternate, s + n);
+                s[n++] = ')';
+                showBlackNum = CHESS_TRUE;
+            }
+        }
+
+        chess_position_make_move(&temp_position, move);
+        showSep = CHESS_TRUE;
+    } while ((variation = chess_variation_first_child(variation)) != NULL);
+
+    return n;
+}
+
 int chess_print_game_moves(const ChessGame* game, char *s)
 {
-    ChessPosition* position;
-    ChessMove move;
+    const ChessPosition* position;
+    ChessVariation* variation;
     ChessResult result;
-    size_t n = 0, i;
+    size_t n = 0;
 
-    position = chess_position_clone(chess_game_initial_position(game));
-    if (chess_position_to_move(position) == CHESS_COLOR_BLACK)
-        n += sprintf(s + n, "%d... ", chess_position_move_num(position));
-
-    for (i = 0; i < chess_game_ply(game); i++)
+    position = chess_game_initial_position(game);
+    variation = chess_game_root_variation(game);
+    variation = chess_variation_first_child(variation);
+    if (variation != NULL)
     {
-        if (chess_position_to_move(position) == CHESS_COLOR_WHITE)
-            n += sprintf(s + n, "%d. ", chess_position_move_num(position));
-
-        move = chess_game_move_at_ply(game, i);
-        n += chess_print_move_san(move, position, s + n);
+        n += print_variation(position, variation, s);
         s[n++] = ' ';
-        chess_position_make_move(position, move);
     }
-    chess_position_destroy(position);
 
     result = chess_game_result(game);
     if (result == CHESS_RESULT_NONE)
