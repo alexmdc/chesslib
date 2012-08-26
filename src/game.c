@@ -369,6 +369,11 @@ void chess_game_iterator_destroy(ChessGameIterator* iter)
     free(iter);
 }
 
+ChessGame* chess_game_iterator_game(const ChessGameIterator* iter)
+{
+    return iter->game;
+}
+
 const ChessPosition* chess_game_iterator_position(const ChessGameIterator* iter)
 {
     return &iter->position;
@@ -383,6 +388,16 @@ ChessMove chess_game_iterator_move(const ChessGameIterator* iter)
 {
     assert(!chess_variation_is_root(iter->variation));
     return chess_variation_move(iter->variation);
+}
+
+size_t chess_game_iterator_ply(const ChessGameIterator* iter)
+{
+    return chess_array_size(&iter->unmoves);
+}
+
+ChessResult chess_game_iterator_check_result(const ChessGameIterator* iter)
+{
+    return chess_position_check_result(&iter->position);
 }
 
 static void advance_current_position(ChessGameIterator* iter, ChessMove move)

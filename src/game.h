@@ -60,9 +60,12 @@ typedef struct ChessGameIterator ChessGameIterator;
 ChessGameIterator* chess_game_get_iterator(ChessGame*);
 void chess_game_iterator_destroy(ChessGameIterator*);
 
+ChessGame* chess_game_iterator_game(const ChessGameIterator*);
 const ChessPosition* chess_game_iterator_position(const ChessGameIterator*);
 ChessVariation* chess_game_iterator_variation(ChessGameIterator*);
 ChessMove chess_game_iterator_move(const ChessGameIterator*);
+size_t chess_game_iterator_ply(const ChessGameIterator*);
+ChessResult chess_game_iterator_check_result(const ChessGameIterator*);
 
 void chess_game_iterator_append_move(ChessGameIterator*, ChessMove move);
 void chess_game_iterator_truncate_moves(ChessGameIterator*);

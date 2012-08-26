@@ -58,9 +58,9 @@ static ChessBoolean parse_line(char* s, char** cmd, char** args)
     return CHESS_TRUE;
 }
 
-static void list_moves(const ChessGame* game)
+static void list_moves(const ChessGameIterator* iter)
 {
-    const ChessPosition* position = chess_game_current_position(game);
+    const ChessPosition* position = chess_game_iterator_position(iter);
     ChessArray moves;
     char buf[1024];
     int i;
@@ -83,9 +83,9 @@ static void game_moves(const ChessGame* game)
     printf("%s\n", buf);
 }
 
-static void print_board(const ChessGame* game)
+static void print_board(const ChessGameIterator* iter)
 {
-    const ChessPosition* position = chess_game_current_position(game);
+    const ChessPosition* position = chess_game_iterator_position(iter);
     char buf[1024];
     chess_print_position(position, buf);
     fputs(buf, stdout);
@@ -93,11 +93,14 @@ static void print_board(const ChessGame* game)
 
 static void load_fen(ChessGame* game, const char* fen)
 {
+    ChessGameIterator* iter;
     ChessPosition* position = chess_position_new();
     chess_fen_load(fen, position);
     chess_game_init_position(game, position);
-    print_board(game);
     chess_position_destroy(position);
+    iter = chess_game_get_iterator(game);
+    print_board(iter);
+    chess_game_iterator_destroy(iter);
 }
 
 static void save_pgn(const ChessGame* game)
@@ -107,22 +110,22 @@ static void save_pgn(const ChessGame* game)
     printf("%s\n", buf);
 }
 
-static void undo_move(ChessGame* game)
+static void undo_move(ChessGameIterator* iter)
 {
-    if (chess_game_ply(game) == 0)
+    if (chess_game_iterator_ply(iter) == 0)
     {
         puts("Error: no move to undo");
     }
     else
     {
-        chess_game_step_back(game);
-        print_board(game);
+        chess_game_iterator_step_back(iter);
+        print_board(iter);
     }
 }
 
-static void handle_move(ChessGame* game, const char* cmd)
+static void handle_move(ChessGameIterator* iter, const char* cmd)
 {
-    const ChessPosition* position = chess_game_current_position(game);
+    const ChessPosition* position = chess_game_iterator_position(iter);
     ChessMove move = 0;
     ChessParseResult result = chess_parse_move(cmd, position, &move);
     ChessResult game_result;
@@ -145,10 +148,10 @@ static void handle_move(ChessGame* game, const char* cmd)
         chess_print_move_san(move, position, buf);
         puts(buf);
 
-        chess_game_append_move(game, move);
-        print_board(game);
+        chess_game_iterator_append_move(iter, move);
+        print_board(iter);
 
-        game_result = chess_game_result(game);
+        game_result = chess_game_iterator_check_result(iter);
         if (game_result != CHESS_RESULT_NONE)
         {
             chess_print_result(game_result, buf);
@@ -252,13 +255,15 @@ int main (int argc, const char* argv[])
 {
     char *line, *cmd, *args;
     ChessGame* game;
+    ChessGameIterator* iter;
     int quit = 0;
 
     chess_generate_init();
 
     game = chess_game_new();
     chess_game_init(game);
-    print_board(game);
+    iter = chess_game_get_iterator(game);
+    print_board(iter);
 
     line = 0;
 
@@ -280,8 +285,10 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "new"))
         {
+            chess_game_iterator_destroy(iter);
             chess_game_init(game);
-            print_board(game);
+            iter = chess_game_get_iterator(game);
+            print_board(iter);
         }
         else if (!strcmp(cmd, "fen"))
         {
@@ -293,7 +300,7 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "ls"))
         {
-            list_moves(game);
+            list_moves(iter);
         }
         else if (!strcmp(cmd, "moves"))
         {
@@ -301,11 +308,11 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "bd"))
         {
-            print_board(game);
+            print_board(iter);
         }
         else if (!strcmp(cmd, "undo"))
         {
-            undo_move(game);
+            undo_move(iter);
         }
         else if (!strcmp(cmd, "event"))
         {
@@ -337,10 +344,11 @@ int main (int argc, const char* argv[])
         }
         else
         {
-            handle_move(game, cmd);
+            handle_move(iter, cmd);
         }
     }
 
+    chess_game_iterator_destroy(iter);
     chess_game_destroy(game);
 
     return 0;
