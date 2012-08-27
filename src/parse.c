@@ -61,7 +61,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     ChessArray moves;
     ChessMove move, piece_move;
     ChessPiece pc;
-    ChessBoolean pawn_move, pm;
+    ChessBoolean pawn_move, pm, ambiguous;
     size_t i;
 
     assert(s && *s);
@@ -146,6 +146,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     move = 0;
     piece_move = 0;
     pawn_move = CHESS_FALSE;
+    ambiguous = CHESS_FALSE;
     for (i = 0; i < chess_array_size(&moves); i++)
     {
         move = *((ChessMove*)chess_array_elem(&moves, i));
@@ -169,11 +170,21 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
                 {
                     piece_move = move;
                     pawn_move = pm;
+                    ambiguous = CHESS_FALSE;
                 }
                 else if (pm == pawn_move)
                 {
-                    chess_array_cleanup(&moves);
-                    return CHESS_PARSE_AMBIGUOUS_MOVE;
+                    if (pm)
+                    {
+                        /* Ambiguous pawn moves, no hope of correcting */
+                        chess_array_cleanup(&moves);
+                        return CHESS_PARSE_AMBIGUOUS_MOVE;
+                    }
+                    else
+                    {
+                        /* Ambiguous piece moves, we may still find a pawn move */
+                        ambiguous = CHESS_TRUE;
+                    }
                 }
             }
         }
@@ -182,6 +193,9 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
 
     if (piece_move == 0)
         return CHESS_PARSE_ILLEGAL_MOVE;
+
+    if (ambiguous)
+        return CHESS_PARSE_AMBIGUOUS_MOVE;
 
     *ret_move = piece_move;
     return CHESS_PARSE_OK;

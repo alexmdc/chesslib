@@ -11,6 +11,7 @@
 void test_chess_add_tests(void);
 void test_move_add_tests(void);
 void test_variation_add_tests(void);
+void test_parse_add_tests(void);
 void test_print_add_tests(void);
 void test_position_add_tests(void);
 void test_generate_add_tests(void);
@@ -22,7 +23,7 @@ void test_cstring_add_tests(void);
 void test_carray_add_tests(void);
 void test_pgn_tokenizer_add_tests(void);
 
-int main (int argc, const char* argv[])
+int main(int argc, const char* argv[])
 {
     CU_initialize_registry();
 
@@ -31,6 +32,7 @@ int main (int argc, const char* argv[])
     test_chess_add_tests();
     test_move_add_tests();
     test_variation_add_tests();
+    test_parse_add_tests();
     test_print_add_tests();
     test_position_add_tests();
     test_generate_add_tests();
