@@ -195,6 +195,17 @@ int chess_print_position(const ChessPosition* position, char* s)
     return n;
 }
 
+static int print_nags(const ChessVariation* variation, char* s)
+{
+    ChessAnnotation annotations[4];
+    size_t n = 0, i, num = chess_variation_annotations(variation, annotations);
+    for (i = 0; i < num; ++i)
+    {
+        n += sprintf(s + n, " $%u", annotations[i]);
+    }
+    return n;
+}
+
 static int print_variation(const ChessPosition* position, ChessVariation* variation, char* s)
 {
     ChessMove move;
@@ -217,6 +228,7 @@ static int print_variation(const ChessPosition* position, ChessVariation* variat
 
         move = chess_variation_move(variation);
         n += chess_print_move_san(move, &temp_position, s + n);
+        n += print_nags(variation, s + n);
         showBlackNum = CHESS_FALSE;
 
         if (chess_variation_left(variation) == NULL)

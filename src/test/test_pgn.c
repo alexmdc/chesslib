@@ -205,10 +205,40 @@ static void test_pgn_load_subvariations(void)
     chess_game_destroy(game);
 }
 
+static void test_pgn_load_nags(void)
+{
+    const char pgn[] = "1. e4 e5 $1 2. Nc3 $2 $8 *";
+    ChessGame* game;
+    ChessVariation* variation;
+    ChessAnnotation annotations[4];
+    ChessPgnLoadResult result;
+
+    game = chess_game_new();
+    chess_game_init(game);
+    result = chess_pgn_load(pgn, game);
+    CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+
+    variation = chess_game_root_variation(game);
+    variation = chess_variation_first_child(variation);
+    CU_ASSERT_EQUAL(0, chess_variation_annotations(variation, annotations));
+
+    variation = chess_variation_first_child(variation);
+    CU_ASSERT_EQUAL(1, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(1, annotations[0]);
+
+    variation = chess_variation_first_child(variation);
+    CU_ASSERT_EQUAL(2, chess_variation_annotations(variation, annotations));
+    CU_ASSERT_EQUAL(2, annotations[0]);
+    CU_ASSERT_EQUAL(8, annotations[1]);
+
+    chess_game_destroy(game);
+}
+
 void test_pgn_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("pgn", NULL, NULL);
     CU_add_test(suite, "pgn_save", (CU_TestFunc)test_pgn_save);
     CU_add_test(suite, "pgn_load", (CU_TestFunc)test_pgn_load);
     CU_add_test(suite, "pgn_load_subvariations", (CU_TestFunc)test_pgn_load_subvariations);
+    CU_add_test(suite, "pgn_load_nags", (CU_TestFunc)test_pgn_load_nags);
 }

@@ -118,8 +118,18 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                 unmove = chess_position_make_move(current_position, move);
                 current_variation = chess_variation_add_child(current_variation, move);
                 break;
+            case CHESS_PGN_TOKEN_NAG:
+                if (chess_variation_is_root(current_variation))
+                {
+                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+                    break;
+                }
+
+                chess_variation_add_annotation(current_variation, token->data.number);
+                chess_pgn_tokenizer_next(tokenizer);
+                break;
             case CHESS_PGN_TOKEN_L_PARENTHESIS:
-                if (current_variation == NULL)
+                if (chess_variation_is_root(current_variation))
                 {
                     result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
                     break;

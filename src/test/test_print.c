@@ -145,6 +145,34 @@ static void test_print_game_moves_nested(void)
     chess_game_destroy(game);
 }
 
+static void test_print_game_moves_nags(void)
+{
+    ChessGame* game;
+    ChessGameIterator* iter;
+    char buf[1024];
+
+    game = chess_game_new();
+    chess_game_init(game);
+    iter = chess_game_get_iterator(game);
+
+    chess_game_iterator_append_move(iter, MV(E2,E4));
+    chess_game_iterator_append_move(iter, MV(E7,E5));
+    chess_variation_add_annotation(chess_game_iterator_variation(iter), 2);
+    chess_game_iterator_append_move(iter, MV(F2,F4));
+    chess_variation_add_annotation(chess_game_iterator_variation(iter), 1);
+    chess_variation_add_annotation(chess_game_iterator_variation(iter), 13);
+    chess_game_iterator_append_move(iter, MV(E5,F4));
+    chess_game_iterator_step_back(iter);
+    chess_game_iterator_step_back(iter);
+    chess_game_iterator_append_move(iter, MV(G1,F3));
+    chess_variation_add_annotation(chess_game_iterator_variation(iter), 20);
+    chess_print_game_moves(game, buf);
+    CU_ASSERT_STRING_EQUAL("1. e4 e5 $2 2. f4 $1 $13 (2. Nf3 $20) 2... exf4 *", buf);
+
+    chess_game_iterator_destroy(iter);
+    chess_game_destroy(game);
+}
+
 static void test_print_result(void)
 {
     char buf[10];
@@ -166,5 +194,6 @@ void test_print_add_tests(void)
     CU_add_test(suite, "print_move_san", (CU_TestFunc)test_print_move_san);
     CU_add_test(suite, "print_game_moves", (CU_TestFunc)test_print_game_moves);
     CU_add_test(suite, "print_game_moves_nested", (CU_TestFunc)test_print_game_moves_nested);
+    CU_add_test(suite, "print_game_moves_nags", (CU_TestFunc)test_print_game_moves_nags);
     CU_add_test(suite, "print_result", (CU_TestFunc)test_print_result);
 }
