@@ -46,6 +46,20 @@ static void test_buffer_writer_write(void)
     chess_buffer_writer_cleanup(&writer);
 }
 
+static void test_buffer_writer_clear(void)
+{
+    ChessBufferWriter writer;
+
+    chess_buffer_writer_init(&writer);
+    chess_writer_write_string((ChessWriter*)&writer, "This too shall pass.");
+    CU_ASSERT_EQUAL(20, chess_buffer_writer_size(&writer));
+
+    chess_buffer_writer_clear(&writer);
+    CU_ASSERT_EQUAL(0, chess_buffer_writer_size(&writer));
+
+    chess_buffer_writer_cleanup(&writer);
+}
+
 static void test_buffer_writer_detach(void)
 {
     ChessBufferWriter writer;
@@ -96,6 +110,7 @@ void test_writer_add_tests(void)
     CU_Suite* suite = CU_add_suite("writer", NULL, NULL);
     CU_add_test(suite, "buffer_writer_init", (CU_TestFunc)test_buffer_writer_init);
     CU_add_test(suite, "buffer_writer_write", (CU_TestFunc)test_buffer_writer_write);
+    CU_add_test(suite, "buffer_writer_clear", (CU_TestFunc)test_buffer_writer_clear);
     CU_add_test(suite, "buffer_writer_detach", (CU_TestFunc)test_buffer_writer_detach);
     CU_add_test(suite, "file_writer_write", (CU_TestFunc)test_file_writer_write);
 }

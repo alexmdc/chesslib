@@ -206,29 +206,32 @@ static int print_nags(const ChessVariation* variation, char* s)
     return n;
 }
 
-static int print_variation(const ChessPosition* position, ChessVariation* variation, char* s)
+static void print_variation(const ChessPosition* position, ChessVariation* variation, ChessWriter* writer)
 {
     ChessMove move;
     ChessPosition temp_position;
     ChessVariation* alternate;
     ChessBoolean showBlackNum = CHESS_TRUE, showSep = CHESS_FALSE;
-    size_t n = 0;
+    char buf[32];
+    size_t n;
 
     chess_position_copy(position, &temp_position);
 
     do
     {
         if (showSep)
-            s[n++] = ' ';
+            chess_writer_write_char(writer, ' ');
 
+        n = 0;
         if (chess_position_to_move(&temp_position) == CHESS_COLOR_WHITE)
-            n += sprintf(s + n, "%d. ", chess_position_move_num(&temp_position));
+            n = sprintf(buf, "%d. ", chess_position_move_num(&temp_position));
         else if (showBlackNum)
-            n += sprintf(s + n, "%d... ", chess_position_move_num(&temp_position));
+            n = sprintf(buf, "%d... ", chess_position_move_num(&temp_position));
 
         move = chess_variation_move(variation);
-        n += chess_print_move_san(move, &temp_position, s + n);
-        n += print_nags(variation, s + n);
+        n += chess_print_move_san(move, &temp_position, buf + n);
+        n += print_nags(variation, buf + n);
+        chess_writer_write_string_size(writer, buf, n);
         showBlackNum = CHESS_FALSE;
 
         if (chess_variation_left(variation) == NULL)
@@ -236,10 +239,9 @@ static int print_variation(const ChessPosition* position, ChessVariation* variat
             for (alternate = chess_variation_right(variation);
                  alternate != NULL; alternate = chess_variation_right(alternate))
             {
-                s[n++] = ' ';
-                s[n++] = '(';
-                n += print_variation(&temp_position, alternate, s + n);
-                s[n++] = ')';
+                chess_writer_write_string(writer, " (");
+                print_variation(&temp_position, alternate, writer);
+                chess_writer_write_char(writer, ')');
                 showBlackNum = CHESS_TRUE;
             }
         }
@@ -247,33 +249,30 @@ static int print_variation(const ChessPosition* position, ChessVariation* variat
         chess_position_make_move(&temp_position, move);
         showSep = CHESS_TRUE;
     } while ((variation = chess_variation_first_child(variation)) != NULL);
-
-    return n;
 }
 
-int chess_print_game_moves(const ChessGame* game, char *s)
+void chess_print_game_moves(const ChessGame* game, ChessWriter* writer)
 {
     const ChessPosition* position;
     ChessVariation* variation;
     ChessResult result;
-    size_t n = 0;
+    char buf[10];
+    size_t n;
 
     position = chess_game_initial_position(game);
     variation = chess_game_root_variation(game);
     variation = chess_variation_first_child(variation);
     if (variation != NULL)
     {
-        n += print_variation(position, variation, s);
-        s[n++] = ' ';
+        print_variation(position, variation, writer);
+        chess_writer_write_char(writer, ' ');
     }
 
     result = chess_game_result(game);
     if (result == CHESS_RESULT_NONE)
         result = CHESS_RESULT_IN_PROGRESS;
-    n += chess_print_result(result, s + n);
-    s[n] = '\0';
-
-    return n;
+    n = chess_print_result(result, buf);
+    chess_writer_write_string_size(writer, buf, n);
 }
 
 int chess_print_result(ChessResult result, char* s)

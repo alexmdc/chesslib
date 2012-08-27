@@ -54,14 +54,16 @@ static void test_pgn_save(void)
 
     ChessGame* game;
     ChessGameIterator* iter;
-    char buf[1024];
+    ChessBufferWriter writer;
     int i;
 
+    chess_buffer_writer_init(&writer);
     game = chess_game_new();
     chess_game_init(game);
-    chess_pgn_save(game, buf);
-    CU_ASSERT_STRING_EQUAL(game1, buf);
+    chess_pgn_save(game, (ChessWriter*)&writer);
+    ASSERT_BUFFER_VALUE(&writer, game1);
 
+    chess_buffer_writer_clear(&writer);
     chess_game_init(game);
     chess_game_set_event(game, "World Chess Championship 1886");
     chess_game_set_site(game, "New Orleans, USA");
@@ -76,9 +78,10 @@ static void test_pgn_save(void)
 
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     chess_game_set_tag(game, "PlyCount", "37");
-    chess_pgn_save(game, buf);
-    CU_ASSERT_STRING_EQUAL(game2, buf);
+    chess_pgn_save(game, (ChessWriter*)&writer);
+    ASSERT_BUFFER_VALUE(&writer, game2);
 
+    chess_buffer_writer_cleanup(&writer);
     chess_game_iterator_destroy(iter);
     chess_game_destroy(game);
 }

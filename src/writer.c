@@ -131,6 +131,11 @@ size_t chess_buffer_writer_size(const ChessBufferWriter* writer)
     return writer->size;
 }
 
+void chess_buffer_writer_clear(ChessBufferWriter* writer)
+{
+    writer->size = 0;
+}
+
 char* chess_buffer_writer_detach_buffer(ChessBufferWriter* writer)
 {
     char* buffer = writer->buffer;

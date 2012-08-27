@@ -62,7 +62,7 @@ static void list_moves(const ChessGameIterator* iter)
 {
     const ChessPosition* position = chess_game_iterator_position(iter);
     ChessArray moves;
-    char buf[1024];
+    char buf[16];
     int i;
 
     chess_array_init(&moves, sizeof(ChessMove));
@@ -78,9 +78,11 @@ static void list_moves(const ChessGameIterator* iter)
 
 static void game_moves(const ChessGame* game)
 {
-    char buf[1024];
-    chess_print_game_moves(game, buf);
-    printf("%s\n", buf);
+    ChessFileWriter writer;
+    chess_file_writer_init(&writer, stdout);
+    chess_print_game_moves(game, (ChessWriter*)&writer);
+    chess_file_writer_cleanup(&writer);
+    putchar('\n');
 }
 
 static void print_board(const ChessGameIterator* iter)
@@ -105,9 +107,11 @@ static void load_fen(ChessGame* game, const char* fen)
 
 static void save_pgn(const ChessGame* game)
 {
-    char buf[1024];
-    chess_pgn_save(game, buf);
-    printf("%s\n", buf);
+    ChessFileWriter writer;
+    chess_file_writer_init(&writer, stdout);
+    chess_pgn_save(game, (ChessWriter*)&writer);
+    chess_file_writer_cleanup(&writer);
+    putchar('\n');
 }
 
 static void undo_move(ChessGameIterator* iter)

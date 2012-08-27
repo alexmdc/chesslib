@@ -33,6 +33,7 @@ void chess_buffer_writer_cleanup(ChessBufferWriter*);
 char* chess_buffer_writer_data(const ChessBufferWriter*);
 size_t chess_buffer_writer_size(const ChessBufferWriter*);
 
+void chess_buffer_writer_clear(ChessBufferWriter*);
 char* chess_buffer_writer_detach_buffer(ChessBufferWriter*);
 
 #endif /* CHESSLIB_WRITER_H_ */

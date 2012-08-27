@@ -2,6 +2,7 @@
 #define CHESSLIB_PGN_H_
 
 #include "game.h"
+#include "writer.h"
 
 typedef enum {
     CHESS_PGN_LOAD_OK = 0,
@@ -11,6 +12,6 @@ typedef enum {
 } ChessPgnLoadResult;
 
 ChessPgnLoadResult chess_pgn_load(const char*, ChessGame*);
-void chess_pgn_save(const ChessGame*, char*);
+void chess_pgn_save(const ChessGame*, ChessWriter*);
 
 #endif /* CHESSLIB_PGN_H_ */

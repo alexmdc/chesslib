@@ -6,26 +6,28 @@
 #include "parse.h"
 #include "print.h"
 
-static int append_tag(const char* name, const char* value, char* s)
+static void append_tag(const char* name, const char* value, ChessWriter* writer)
 {
-    return sprintf(s, "[%s \"%s\"]\n", name, value);
+    chess_writer_write_char(writer, '[');
+    chess_writer_write_string(writer, name);
+    chess_writer_write_string(writer, " \"");
+    chess_writer_write_string(writer, value);
+    chess_writer_write_string(writer, "\"]\n");
 }
 
-void chess_pgn_save(const ChessGame* game, char* s)
+void chess_pgn_save(const ChessGame* game, ChessWriter* writer)
 {
-    int n = 0;
     ChessGameTagIterator iter = chess_game_get_tag_iterator((ChessGame*)game);
 
     while (chess_game_tag_iterator_next(&iter))
     {
-        n += append_tag(chess_game_tag_iterator_name(&iter),
-            chess_game_tag_iterator_value(&iter), s + n);
+        append_tag(chess_game_tag_iterator_name(&iter),
+            chess_game_tag_iterator_value(&iter), writer);
     }
-    s[n++] = '\n';
+    chess_writer_write_char(writer, '\n');
 
-    n += chess_print_game_moves(game, s + n);
-    s[n++] = '\n';
-    s[n] = '\0';
+    chess_print_game_moves(game, writer);
+    chess_writer_write_char(writer, '\n');
 }
 
 static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* game)

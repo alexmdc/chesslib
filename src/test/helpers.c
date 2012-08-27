@@ -80,7 +80,7 @@ void assert_sets_equal(const int* lset, int lsize, const int* rset, int rsize, c
 void assert_positions_equal(const ChessPosition* lposition, const ChessPosition* rposition, const char* file, unsigned int line)
 {
     ChessSquare sq;
-    
+
     for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
     {
         if (chess_position_piece(lposition, sq) != chess_position_piece(rposition, sq))
@@ -101,24 +101,31 @@ void assert_positions_equal(const ChessPosition* lposition, const ChessPosition*
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(castle)", file, line);
         return;
     }
-    
+
     if (chess_position_ep(lposition) != chess_position_ep(rposition))
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(ep)", file, line);
         return;
     }
-    
+
     if (chess_position_fifty(lposition) != chess_position_fifty(rposition))
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(fifty)", file, line);
         return;
     }
-    
+
     if (chess_position_move_num(lposition) != chess_position_move_num(rposition))
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(move_num)", file, line);
         return;
     }
-    
+
     ASSERT_PASS("ASSERT_POSITIONS_EQUAL()", file, line);
+}
+
+void assert_buffer_value(ChessBufferWriter* writer, const char* str, const char* file, unsigned int line)
+{
+    size_t size = strlen(str);
+    ASSERT_IMPL(chess_buffer_writer_size(writer) == size, "ASSERT_BUFFER_VALUE(size)", file, line);
+    ASSERT_IMPL(!strncmp(chess_buffer_writer_data(writer), str, size), "ASSERT_BUFFER_VALUE(value)", file, line);
 }
