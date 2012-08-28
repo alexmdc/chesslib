@@ -2,6 +2,7 @@
 #define CHESSLIB_PGN_TOKENIZER_H_
 
 #include "cstring.h"
+#include "reader.h"
 
 typedef enum
 {
@@ -39,14 +40,13 @@ typedef struct
 
 typedef struct
 {
-    const char* text;
-    size_t index;
+    ChessReader* reader;
     unsigned int line, row;
     ChessPgnToken* last, *next;
     ChessPgnToken tokens[2];
 } ChessPgnTokenizer;
 
-ChessPgnTokenizer* chess_pgn_tokenizer_new(const char* text);
+ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader*);
 const ChessPgnToken* chess_pgn_tokenizer_peek(const ChessPgnTokenizer*);
 const ChessPgnToken* chess_pgn_tokenizer_next(ChessPgnTokenizer*);
 void chess_pgn_tokenizer_destroy(ChessPgnTokenizer*);

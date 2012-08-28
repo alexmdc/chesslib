@@ -30,6 +30,15 @@ int chess_reader_getc(ChessReader* reader)
    return ((ReaderVtable*)reader->vtable)->read_char(reader);
 }
 
+int chess_reader_peek(ChessReader* reader)
+{
+    if (reader->next == EOF)
+    {
+        reader->next = ((ReaderVtable*)reader->vtable)->read_char(reader);
+    }
+    return reader->next;
+}
+
 void chess_reader_ungetc(ChessReader* reader, char c)
 {
     reader->next = c;
@@ -66,7 +75,12 @@ static ReaderVtable buffer_reader_vtable = {
     (ReadCharFunc)&buffer_reader_getc
 };
 
-void chess_buffer_reader_init(ChessBufferReader* reader, const char* data, size_t size)
+void chess_buffer_reader_init(ChessBufferReader* reader, const char* str)
+{
+    chess_buffer_reader_init_size(reader, str, strlen(str));
+}
+
+void chess_buffer_reader_init_size(ChessBufferReader* reader, const char* data, size_t size)
 {
     chess_reader_init((ChessReader*)reader);
     reader->base.vtable = &buffer_reader_vtable;

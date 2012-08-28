@@ -9,9 +9,8 @@
 static void test_buffer_reader(void)
 {
     ChessBufferReader reader;
-    const char* str = "SOME(cool)";
 
-    chess_buffer_reader_init(&reader, str, strlen(str));
+    chess_buffer_reader_init(&reader, "SOME(cool)");
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'S');
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'O');
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'M');
