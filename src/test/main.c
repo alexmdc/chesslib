@@ -22,6 +22,7 @@ void test_pgn_add_tests(void);
 void test_cstring_add_tests(void);
 void test_carray_add_tests(void);
 void test_pgn_tokenizer_add_tests(void);
+void test_reader_add_tests(void);
 void test_writer_add_tests(void);
 
 int main(int argc, const char* argv[])
@@ -44,6 +45,7 @@ int main(int argc, const char* argv[])
     test_cstring_add_tests();
     test_carray_add_tests();
     test_pgn_tokenizer_add_tests();
+    test_reader_add_tests();
     test_writer_add_tests();
 
     CU_basic_run_tests();
