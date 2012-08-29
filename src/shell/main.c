@@ -114,6 +114,25 @@ static void save_pgn(const ChessGame* game)
     putchar('\n');
 }
 
+static void load_pgn(ChessGame* game, const char* filename)
+{
+    FILE* file;
+    ChessFileReader reader;
+    ChessPgnLoadResult result;
+
+    file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        puts("Unable to open file.");
+        return;
+    }
+
+    chess_file_reader_init(&reader, file);
+    result = chess_pgn_load((ChessReader*)&reader, game);
+    printf("Loaded with result: %d\n", result);
+    chess_file_reader_cleanup(&reader);
+}
+
 static void undo_move(ChessGameIterator* iter)
 {
     if (chess_game_iterator_ply(iter) == 0)

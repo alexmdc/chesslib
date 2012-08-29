@@ -246,15 +246,10 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
     }
 }
 
-ChessPgnLoadResult chess_pgn_load(const char* s, ChessGame* game)
+ChessPgnLoadResult chess_pgn_load(ChessReader* reader, ChessGame* game)
 {
-    ChessBufferReader reader;
-    ChessPgnTokenizer* tokenizer;
-
-    chess_buffer_reader_init(&reader, s);
-    tokenizer = chess_pgn_tokenizer_new((ChessReader*)&reader);
+    ChessPgnTokenizer* tokenizer = chess_pgn_tokenizer_new(reader);
     ChessPgnLoadResult result = parse_game(tokenizer, game);
     chess_pgn_tokenizer_destroy(tokenizer);
-    chess_buffer_reader_cleanup(&reader);
     return result;
 }

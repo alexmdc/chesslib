@@ -104,10 +104,15 @@ static void test_pgn_load(void)
     " 17. Rxh6 gxh6 18. Nxf6+ Kf8 19. Nxg4 1-0\n";
 
     ChessPgnLoadResult result;
+    ChessBufferReader reader;
+
     ChessGame* game = chess_game_new();
     chess_game_init(game);
-    result = chess_pgn_load(pgn, game);
+
+    chess_buffer_reader_init(&reader, pgn);
+    result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
 
     CU_ASSERT_STRING_EQUAL("World Chess Championship 1886", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("New Orleans, USA", chess_game_site(game));
@@ -131,6 +136,7 @@ static void test_pgn_load_subvariations(void)
     const char pgn3[] =
         "1. c4 e5 (1... g6 2. d4 (2. Nf3)) *";
 
+    ChessBufferReader reader;
     ChessGame* game;
     ChessVariation* variation, *subvariation;
     ChessPgnLoadResult result;
@@ -138,8 +144,11 @@ static void test_pgn_load_subvariations(void)
     /* Test 1 */
     game = chess_game_new();
     chess_game_init(game);
-    result = chess_pgn_load(pgn1, game);
+
+    chess_buffer_reader_init(&reader, pgn1);
+    result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
 
     variation = chess_game_root_variation(game);
     variation = chess_variation_first_child(variation);
@@ -159,8 +168,10 @@ static void test_pgn_load_subvariations(void)
     /* Test 2 */
     game = chess_game_new();
     chess_game_init(game);
-    result = chess_pgn_load(pgn2, game);
+    chess_buffer_reader_init(&reader, pgn2);
+    result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
 
     variation = chess_game_root_variation(game);
     variation = chess_variation_first_child(variation);
@@ -185,8 +196,10 @@ static void test_pgn_load_subvariations(void)
     /* Test 3 */
     game = chess_game_new();
     chess_game_init(game);
-    result = chess_pgn_load(pgn3, game);
+    chess_buffer_reader_init(&reader, pgn3);
+    result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
 
     variation = chess_game_root_variation(game);
     variation = chess_variation_first_child(variation);
@@ -211,6 +224,7 @@ static void test_pgn_load_subvariations(void)
 static void test_pgn_load_nags(void)
 {
     const char pgn[] = "1. e4 e5 $1 2. Nc3 $2 $8 *";
+    ChessBufferReader reader;
     ChessGame* game;
     ChessVariation* variation;
     ChessAnnotation annotations[4];
@@ -218,8 +232,11 @@ static void test_pgn_load_nags(void)
 
     game = chess_game_new();
     chess_game_init(game);
-    result = chess_pgn_load(pgn, game);
+
+    chess_buffer_reader_init(&reader, pgn);
+    result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
 
     variation = chess_game_root_variation(game);
     variation = chess_variation_first_child(variation);
