@@ -1,6 +1,7 @@
 #ifndef CHESSLIB_PGN_TOKENIZER_H_
 #define CHESSLIB_PGN_TOKENIZER_H_
 
+#include "cbuffer.h"
 #include "cstring.h"
 #include "reader.h"
 
@@ -44,6 +45,7 @@ typedef struct
     unsigned int line, row;
     ChessPgnToken* last, *next;
     ChessPgnToken tokens[2];
+    ChessBuffer buffer;
 } ChessPgnTokenizer;
 
 ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader*);
