@@ -46,7 +46,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
         goto error;
     }
-    chess_string_assign(&tag, chess_string_data(&token->data.string));
+    chess_string_assign(&tag, chess_string_data(&token->string));
 
     token = chess_pgn_tokenizer_next(tokenizer);
     if (token->type != CHESS_PGN_TOKEN_STRING)
@@ -54,7 +54,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
         goto error;
     }
-    chess_string_assign(&value, chess_string_data(&token->data.string));
+    chess_string_assign(&value, chess_string_data(&token->string));
 
     token = chess_pgn_tokenizer_next(tokenizer);
     if (token->type != CHESS_PGN_TOKEN_R_BRACKET)
@@ -78,7 +78,7 @@ static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
     const ChessPgnToken* token;
 
     token = chess_pgn_tokenizer_peek(tokenizer); /* SYMBOL */
-    result = chess_parse_move(chess_string_data(&token->data.string), position, move);
+    result = chess_parse_move(chess_string_data(&token->string), position, move);
     if (result != CHESS_PARSE_OK)
         return CHESS_PGN_LOAD_ILLEGAL_MOVE;
 
@@ -127,7 +127,7 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                     break;
                 }
 
-                chess_variation_add_annotation(current_variation, token->data.number);
+                chess_variation_add_annotation(current_variation, token->number);
                 chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_L_PARENTHESIS:

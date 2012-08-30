@@ -17,5 +17,6 @@ const char* chess_string_data(const ChessString*);
 
 void chess_string_clear(ChessString*);
 void chess_string_assign(ChessString*, const char* s);
+void chess_string_assign_size(ChessString*, const char* s, size_t n);
 
 #endif /* CHESSLIB_STRING_H_ */

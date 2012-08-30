@@ -60,3 +60,9 @@ void chess_string_assign(ChessString* string, const char* s)
     chess_string_cleanup(string);
     chess_string_init_assign(string, s);
 }
+
+void chess_string_assign_size(ChessString* string, const char* s, size_t n)
+{
+    chess_string_cleanup(string);
+    chess_string_init_assign_size(string, s, n);
+}

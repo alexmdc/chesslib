@@ -26,24 +26,19 @@ typedef enum
     CHESS_PGN_TOKEN_EOF
 } ChessPgnTokenType;
 
-typedef union
-{
-    ChessString string;
-    int number;
-} ChessPgnTokenData;
-
 typedef struct
 {
     unsigned int line, row;
     ChessPgnTokenType type;
-    ChessPgnTokenData data;
+    ChessString string;
+    int number;
 } ChessPgnToken;
 
 typedef struct
 {
     ChessReader* reader;
     unsigned int line, row;
-    ChessPgnToken* last, *next;
+    ChessPgnToken* next;
     ChessPgnToken tokens[2];
     int count;
     ChessBuffer buffer;
