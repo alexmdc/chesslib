@@ -128,8 +128,11 @@ static void load_pgn(ChessGame* game, const char* filename)
     }
 
     chess_file_reader_init(&reader, file);
-    result = chess_pgn_load((ChessReader*)&reader, game);
-    printf("Loaded with result: %d\n", result);
+    do
+    {
+        result = chess_pgn_load((ChessReader*)&reader, game);
+        printf("Loaded with result: %d\n", result);
+    } while (result == CHESS_PGN_LOAD_OK);
     chess_file_reader_cleanup(&reader);
 }
 

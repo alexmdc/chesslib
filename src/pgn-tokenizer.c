@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "pgn-tokenizer.h"
 #include "chess.h"
@@ -125,16 +126,12 @@ static ChessBoolean read_comment_token(ChessReader* reader, ChessBuffer* buffer)
     return CHESS_FALSE; /* Not terminated */
 }
 
-static void skip_token(ChessPgnTokenizer* tokenizer)
+static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
 {
-    ChessPgnToken* token = tokenizer->last;
+    ChessPgnToken* token = &tokenizer->tokens[tokenizer->count++ % 2];
     ChessBuffer* buffer = &tokenizer->buffer;
     ChessBoolean ok;
     int c;
-
-    token_cleanup(tokenizer->last);
-    tokenizer->last = tokenizer->next;
-    tokenizer->next = token;
 
     while (isspace(c = chess_reader_getc(tokenizer->reader)))
         ;
@@ -148,10 +145,10 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
         if (!ok)
         {
             token_init_error(token, "Unterminated string token.");
-            return;
+            return token;
         }
         token_init_string(token, buffer);
-        return;
+        return token;
     }
 
     if (c == '$')
@@ -161,10 +158,10 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
         if (chess_buffer_size(buffer) == 0)
         {
             token_init_error(token, "Invalid NAG token.");
-            return;
+            return token;
         }
         token_init_nag(token, buffer);
-        return;
+        return token;
     }
 
     if (c == '{')
@@ -174,10 +171,10 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
         if (!ok)
         {
             token_init_error(token, "Unterminated comment token.");
-            return;
+            return token;
         }
         token_init_comment(token, buffer);
-        return;
+        return token;
     }
 
     if (isalnum(c))
@@ -207,36 +204,36 @@ static void skip_token(ChessPgnTokenizer* tokenizer)
             }
 
         }
-        return;
+        return token;
     }
 
     switch (c)
     {
         case EOF:
             token_init_simple(token, CHESS_PGN_TOKEN_EOF);
-            return;
+            return token;
         case '(':
             token_init_simple(token, CHESS_PGN_TOKEN_L_PARENTHESIS);
-            return;
+            return token;
         case ')':
             token_init_simple(token, CHESS_PGN_TOKEN_R_PARENTHESIS);
-            return;
+            return token;
         case '[':
             token_init_simple(token, CHESS_PGN_TOKEN_L_BRACKET);
-            return;
+            return token;
         case ']':
             token_init_simple(token, CHESS_PGN_TOKEN_R_BRACKET);
-            return;
+            return token;
         case '*':
             token_init_simple(token, CHESS_PGN_TOKEN_ASTERISK);
-            return;
+            return token;
         case '.':
             token_init_simple(token, CHESS_PGN_TOKEN_PERIOD);
-            return;
+            return token;
         default:
             chess_reader_ungetc(tokenizer->reader, c);
             token_init_error(token, "Unknown token.");
-            break;
+            return token;
     }
 }
 
@@ -245,28 +242,56 @@ ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader* reader)
     ChessPgnTokenizer* tokenizer = malloc(sizeof(ChessPgnTokenizer));
     memset(tokenizer, 0, sizeof(ChessPgnTokenizer));
     tokenizer->reader = reader;
-    tokenizer->last = &tokenizer->tokens[0];
-    tokenizer->next = &tokenizer->tokens[1];
-    skip_token(tokenizer);
     chess_buffer_init(&tokenizer->buffer);
     return tokenizer;
 }
 
-const ChessPgnToken* chess_pgn_tokenizer_peek(const ChessPgnTokenizer* tokenizer)
+void chess_pgn_tokenizer_destroy(ChessPgnTokenizer* tokenizer)
 {
+    if (tokenizer->last != NULL)
+        token_cleanup(tokenizer->last);
+    if (tokenizer->next != NULL)
+        token_cleanup(tokenizer->next);
+    chess_buffer_cleanup(&tokenizer->buffer);
+    free(tokenizer);
+}
+
+const ChessPgnToken* chess_pgn_tokenizer_peek(ChessPgnTokenizer* tokenizer)
+{
+    if (tokenizer->next == NULL)
+        tokenizer->next = read_token(tokenizer);
+    assert(tokenizer->next != NULL);
     return tokenizer->next;
+}
+
+void chess_pgn_tokenizer_consume(ChessPgnTokenizer* tokenizer)
+{
+    if (tokenizer->last != NULL)
+    {
+        token_cleanup(tokenizer->last);
+        tokenizer->last = NULL;
+    }
+    if (tokenizer->next != NULL)
+    {
+        token_cleanup(tokenizer->next);
+        tokenizer->next = NULL;
+    }
 }
 
 const ChessPgnToken* chess_pgn_tokenizer_next(ChessPgnTokenizer* tokenizer)
 {
-    skip_token(tokenizer);
-    return tokenizer->last;
-}
+    if (tokenizer->last != NULL)
+        token_cleanup(tokenizer->last);
 
-void chess_pgn_tokenizer_destroy(ChessPgnTokenizer* tokenizer)
-{
-    token_cleanup(tokenizer->last);
-    token_cleanup(tokenizer->next);
-    chess_buffer_cleanup(&tokenizer->buffer);
-    free(tokenizer);
+    if (tokenizer->next != NULL)
+    {
+        tokenizer->last = tokenizer->next;
+        tokenizer->next = NULL;
+    }
+    else
+    {
+        tokenizer->last = read_token(tokenizer);
+    }
+
+    return tokenizer->last;
 }

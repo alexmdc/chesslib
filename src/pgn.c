@@ -39,7 +39,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
     chess_string_init(&tag);
     chess_string_init(&value);
 
-    token = chess_pgn_tokenizer_next(tokenizer); /* L_BRACKET */
+    chess_pgn_tokenizer_consume(tokenizer); /* L_BRACKET */
     token = chess_pgn_tokenizer_next(tokenizer);
     if (token->type != CHESS_PGN_TOKEN_SYMBOL)
     {
@@ -82,7 +82,7 @@ static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
     if (result != CHESS_PARSE_OK)
         return CHESS_PGN_LOAD_ILLEGAL_MOVE;
 
-    chess_pgn_tokenizer_next(tokenizer);
+    chess_pgn_tokenizer_consume(tokenizer);
     return CHESS_PGN_LOAD_OK;
 }
 
@@ -104,13 +104,13 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
         {
             case CHESS_PGN_TOKEN_COMMENT:
                 /* Skip comments for now */
-                chess_pgn_tokenizer_next(tokenizer);
+                chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_NUMBER:
-                chess_pgn_tokenizer_next(tokenizer);
+                chess_pgn_tokenizer_consume(tokenizer);
                 /* Move number may be followed by zero or more periods */
                 while (chess_pgn_tokenizer_peek(tokenizer)->type == CHESS_PGN_TOKEN_PERIOD)
-                    chess_pgn_tokenizer_next(tokenizer);
+                    chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_SYMBOL:
                 result = parse_move(tokenizer, current_position, &move);
@@ -128,7 +128,7 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                 }
 
                 chess_variation_add_annotation(current_variation, token->data.number);
-                chess_pgn_tokenizer_next(tokenizer);
+                chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_L_PARENTHESIS:
                 if (chess_variation_is_root(current_variation))
@@ -136,7 +136,7 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                     result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
                     break;
                 }
-                chess_pgn_tokenizer_next(tokenizer);
+                chess_pgn_tokenizer_consume(tokenizer);
 
                 /* Subvariation, back up a move and parse it */
                 chess_position_undo_move(current_position, unmove);
@@ -154,7 +154,7 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                     break;
                 }
 
-                chess_pgn_tokenizer_next(tokenizer); /* R_PARENTHESIS */
+                chess_pgn_tokenizer_consume(tokenizer); /* R_PARENTHESIS */
                 chess_variation_attach_subvariation(
                     chess_variation_parent(current_variation), subvariation);
                 break;
@@ -194,19 +194,19 @@ static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
     switch (token->type)
     {
         case CHESS_PGN_TOKEN_ASTERISK:
-            chess_pgn_tokenizer_next(tokenizer);
+            chess_pgn_tokenizer_consume(tokenizer);
             *game_result = CHESS_RESULT_IN_PROGRESS;
             break;
         case CHESS_PGN_TOKEN_ONE_ZERO:
-            chess_pgn_tokenizer_next(tokenizer);
+            chess_pgn_tokenizer_consume(tokenizer);
             *game_result = CHESS_RESULT_WHITE_WINS;
             break;
         case CHESS_PGN_TOKEN_ZERO_ONE:
-            chess_pgn_tokenizer_next(tokenizer);
+            chess_pgn_tokenizer_consume(tokenizer);
             *game_result = CHESS_RESULT_BLACK_WINS;
             break;
         case CHESS_PGN_TOKEN_HALF_HALF:
-            chess_pgn_tokenizer_next(tokenizer);
+            chess_pgn_tokenizer_consume(tokenizer);
             *game_result = CHESS_RESULT_DRAW;
             break;
         default:
@@ -229,6 +229,8 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
         token = chess_pgn_tokenizer_peek(tokenizer);
         switch (token->type)
         {
+            case CHESS_PGN_TOKEN_EOF:
+                return CHESS_PGN_LOAD_EOF;
             case CHESS_PGN_TOKEN_L_BRACKET:
                 result = parse_tag(tokenizer, game);
                 if (result != CHESS_PGN_LOAD_OK)

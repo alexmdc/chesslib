@@ -45,12 +45,16 @@ typedef struct
     unsigned int line, row;
     ChessPgnToken* last, *next;
     ChessPgnToken tokens[2];
+    int count;
     ChessBuffer buffer;
 } ChessPgnTokenizer;
 
 ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader*);
-const ChessPgnToken* chess_pgn_tokenizer_peek(const ChessPgnTokenizer*);
-const ChessPgnToken* chess_pgn_tokenizer_next(ChessPgnTokenizer*);
 void chess_pgn_tokenizer_destroy(ChessPgnTokenizer*);
+
+const ChessPgnToken* chess_pgn_tokenizer_peek(ChessPgnTokenizer*);
+void chess_pgn_tokenizer_consume(ChessPgnTokenizer*);
+
+const ChessPgnToken* chess_pgn_tokenizer_next(ChessPgnTokenizer*);
 
 #endif /* CHESSLIB_PGN_TOKENIZER_H_ */
