@@ -74,12 +74,12 @@ error:
 static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
     const ChessPosition* position, ChessMove* move)
 {
-    ChessParseResult result;
+    ChessParseMoveResult result;
     const ChessPgnToken* token;
 
     token = chess_pgn_tokenizer_peek(tokenizer); /* SYMBOL */
     result = chess_parse_move(chess_string_data(&token->string), position, move);
-    if (result != CHESS_PARSE_OK)
+    if (result != CHESS_PARSE_MOVE_OK)
         return CHESS_PGN_LOAD_ILLEGAL_MOVE;
 
     chess_pgn_tokenizer_consume(tokenizer);

@@ -51,7 +51,7 @@ static ChessBoolean matches_move(const ChessPosition* position, ChessMove move,
     return CHESS_TRUE;
 }
 
-ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, ChessMove* ret_move)
+ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* position, ChessMove* ret_move)
 {
     char piece = '\0';
     char from_file = '\0', from_rank = '\0';
@@ -129,10 +129,10 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
         s++;
 
     if (equals && !promote)
-        return CHESS_PARSE_ERROR; /* Extra equals sign */
+        return CHESS_PARSE_MOVE_ERROR; /* Extra equals sign */
 
     if (*s)
-        return CHESS_PARSE_ERROR; /* Leftover characters */
+        return CHESS_PARSE_MOVE_ERROR; /* Leftover characters */
 
     if (!capture && !to_file && !to_rank)
     {
@@ -158,7 +158,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
                 if (piece_move)
                 {
                     chess_array_cleanup(&moves);
-                    return CHESS_PARSE_AMBIGUOUS_MOVE;
+                    return CHESS_PARSE_MOVE_AMBIGUOUS;
                 }
                 piece_move = move;
             }
@@ -179,7 +179,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
                     {
                         /* Ambiguous pawn moves, no hope of correcting */
                         chess_array_cleanup(&moves);
-                        return CHESS_PARSE_AMBIGUOUS_MOVE;
+                        return CHESS_PARSE_MOVE_AMBIGUOUS;
                     }
                     else
                     {
@@ -193,11 +193,11 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     chess_array_cleanup(&moves);
 
     if (piece_move == 0)
-        return CHESS_PARSE_ILLEGAL_MOVE;
+        return CHESS_PARSE_MOVE_ILLEGAL;
 
     if (ambiguous)
-        return CHESS_PARSE_AMBIGUOUS_MOVE;
+        return CHESS_PARSE_MOVE_AMBIGUOUS;
 
     *ret_move = piece_move;
-    return CHESS_PARSE_OK;
+    return CHESS_PARSE_MOVE_OK;
 }

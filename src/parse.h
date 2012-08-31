@@ -5,12 +5,12 @@
 #include "position.h"
 
 typedef enum {
-    CHESS_PARSE_OK = 0,
-    CHESS_PARSE_ERROR,
-    CHESS_PARSE_ILLEGAL_MOVE,
-    CHESS_PARSE_AMBIGUOUS_MOVE
-} ChessParseResult;
+    CHESS_PARSE_MOVE_OK = 0,
+    CHESS_PARSE_MOVE_ERROR,
+    CHESS_PARSE_MOVE_ILLEGAL,
+    CHESS_PARSE_MOVE_AMBIGUOUS
+} ChessParseMoveResult;
 
-ChessParseResult chess_parse_move(const char* s, const ChessPosition*, ChessMove*);
+ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition*, ChessMove*);
 
 #endif /* CHESSLIB_PARSE_H_ */

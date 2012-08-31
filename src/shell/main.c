@@ -153,19 +153,19 @@ static void handle_move(ChessGameIterator* iter, const char* cmd)
 {
     const ChessPosition* position = chess_game_iterator_position(iter);
     ChessMove move = 0;
-    ChessParseResult result = chess_parse_move(cmd, position, &move);
+    ChessParseMoveResult result = chess_parse_move(cmd, position, &move);
     ChessResult game_result;
     char buf[10];
 
-    if (result == CHESS_PARSE_ERROR)
+    if (result == CHESS_PARSE_MOVE_ERROR)
     {
         printf("Error (unknown command): %s\n", cmd);
     }
-    else if (result == CHESS_PARSE_ILLEGAL_MOVE)
+    else if (result == CHESS_PARSE_MOVE_ILLEGAL)
     {
         printf("Error (illegal move): %s\n", cmd);
     }
-    else if (result == CHESS_PARSE_AMBIGUOUS_MOVE)
+    else if (result == CHESS_PARSE_MOVE_AMBIGUOUS)
     {
         printf("Error (ambiguous move): %s\n", cmd);
     }
