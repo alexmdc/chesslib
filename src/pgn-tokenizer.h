@@ -28,7 +28,7 @@ typedef enum
 
 typedef struct
 {
-    unsigned int line, row;
+    unsigned int line, col;
     ChessPgnTokenType type;
     ChessString string;
     int number;
@@ -37,7 +37,8 @@ typedef struct
 typedef struct
 {
     ChessReader* reader;
-    unsigned int line, row;
+    int lastc, nextc;
+    unsigned int line, col;
     ChessPgnToken* next;
     ChessPgnToken tokens[2];
     int count;

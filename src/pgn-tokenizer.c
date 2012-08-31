@@ -8,6 +8,42 @@
 #include "pgn-tokenizer.h"
 #include "chess.h"
 
+const int NOCHAR = -2;
+
+static int tokenizer_getc(ChessPgnTokenizer* tokenizer)
+{
+    if (tokenizer->nextc == NOCHAR)
+    {
+        if (tokenizer->lastc == '\n')
+        {
+            tokenizer->line++;
+            tokenizer->col = 1;
+        }
+        else if (tokenizer->lastc != EOF)
+        {
+            tokenizer->col++;
+        }
+    }
+    else
+    {
+        tokenizer->nextc = NOCHAR;
+    }
+    tokenizer->lastc = chess_reader_getc(tokenizer->reader);
+    return tokenizer->lastc;
+}
+
+static int tokenizer_peek(ChessPgnTokenizer* tokenizer)
+{
+    return chess_reader_peek(tokenizer->reader);
+}
+
+static void tokenizer_ungetc(ChessPgnTokenizer* tokenizer)
+{
+    chess_reader_ungetc(tokenizer->reader, tokenizer->lastc);
+    tokenizer->nextc = tokenizer->lastc;
+    tokenizer->lastc = NOCHAR;
+}
+
 static void token_init(ChessPgnToken* token)
 {
     token->type = CHESS_PGN_TOKEN_NONE;
@@ -75,49 +111,49 @@ static void token_assign_nag(ChessPgnToken* token, ChessBuffer* buffer)
     token->number = strtol(chess_buffer_data(buffer), NULL, 10);
 }
 
-static ChessBoolean read_string_token(ChessReader* reader, ChessBuffer* buffer)
+static ChessBoolean read_string_token(ChessPgnTokenizer* tokenizer)
 {
     /* Eat everything, but check for escape chars */
     int c;
-    while ((c = chess_reader_getc(reader)) != EOF)
+    while ((c = tokenizer_getc(tokenizer)) != EOF)
     {
         if (c == '"')
             return CHESS_TRUE;
 
-        if (c == '\\' && chess_reader_peek(reader) == '"')
-            c = chess_reader_getc(reader);
+        if (c == '\\' && tokenizer_peek(tokenizer) == '"')
+            c = tokenizer_getc(tokenizer);
 
-        chess_buffer_append_char(buffer, c);
+        chess_buffer_append_char(&tokenizer->buffer, c);
     }
     return CHESS_FALSE; /* Not terminated */
 }
 
-static void read_symbol_token(ChessReader* reader, ChessBuffer* buffer)
+static void read_symbol_token(ChessPgnTokenizer* tokenizer)
 {
     int c;
-    while ((c = chess_reader_getc(reader)) != EOF
+    while ((c = tokenizer_getc(tokenizer)) != EOF
         && (isalnum(c) || strchr("_+#=:-/", c)))
-            chess_buffer_append_char(buffer, c);
-    chess_reader_ungetc(reader, c);
+            chess_buffer_append_char(&tokenizer->buffer, c);
+    tokenizer_ungetc(tokenizer);
 }
 
-static void read_number_token(ChessReader* reader, ChessBuffer* buffer)
+static void read_number_token(ChessPgnTokenizer* tokenizer)
 {
     int c;
-    while ((c = chess_reader_getc(reader)) != EOF && isnumber(c))
-        chess_buffer_append_char(buffer, c);
-    chess_reader_ungetc(reader, c);
+    while ((c = tokenizer_getc(tokenizer)) != EOF && isnumber(c))
+        chess_buffer_append_char(&tokenizer->buffer, c);
+    tokenizer_ungetc(tokenizer);
 }
 
-static ChessBoolean read_comment_token(ChessReader* reader, ChessBuffer* buffer)
+static ChessBoolean read_comment_token(ChessPgnTokenizer* tokenizer)
 {
     int c;
-    while ((c = chess_reader_getc(reader)) != EOF)
+    while ((c = tokenizer_getc(tokenizer)) != EOF)
     {
         if (c == '}')
             return CHESS_TRUE;
 
-        chess_buffer_append_char(buffer, c);
+        chess_buffer_append_char(&tokenizer->buffer, c);
     }
     return CHESS_FALSE; /* Not terminated */
 }
@@ -129,15 +165,18 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
     ChessBoolean ok;
     int c;
 
-    while (isspace(c = chess_reader_getc(tokenizer->reader)))
+    while (isspace(c = tokenizer_getc(tokenizer)))
         ;
+
+    token->line = tokenizer->line;
+    token->col = tokenizer->col;
 
     chess_buffer_clear(buffer);
 
     if (c == '"')
     {
         /* String token */
-        ok = read_string_token(tokenizer->reader, buffer);
+        ok = read_string_token(tokenizer);
         if (!ok)
         {
             token_assign_error(token, "Unterminated string token.");
@@ -150,7 +189,7 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
     if (c == '$')
     {
         /* NAG token */
-        read_number_token(tokenizer->reader, buffer);
+        read_number_token(tokenizer);
         if (chess_buffer_size(buffer) == 0)
         {
             token_assign_error(token, "Invalid NAG token.");
@@ -163,7 +202,7 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
     if (c == '{')
     {
         /* Comment token */
-        ok = read_comment_token(tokenizer->reader, buffer);
+        ok = read_comment_token(tokenizer);
         if (!ok)
         {
             token_assign_error(token, "Unterminated comment token.");
@@ -177,7 +216,7 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
     {
         /* Symbol or integer token */
         chess_buffer_append_char(buffer, c);
-        read_symbol_token(tokenizer->reader, buffer);
+        read_symbol_token(tokenizer);
         chess_buffer_null_terminate(buffer);
 
         if (!token_assign_number(token, buffer))
@@ -227,7 +266,7 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
             token_assign_simple(token, CHESS_PGN_TOKEN_PERIOD);
             return token;
         default:
-            chess_reader_ungetc(tokenizer->reader, c);
+            tokenizer_ungetc(tokenizer);
             token_assign_error(token, "Unknown token.");
             return token;
     }
@@ -238,6 +277,10 @@ ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader* reader)
     ChessPgnTokenizer* tokenizer = malloc(sizeof(ChessPgnTokenizer));
     memset(tokenizer, 0, sizeof(ChessPgnTokenizer));
     tokenizer->reader = reader;
+    tokenizer->line = 1;
+    tokenizer->col = 0;
+    tokenizer->nextc = NOCHAR;
+    tokenizer->lastc = NOCHAR;
     token_init(&tokenizer->tokens[0]);
     token_init(&tokenizer->tokens[1]);
     chess_buffer_init(&tokenizer->buffer);
