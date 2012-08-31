@@ -18,6 +18,16 @@ static void test_parse_move(void)
     /* Removing the pawn on f4 should actually lead to an ambiguous move */
     chess_position_set_piece(&position, CHESS_SQUARE_F4, CHESS_PIECE_NONE);
     CU_ASSERT_EQUAL(CHESS_PARSE_AMBIGUOUS_MOVE, chess_parse_move("f5", &position, &move));
+
+    /* Another bug - castling queenside is failing */
+    chess_fen_load("r1b1k2r/1p1nbppp/pq1ppn2/6B1/4PP2/1NN2Q2/PPP3PP/R3KB1R w KQkq - 0 10", &position);
+    CU_ASSERT_EQUAL(CHESS_PARSE_OK, chess_parse_move("O-O-O", &position, &move));
+    CU_ASSERT_EQUAL(MV(E1,C1), move);
+
+    /* Promotion is also failing when a different piece can move to the promotion square */
+    chess_fen_load("6k1/8/2n5/p1Bp2N1/2pP4/1nP3P1/p5KP/5R2 b - - 0 44", &position);
+    CU_ASSERT_EQUAL(CHESS_PARSE_OK, chess_parse_move("a1=Q", &position, &move));
+    CU_ASSERT_EQUAL(MVP(A2,A1,QUEEN), move);
 }
 
 void test_parse_add_tests(void)

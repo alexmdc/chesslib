@@ -43,7 +43,8 @@ static ChessBoolean matches_move(const ChessPosition* position, ChessMove move,
     if (promote)
     {
         move_promote = chess_move_promotes(move);
-        if (tolower(chess_move_promote_to_char(move_promote)) != promote)
+        if (move_promote == CHESS_MOVE_PROMOTE_NONE
+        || tolower(chess_move_promote_to_char(move_promote)) != promote)
             return CHESS_FALSE;
     }
 
@@ -70,7 +71,7 @@ ChessParseResult chess_parse_move(const char* s, const ChessPosition* position, 
     {
         piece = 'k';
         from_file = 'e';
-        to_file = 'g';
+        to_file = 'c';
         s += 5;
     }
     else if (!strncasecmp(s, "o-o-o", 3))
