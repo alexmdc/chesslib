@@ -85,10 +85,9 @@ void chess_game_destroy(ChessGame* game)
 
 void chess_game_init(ChessGame* game)
 {
-    ChessPosition* start = chess_position_new();
-    chess_position_init(start);
-    chess_game_init_position(game, start);
-    chess_position_destroy(start);
+    ChessPosition start;
+    chess_position_init(&start);
+    chess_game_init_position(game, &start);
 }
 
 void chess_game_init_position(ChessGame* game, const ChessPosition* position)

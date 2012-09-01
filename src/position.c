@@ -11,16 +11,21 @@
 ChessPosition* chess_position_new(void)
 {
     ChessPosition* position = malloc(sizeof(ChessPosition));
-    memset(position, 0, sizeof(ChessPosition));
-    position->move_num = 1;
-    position->ep = CHESS_FILE_INVALID;
+    chess_position_init(position);
+    return position;
+}
+
+ChessPosition* chess_position_new_fen(const char* fen)
+{
+    ChessPosition* position = malloc(sizeof(ChessPosition));
+    chess_position_init_fen(position, fen);
     return position;
 }
 
 ChessPosition* chess_position_clone(const ChessPosition* position)
 {
     ChessPosition* clone = chess_position_new();
-    memcpy(clone, position, sizeof(ChessPosition));
+    chess_position_copy(position, clone);
     return clone;
 }
 
@@ -32,8 +37,13 @@ void chess_position_destroy(ChessPosition* position)
 
 void chess_position_init(ChessPosition* position)
 {
+    chess_position_init_fen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+}
+
+void chess_position_init_fen(ChessPosition* position, const char* fen)
+{
     memset(position, 0, sizeof(ChessPosition));
-    chess_fen_load("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", position);
+    chess_fen_load(fen, position);
 }
 
 void chess_position_copy(const ChessPosition* from, ChessPosition* to)

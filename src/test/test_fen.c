@@ -71,13 +71,11 @@ static void test_fen_load(void)
         WP, WP, WP, WP, WP, WP, WP, WP,
         WR, WN, WB, WQ, WK, WB, WN, WR,
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
 
-    fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    chess_fen_load(fen, position);
-    TEST_POSITION_PIECES(position, pieces);
-    TEST_POSITION_META(position, CHESS_COLOR_WHITE, CHESS_CASTLE_STATE_ALL, -1, 0, 1);
-    chess_position_destroy(position);
+    chess_fen_load(fen, &position);
+    TEST_POSITION_PIECES(&position, pieces);
+    TEST_POSITION_META(&position, CHESS_COLOR_WHITE, CHESS_CASTLE_STATE_ALL, -1, 0, 1);
 }
 
 static void test_fen_load2(void)
@@ -93,49 +91,45 @@ static void test_fen_load2(void)
         0,  0,  0,  0,  0, WK,  0,  0,
         0,  0,  0,  0,  0,  0,  0,  0,
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
 
-    chess_fen_load(fen, position);
-    TEST_POSITION_PIECES(position, pieces);
-    TEST_POSITION_META(position, CHESS_COLOR_BLACK, CHESS_CASTLE_STATE_NONE, -1, 10, 50);
-    chess_position_destroy(position);
+    chess_fen_load(fen, &position);
+    TEST_POSITION_PIECES(&position, pieces);
+    TEST_POSITION_META(&position, CHESS_COLOR_BLACK, CHESS_CASTLE_STATE_NONE, -1, 10, 50);
 }
 
 static void test_fen_save(void)
 {
     char fen[100];
+    ChessPosition position;
 
-    ChessPosition* position = chess_position_new();
-    chess_position_init(position);
-    chess_fen_save(position, fen);
+    chess_position_init(&position);
+    chess_fen_save(&position, fen);
     CU_ASSERT_STRING_EQUAL("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", fen);
-    chess_position_destroy(position);
 }
 
 static void test_fen_save2(void)
 {
     char fen[100];
+    ChessPosition position;
 
-    ChessPosition* position = chess_position_new();
-    chess_position_init(position);
-    chess_fen_load("r3r1k1/pp3pbp/1qp3p1/2B5/2BP2b1/Q1n2N2/P4PPP/3R1K1R b - - 0 17", position);
-    chess_position_make_move(position, MV(G4, E6));
-    chess_fen_save(position, fen);
+    chess_position_init(&position);
+    chess_fen_load("r3r1k1/pp3pbp/1qp3p1/2B5/2BP2b1/Q1n2N2/P4PPP/3R1K1R b - - 0 17", &position);
+    chess_position_make_move(&position, MV(G4, E6));
+    chess_fen_save(&position, fen);
     CU_ASSERT_STRING_EQUAL("r3r1k1/pp3pbp/1qp1b1p1/2B5/2BP4/Q1n2N2/P4PPP/3R1K1R w - - 1 18", fen);
-    chess_position_destroy(position);
 }
 
 static void test_fen_save3(void)
 {
     char fen[100];
+    ChessPosition position;
 
-    ChessPosition* position = chess_position_new();
-    chess_position_init(position);
-    chess_fen_load("r1bq1r2/pp2npp1/4p1k1/3pP1N1/1b1n2QP/2N5/PP3PP1/R1B1K2R b KQ - 1 12", position);
-    chess_position_make_move(position, MV(F7, F5));
-    chess_fen_save(position, fen);
+    chess_position_init(&position);
+    chess_fen_load("r1bq1r2/pp2npp1/4p1k1/3pP1N1/1b1n2QP/2N5/PP3PP1/R1B1K2R b KQ - 1 12", &position);
+    chess_position_make_move(&position, MV(F7, F5));
+    chess_fen_save(&position, fen);
     CU_ASSERT_STRING_EQUAL("r1bq1r2/pp2n1p1/4p1k1/3pPpN1/1b1n2QP/2N5/PP3PP1/R1B1K2R w KQ f6 0 13", fen);
-    chess_position_destroy(position);
 }
 
 void test_fen_add_tests(void)

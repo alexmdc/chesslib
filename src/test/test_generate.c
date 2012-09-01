@@ -1,7 +1,6 @@
 #include <CUnit/CUnit.h>
 
 #include "../generate.h"
-#include "../fen.h"
 
 #include "helpers.h"
 
@@ -25,17 +24,15 @@ static void test_generate_moves(void)
         MV(B1,A3), MV(B1,C3),
         MV(G1,F3), MV(G1,H3),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_position_init(position);
+    chess_position_init(&position);
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
     chess_array_cleanup(&moves);
-
-    chess_position_destroy(position);
 }
 
 static void test_generate_moves2(void)
@@ -55,16 +52,14 @@ static void test_generate_moves2(void)
         MV(D1,D2), MV(D1,D3), MV(D1,E2),
         MV(E1,D2), MV(E1,E2), MV(E1,F1), MV(E1,G1),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_fen_load("r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 6", position);
+    chess_position_init_fen(&position, "r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 6");
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
-
-    chess_position_destroy(position);
 }
 
 static void test_generate_moves3(void)
@@ -84,17 +79,15 @@ static void test_generate_moves3(void)
         MV(E7,D8), MV(E7,D7), MV(E7,E6), MV(E7,F6), MV(E7,G5), MV(E7,H4),
         MV(E8,D8), MV(E8,D7), MV(E8,C8),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_fen_load("r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQ1RK1 b kq - 0 6", position);
+    chess_position_init_fen(&position, "r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQ1RK1 b kq - 0 6");
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
     chess_array_cleanup(&moves);
-
-    chess_position_destroy(position);
 }
 
 static void test_generate_moves4(void)
@@ -114,17 +107,15 @@ static void test_generate_moves4(void)
         MV(D1,D2), MV(D1,D3), MV(D1,D4), MV(D1,E2),
         MV(E1,D2), MV(E1,E2), MV(E1,F1), MV(E1,G1),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_fen_load("r1bqk1nr/pppp1ppp/2n5/2b5/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq - 0 5", position);
+    chess_position_init_fen(&position, "r1bqk1nr/pppp1ppp/2n5/2b5/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq - 0 5");
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
     chess_array_cleanup(&moves);
-
-    chess_position_destroy(position);
 }
 
 static void test_generate_moves5(void)
@@ -143,17 +134,15 @@ static void test_generate_moves5(void)
             MV(H4,D4), MV(H4,C4), MV(H4,G5), MV(H4,F6), MV(H4,E7), MV(H4,D8), MV(H4,H5), MV(H4,H6),
         MV(E8,D8), MV(E8,E7),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_fen_load("r1b1k2r/pppp1pBp/8/b2P4/2B4q/1Q6/P4PP1/R4RK1 b kq - 0 15", position);
+    chess_position_init_fen(&position, "r1b1k2r/pppp1pBp/8/b2P4/2B4q/1Q6/P4PP1/R4RK1 b kq - 0 15");
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
     chess_array_cleanup(&moves);
-
-    chess_position_destroy(position);
 }
 
 static void test_generate_moves6(void)
@@ -173,17 +162,15 @@ static void test_generate_moves6(void)
         MVP(E2,E1,KNIGHT), MVP(E2,E1,BISHOP), MVP(E2,E1,ROOK), MVP(E2,E1,QUEEN),
         MVP(E2,F1,KNIGHT), MVP(E2,F1,BISHOP), MVP(E2,F1,ROOK), MVP(E2,F1,QUEEN),
     };
-    ChessPosition* position = chess_position_new();
+    ChessPosition position;
     ChessArray moves;
 
-    chess_fen_load("r1bqrnk1/ppp1bNp1/7p/2P5/3P4/3Q1N2/PPB1p1PP/R4RK1 b - - 3 16", position);
+    chess_position_init_fen(&position, "r1bqrnk1/ppp1bNp1/7p/2P5/3P4/3Q1N2/PPB1p1PP/R4RK1 b - - 3 16");
     chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
     chess_array_cleanup(&moves);
-
-    chess_position_destroy(position);
 }
 
 void test_generate_add_tests(void)

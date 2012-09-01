@@ -96,10 +96,9 @@ static void print_board(const ChessGameIterator* iter)
 static void load_fen(ChessGame* game, const char* fen)
 {
     ChessGameIterator* iter;
-    ChessPosition* position = chess_position_new();
-    chess_fen_load(fen, position);
-    chess_game_init_position(game, position);
-    chess_position_destroy(position);
+    ChessPosition position;
+    chess_position_init_fen(&position, fen);
+    chess_game_init_position(game, &position);
     iter = chess_game_get_iterator(game);
     print_board(iter);
     chess_game_iterator_destroy(iter);

@@ -6,7 +6,7 @@
 
 static void test_game_new(void)
 {
-    ChessPosition* start_position;
+    ChessPosition start_position;
     ChessGame* game;
 
     game = chess_game_new();
@@ -17,11 +17,9 @@ static void test_game_new(void)
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
-    start_position = chess_position_new();
-    chess_position_init(start_position);
-    ASSERT_POSITIONS_EQUAL(start_position, chess_game_initial_position(game));
+    chess_position_init(&start_position);
+    ASSERT_POSITIONS_EQUAL(&start_position, chess_game_initial_position(game));
 
-    chess_position_destroy(start_position);
     chess_game_destroy(game);
 }
 
@@ -29,7 +27,7 @@ static void test_game_move(void)
 {
     ChessGame* game;
     ChessGameIterator* iter;
-    ChessPosition* position;
+    ChessPosition position;
     ChessMove moves[] = { MV(E2,E4), MV(D7,D5) };
 
     game = chess_game_new();
@@ -40,12 +38,11 @@ static void test_game_move(void)
     chess_game_iterator_append_move(iter, moves[1]);
     CU_ASSERT_EQUAL(2, chess_game_ply(game));
 
-    position = chess_position_new();
-    chess_position_init(position);
-    ASSERT_POSITIONS_EQUAL(position, chess_game_initial_position(game));
-    chess_position_make_move(position, moves[0]);
-    chess_position_make_move(position, moves[1]);
-    ASSERT_POSITIONS_EQUAL(position, chess_game_iterator_position(iter));
+    chess_position_init(&position);
+    ASSERT_POSITIONS_EQUAL(&position, chess_game_initial_position(game));
+    chess_position_make_move(&position, moves[0]);
+    chess_position_make_move(&position, moves[1]);
+    ASSERT_POSITIONS_EQUAL(&position, chess_game_iterator_position(iter));
 
     CU_ASSERT_EQUAL(moves[0], chess_game_move_at_ply(game, 0));
     CU_ASSERT_EQUAL(moves[1], chess_game_move_at_ply(game, 1));
@@ -56,7 +53,6 @@ static void test_game_move(void)
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     ASSERT_POSITIONS_EQUAL(chess_game_initial_position(game), chess_game_iterator_position(iter));
 
-    chess_position_destroy(position);
     chess_game_iterator_destroy(iter);
     chess_game_destroy(game);
 }

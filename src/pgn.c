@@ -186,7 +186,6 @@ static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
     ChessPosition* position;
 
     position = chess_position_new();
-    chess_position_init(position);
     parse_variation(tokenizer, position, variation);
     chess_position_destroy(position);
 

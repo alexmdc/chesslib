@@ -17,10 +17,12 @@ typedef struct
 } ChessPosition;
 
 ChessPosition* chess_position_new(void);
+ChessPosition* chess_position_new_fen(const char*);
 ChessPosition* chess_position_clone(const ChessPosition*);
 void chess_position_destroy(ChessPosition*);
 
 void chess_position_init(ChessPosition*);
+void chess_position_init_fen(ChessPosition*, const char*);
 void chess_position_copy(const ChessPosition* from, ChessPosition* to);
 
 ChessPiece chess_position_piece(const ChessPosition*, ChessSquare);
