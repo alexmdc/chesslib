@@ -13,7 +13,6 @@ static void test_game_new(void)
     chess_game_destroy(game);
 
     game = chess_game_new();
-    chess_game_init(game);
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
@@ -31,7 +30,6 @@ static void test_game_move(void)
     ChessMove moves[] = { MV(E2,E4), MV(D7,D5) };
 
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
     chess_game_iterator_append_move(iter, moves[0]);
     CU_ASSERT_EQUAL(1, chess_game_ply(game));
@@ -63,7 +61,6 @@ static void test_game_result(void)
     ChessGameIterator* iter;
 
     game = chess_game_new();
-    chess_game_init(game);
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
     iter = chess_game_get_iterator(game);
@@ -78,7 +75,7 @@ static void test_game_result(void)
     CU_ASSERT_EQUAL(7, chess_game_ply(game));
     chess_game_iterator_destroy(iter);
 
-    chess_game_init(game);
+    chess_game_reset(game);
     iter = chess_game_get_iterator(game);
     chess_game_iterator_append_move(iter, MV(F2,F4));
     chess_game_iterator_append_move(iter, MV(E7,E5));
@@ -88,7 +85,7 @@ static void test_game_result(void)
     CU_ASSERT_EQUAL(4, chess_game_ply(game));
     chess_game_iterator_destroy(iter);
 
-    chess_game_init(game);
+    chess_game_reset(game);
     iter = chess_game_get_iterator(game);
     chess_game_iterator_append_move(iter, MV(E2,E3)); /* 1. e3 */
     chess_game_iterator_append_move(iter, MV(A7,A5)); /*    a5 */
@@ -126,7 +123,6 @@ static void test_game_set_result(void)
     ChessGameIterator* iter;
 
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
 
     chess_game_iterator_append_move(iter, MV(E2,E4));
@@ -161,7 +157,6 @@ static void test_game_set_result(void)
 static void test_game_tags(void)
 {
     ChessGame* game = chess_game_new();
-    chess_game_init(game);
     CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
@@ -185,7 +180,7 @@ static void test_game_tags(void)
     CU_ASSERT_STRING_EQUAL("Spassky, Boris V.", chess_game_black(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
 
-    chess_game_init(game);
+    chess_game_reset(game);
     CU_ASSERT_STRING_EQUAL("", chess_game_event(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_site(game));
     CU_ASSERT_STRING_EQUAL("", chess_game_date(game));
@@ -202,8 +197,6 @@ static void test_game_extra_tags(void)
     ChessGame* game;
 
     game = chess_game_new();
-    chess_game_init(game);
-
     CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
     CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "ECO"));
     CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
@@ -252,7 +245,6 @@ static void test_game_extra_tags(void)
 
     /* Check tags are properly cleaned up on delete */
     game = chess_game_new();
-    chess_game_init(game);
     chess_game_set_tag(game, "Annotator", "Fritz");
     chess_game_set_tag(game, "ECO", "B47");
     chess_game_set_tag(game, "PlyCount", "65");
@@ -260,7 +252,6 @@ static void test_game_extra_tags(void)
 
     /* Check that extra tags interact with STR tags */
     game = chess_game_new();
-    chess_game_init(game);
     chess_game_set_event(game, "F/S Return Match");
     chess_game_set_site(game, "Belgrade, Serbia JUG");
     chess_game_set_date(game, "1992.11.04");
@@ -329,8 +320,6 @@ static void test_game_tag_iterator(void)
     ChessGameTagIterator iter;
 
     game = chess_game_new();
-    chess_game_init(game);
-
     iter = chess_game_get_tag_iterator(game);
     CU_ASSERT(chess_game_tag_iterator_next(&iter));
     CU_ASSERT_STRING_EQUAL("Event", chess_game_tag_iterator_name(&iter));
@@ -409,7 +398,6 @@ static void test_game_step_to_end(void)
     ChessPosition position_temp;
 
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
 
     chess_game_iterator_step_to_end(iter);
@@ -446,7 +434,6 @@ static void test_game_step_to_move(void)
     ChessPosition position_d4_Nf6_c4_g6_Nc3;
 
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
 
     chess_game_iterator_step_to_move(iter, chess_game_root_variation(game));

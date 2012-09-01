@@ -59,12 +59,11 @@ static void test_pgn_save(void)
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    chess_game_init(game);
     chess_pgn_save(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, game1);
 
     chess_buffer_writer_clear(&writer);
-    chess_game_init(game);
+    chess_game_reset(game);
     chess_game_set_event(game, "World Chess Championship 1886");
     chess_game_set_site(game, "New Orleans, USA");
     chess_game_set_date(game, "1886.01.21");
@@ -107,8 +106,6 @@ static void test_pgn_load(void)
     ChessBufferReader reader;
 
     ChessGame* game = chess_game_new();
-    chess_game_init(game);
-
     chess_buffer_reader_init(&reader, pgn);
     result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
@@ -143,8 +140,6 @@ static void test_pgn_load_subvariations(void)
 
     /* Test 1 */
     game = chess_game_new();
-    chess_game_init(game);
-
     chess_buffer_reader_init(&reader, pgn1);
     result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
@@ -167,7 +162,6 @@ static void test_pgn_load_subvariations(void)
 
     /* Test 2 */
     game = chess_game_new();
-    chess_game_init(game);
     chess_buffer_reader_init(&reader, pgn2);
     result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
@@ -195,7 +189,6 @@ static void test_pgn_load_subvariations(void)
 
     /* Test 3 */
     game = chess_game_new();
-    chess_game_init(game);
     chess_buffer_reader_init(&reader, pgn3);
     result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
@@ -231,8 +224,6 @@ static void test_pgn_load_nags(void)
     ChessPgnLoadResult result;
 
     game = chess_game_new();
-    chess_game_init(game);
-
     chess_buffer_reader_init(&reader, pgn);
     result = chess_pgn_load((ChessReader*)&reader, game);
     CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);

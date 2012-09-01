@@ -65,12 +65,10 @@ static void test_print_game_moves(void)
 {
     ChessGame* game;
     ChessGameIterator* iter;
-    ChessPosition position;
     ChessBufferWriter writer;
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    chess_game_init(game);
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "*");
 
@@ -89,8 +87,7 @@ static void test_print_game_moves(void)
     chess_game_iterator_destroy(iter);
 
     chess_buffer_writer_clear(&writer);
-    chess_position_init_fen(&position, "5k2/3b2p1/1p4qp/p1pPp1pn/P1P1P3/2PQ4/6PP/3BB1K1 b - - 1 26");
-    chess_game_init_position(game, &position);
+    chess_game_reset_fen(game, "5k2/3b2p1/1p4qp/p1pPp1pn/P1P1P3/2PQ4/6PP/3BB1K1 b - - 1 26");
     iter = chess_game_get_iterator(game);
     chess_game_iterator_append_move(iter, MV(H5,F4));
     chess_game_iterator_append_move(iter, MV(D3,C2));
@@ -112,7 +109,6 @@ static void test_print_game_moves_nested(void)
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
 
     chess_game_iterator_append_move(iter, MV(E2,E4));
@@ -156,7 +152,6 @@ static void test_print_game_moves_nags(void)
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
 
     chess_game_iterator_append_move(iter, MV(E2,E4));

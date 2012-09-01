@@ -40,6 +40,13 @@ struct ChessGameIterator
 
 ChessGame* chess_game_new(void)
 {
+    ChessPosition position;
+    chess_position_init(&position);
+    return chess_game_new_position(&position);
+}
+
+ChessGame* chess_game_new_position(const ChessPosition* position)
+{
     ChessGame* game = malloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
 
@@ -56,6 +63,13 @@ ChessGame* chess_game_new(void)
     return game;
 }
 
+ChessGame* chess_game_new_fen(const char* fen)
+{
+    ChessPosition position;
+    chess_position_init_fen(&position, fen);
+    return chess_game_new_position(&position);
+}
+
 static void cleanup_extra_tags(ChessGame* game)
 {
     ExtraTag* extra, *next;
@@ -69,6 +83,7 @@ static void cleanup_extra_tags(ChessGame* game)
 
 void chess_game_destroy(ChessGame* game)
 {
+    assert(game != NULL);
     chess_position_destroy(game->initial_position);
     chess_variation_destroy(game->root_variation);
 
@@ -83,14 +98,14 @@ void chess_game_destroy(ChessGame* game)
     free(game);
 }
 
-void chess_game_init(ChessGame* game)
+void chess_game_reset(ChessGame* game)
 {
-    ChessPosition start;
-    chess_position_init(&start);
-    chess_game_init_position(game, &start);
+    ChessPosition position;
+    chess_position_init(&position);
+    chess_game_reset_position(game, &position);
 }
 
-void chess_game_init_position(ChessGame* game, const ChessPosition* position)
+void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
 {
     chess_position_copy(position, game->initial_position);
     chess_variation_truncate(game->root_variation);
@@ -103,6 +118,13 @@ void chess_game_init_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
     cleanup_extra_tags(game);
+}
+
+void chess_game_reset_fen(ChessGame* game, const char* fen)
+{
+    ChessPosition position;
+    chess_position_init_fen(&position, fen);
+    chess_game_reset_position(game, &position);
 }
 
 void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)

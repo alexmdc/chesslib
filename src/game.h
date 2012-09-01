@@ -9,10 +9,13 @@
 typedef struct ChessGame ChessGame;
 
 ChessGame* chess_game_new(void);
+ChessGame* chess_game_new_position(const ChessPosition*);
+ChessGame* chess_game_new_fen(const char*);
 void chess_game_destroy(ChessGame*);
 
-void chess_game_init(ChessGame*);
-void chess_game_init_position(ChessGame*, const ChessPosition*);
+void chess_game_reset(ChessGame*);
+void chess_game_reset_position(ChessGame*, const ChessPosition*);
+void chess_game_reset_fen(ChessGame*, const char*);
 void chess_game_set_root_variation(ChessGame*, ChessVariation*);
 
 const ChessPosition* chess_game_initial_position(const ChessGame*);

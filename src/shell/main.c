@@ -96,9 +96,7 @@ static void print_board(const ChessGameIterator* iter)
 static void load_fen(ChessGame* game, const char* fen)
 {
     ChessGameIterator* iter;
-    ChessPosition position;
-    chess_position_init_fen(&position, fen);
-    chess_game_init_position(game, &position);
+    chess_game_reset_fen(game, fen);
     iter = chess_game_get_iterator(game);
     print_board(iter);
     chess_game_iterator_destroy(iter);
@@ -286,7 +284,6 @@ int main (int argc, const char* argv[])
     chess_generate_init();
 
     game = chess_game_new();
-    chess_game_init(game);
     iter = chess_game_get_iterator(game);
     print_board(iter);
 
@@ -311,7 +308,7 @@ int main (int argc, const char* argv[])
         else if (!strcmp(cmd, "new"))
         {
             chess_game_iterator_destroy(iter);
-            chess_game_init(game);
+            chess_game_reset(game);
             iter = chess_game_get_iterator(game);
             print_board(iter);
         }
