@@ -21,6 +21,10 @@ static void test_print_move_san(void)
     ChessPosition position;
     ChessMove move;
 
+    chess_position_init(&position);
+    chess_print_move_san(CHESS_MOVE_NULL, &position, buf);
+    CU_ASSERT_STRING_EQUAL("--", buf);
+
     chess_position_init_fen(&position, "rnbqkb1r/ppp2ppp/8/3pP3/3Qn3/5N2/PPP2PPP/RNB1KB1R w KQkq d6 0 6");
     chess_print_move_san(MV(E5,D6), &position, buf);
     CU_ASSERT_STRING_EQUAL("exd6", buf);

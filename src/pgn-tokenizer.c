@@ -212,7 +212,7 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
         return token;
     }
 
-    if (isalnum(c))
+    if (isalnum(c) || c == '-')
     {
         /* Symbol or integer token */
         chess_buffer_append_char(buffer, c);

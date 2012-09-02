@@ -32,7 +32,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessSquare from = chess_move_from(move);
     ChessSquare to = chess_move_to(move);
     ChessMovePromote promote = chess_move_promotes(move);
-    ChessPiece piece = chess_position_piece(position, from);
+    ChessPiece piece;
     ChessArray moves;
     ChessMove move2;
     ChessBoolean capture;
@@ -44,6 +44,14 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessPosition temp_position;
     size_t n = 0, i;
 
+    /* Check for null move */
+    if (move == CHESS_MOVE_NULL)
+    {
+        strcpy(s, "--");
+        return 2;
+    }
+
+    piece = chess_position_piece(position, from);
     assert(piece != CHESS_PIECE_NONE);
 
     /* Handle castling */

@@ -62,19 +62,25 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
     ChessArray moves;
     ChessMove move, piece_move;
     ChessPiece pc;
+    ChessBoolean null_move = CHESS_FALSE;
     ChessBoolean pawn_move, pm, ambiguous;
     size_t i;
 
     assert(s && *s);
 
-    if (!strncasecmp(s, "o-o-o", 5))
+    if (!strncmp(s, "--", 2))
+    {
+        null_move = CHESS_TRUE;
+        s += 2;
+    }
+    else if (!strncasecmp(s, "o-o-o", 5))
     {
         piece = 'k';
         from_file = 'e';
         to_file = 'c';
         s += 5;
     }
-    else if (!strncasecmp(s, "o-o-o", 3))
+    else if (!strncasecmp(s, "o-o", 3))
     {
         piece = 'k';
         from_file = 'e';
@@ -123,16 +129,22 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
             promote = tolower(*c);
             s++;
         }
+
+        if (equals && !promote)
+            return CHESS_PARSE_MOVE_ERROR; /* Extra equals sign */
     }
 
-    if ((c = strchr("+#!?", *s)) && *c)
+    while ((c = strchr("+#!?", *s)) && *c)
         s++;
-
-    if (equals && !promote)
-        return CHESS_PARSE_MOVE_ERROR; /* Extra equals sign */
 
     if (*s)
         return CHESS_PARSE_MOVE_ERROR; /* Leftover characters */
+
+    if (null_move)
+    {
+        *ret_move = CHESS_MOVE_NULL;
+        return CHESS_PARSE_MOVE_OK;
+    }
 
     if (!capture && !to_file && !to_rank)
     {

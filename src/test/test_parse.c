@@ -29,8 +29,23 @@ static void test_parse_move(void)
     CU_ASSERT_EQUAL(MVP(A2,A1,QUEEN), move);
 }
 
+static void test_parse_null_move(void)
+{
+    ChessPosition position;
+    ChessMove move;
+
+    chess_position_init(&position);
+    CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_OK, chess_parse_move("--", &position, &move));
+    CU_ASSERT_EQUAL(CHESS_MOVE_NULL, move);
+    CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_OK, chess_parse_move("--!?", &position, &move));
+    CU_ASSERT_EQUAL(CHESS_MOVE_NULL, move);
+    CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_ERROR, chess_parse_move("---", &position, &move));
+    CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_ERROR, chess_parse_move("--=Q", &position, &move));
+}
+
 void test_parse_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("parse", NULL, NULL);
     CU_add_test(suite, "parse_move", (CU_TestFunc)test_parse_move);
+    CU_add_test(suite, "parse_null_move", (CU_TestFunc)test_parse_null_move);
 }
