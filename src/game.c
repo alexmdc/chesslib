@@ -134,6 +134,12 @@ void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
     chess_variation_attach_subvariation(game->root_variation, variation);
 }
 
+void chess_game_set_initial_position(ChessGame* game, const ChessPosition* position)
+{
+    chess_position_copy(position, game->initial_position);
+    chess_variation_truncate(game->root_variation);
+}
+
 const ChessPosition* chess_game_initial_position(const ChessGame* game)
 {
     return game->initial_position;

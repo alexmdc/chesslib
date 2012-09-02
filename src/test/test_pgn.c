@@ -245,6 +245,30 @@ static void test_pgn_load_nags(void)
     chess_game_destroy(game);
 }
 
+void test_pgn_load_setup(void)
+{
+    const char pgn[] =
+    "[SetUp \"1\"]\n"
+    "[FEN \"rnbqkbnr/ppppp1pp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQk - 0 1\"]\n"
+    "\n"
+    "1. e4 e6 2. d4 d5 3. exd5 exd5 4. Qh5+ g6 5. Qe5+ Qe7 6. Bf4 c6 7. Be2 Bg7 8.\n"
+    "Qxe7+ Nxe7 9. Nf3 O-O 10. Be5 Nd7 11. O-O Nxe5 12. Nxe5 Bxe5 13. dxe5 Rf4 14.\n"
+    "Bd3 Bf5 15. Bxf5 Nxf5 16. g3 Re4 17. f4 Re2 18. Na3 Ne3 19. Rf2 Rxf2 20. Kxf2\n"
+    "Ng4+ 21. Kg2 Rd8 22. h3 Nh6 23. g4 a6 24. Rd1 Nf7 25. h4 c5 26. c3 b5 27. Nc2\n"
+    "a5 28. Ne3 d4 29. cxd4 cxd4 30. Nc2 d3 31. Ne1 d2 32. Nf3 1-0\n";
+
+    ChessPgnLoadResult result;
+    ChessBufferReader reader;
+
+    ChessGame* game = chess_game_new();
+    chess_buffer_reader_init(&reader, pgn);
+    result = chess_pgn_load((ChessReader*)&reader, game);
+    CU_ASSERT_EQUAL(CHESS_PGN_LOAD_OK, result);
+    chess_buffer_reader_cleanup(&reader);
+    chess_game_destroy(game);
+}
+
+
 void test_pgn_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("pgn", NULL, NULL);
@@ -252,4 +276,5 @@ void test_pgn_add_tests(void)
     CU_add_test(suite, "pgn_load", (CU_TestFunc)test_pgn_load);
     CU_add_test(suite, "pgn_load_subvariations", (CU_TestFunc)test_pgn_load_subvariations);
     CU_add_test(suite, "pgn_load_nags", (CU_TestFunc)test_pgn_load_nags);
+    CU_add_test(suite, "pgn_load_setup", (CU_TestFunc)test_pgn_load_setup);
 }

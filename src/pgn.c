@@ -179,15 +179,12 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
 }
 
 static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
-    ChessVariation** variation, ChessResult* game_result)
+    const ChessPosition* position, ChessVariation** variation, ChessResult* game_result)
 {
     const ChessPgnToken* token;
     ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
-    ChessPosition* position;
 
-    position = chess_position_new();
     parse_variation(tokenizer, position, variation);
-    chess_position_destroy(position);
 
     token = chess_pgn_tokenizer_peek(tokenizer);
     switch (token->type)
@@ -216,6 +213,23 @@ static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
     return result;
 }
 
+static void check_setup_tag(ChessGame* game)
+{
+    ChessPosition position;
+    const char* value;
+
+    value = chess_game_tag_value(game, "SetUp");
+    if (value == NULL || strcmp(value, "1") != 0)
+        return;
+
+    value = chess_game_tag_value(game, "FEN");
+    if (value == NULL)
+        return;
+
+    chess_position_init_fen(&position, value);
+    chess_game_set_initial_position(game, &position);
+}
+
 static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* game)
 {
     const ChessPgnToken* token;
@@ -236,7 +250,9 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
                     return result;
                 break;
             default:
-                result = parse_movetext(tokenizer, &variation, &game_result);
+                check_setup_tag(game);
+                result = parse_movetext(tokenizer, chess_game_initial_position(game),
+                                        &variation, &game_result);
                 if (result == CHESS_PGN_LOAD_OK)
                 {
                     chess_game_set_root_variation(game, variation);

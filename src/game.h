@@ -17,6 +17,7 @@ void chess_game_reset(ChessGame*);
 void chess_game_reset_position(ChessGame*, const ChessPosition*);
 void chess_game_reset_fen(ChessGame*, const char*);
 void chess_game_set_root_variation(ChessGame*, ChessVariation*);
+void chess_game_set_initial_position(ChessGame*, const ChessPosition*);
 
 const ChessPosition* chess_game_initial_position(const ChessGame*);
 ChessVariation* chess_game_root_variation(const ChessGame*);
