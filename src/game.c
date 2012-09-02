@@ -118,6 +118,7 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
     chess_string_clear(&game->white);
     chess_string_clear(&game->black);
     cleanup_extra_tags(game);
+    game->extra = NULL;
 }
 
 void chess_game_reset_fen(ChessGame* game, const char* fen)

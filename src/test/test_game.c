@@ -250,6 +250,23 @@ static void test_game_extra_tags(void)
     chess_game_set_tag(game, "PlyCount", "65");
     chess_game_destroy(game);
 
+    /* And on a reset */
+    game = chess_game_new();
+    chess_game_set_tag(game, "Annotator", "Fritz");
+    chess_game_set_tag(game, "ECO", "B47");
+    chess_game_set_tag(game, "PlyCount", "65");
+    chess_game_reset(game);
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_EQUAL(NULL, chess_game_tag_value(game, "PlyCount"));
+    chess_game_set_tag(game, "Annotator", "Junior");
+    chess_game_set_tag(game, "ECO", "C60");
+    chess_game_set_tag(game, "PlyCount", "28");
+    CU_ASSERT_STRING_EQUAL("Junior", chess_game_tag_value(game, "Annotator"));
+    CU_ASSERT_STRING_EQUAL("C60", chess_game_tag_value(game, "ECO"));
+    CU_ASSERT_STRING_EQUAL("28", chess_game_tag_value(game, "PlyCount"));
+    chess_game_destroy(game);
+
     /* Check that extra tags interact with STR tags */
     game = chess_game_new();
     chess_game_set_event(game, "F/S Return Match");
