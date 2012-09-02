@@ -226,53 +226,88 @@ ChessUnmove chess_position_make_move(ChessPosition* position, ChessMove move)
     ChessSquare from = chess_move_from(move);
     ChessSquare to = chess_move_to(move);
     ChessMovePromote promote = chess_move_promotes(move);
-    ChessPiece piece = position->piece[from];
-    ChessColor color = chess_piece_color(piece);
+    ChessPiece piece;
+    ChessColor color = position->to_move;
     ChessUnmoveEp ep;
-    ChessUnmoveCaptured captured = capture_piece(position->piece[to]);
+    ChessUnmoveCaptured captured;
     ChessCastleState castle = position->castle;
     int fifty = position->fifty;
 
     /* Move the piece */
-    position->piece[from] = CHESS_PIECE_NONE;
-    if (promote == CHESS_MOVE_PROMOTE_NONE)
+    if (move == CHESS_MOVE_NULL)
     {
-        position->piece[to] = piece;
-        if (piece == CHESS_PIECE_WHITE_KING)
-            position->wking = to;
-        else if (piece == CHESS_PIECE_BLACK_KING)
-            position->bking = to;
+        piece = CHESS_PIECE_NONE;
+        captured = CHESS_UNMOVE_CAPTURED_NONE;
     }
     else
     {
-        position->piece[to] = promoted_piece(promote, color);
-    }
+        piece = position->piece[from];
+        captured = capture_piece(position->piece[to]);
 
-    /* Handle castling */
-    if (piece == CHESS_PIECE_WHITE_KING && from == CHESS_SQUARE_E1)
-    {
-        if (to == CHESS_SQUARE_G1)
+        position->piece[from] = CHESS_PIECE_NONE;
+        if (promote == CHESS_MOVE_PROMOTE_NONE)
         {
-            position->piece[CHESS_SQUARE_F1] = CHESS_PIECE_WHITE_ROOK;
-            position->piece[CHESS_SQUARE_H1] = CHESS_PIECE_NONE;
+            position->piece[to] = piece;
+            if (piece == CHESS_PIECE_WHITE_KING)
+                position->wking = to;
+            else if (piece == CHESS_PIECE_BLACK_KING)
+                position->bking = to;
         }
-        else if (to == CHESS_SQUARE_C1)
+        else
         {
-            position->piece[CHESS_SQUARE_D1] = CHESS_PIECE_WHITE_ROOK;
-            position->piece[CHESS_SQUARE_A1] = CHESS_PIECE_NONE;
+            position->piece[to] = promoted_piece(promote, color);
         }
-    }
-    else if (piece == CHESS_PIECE_BLACK_KING && from == CHESS_SQUARE_E8)
-    {
-        if (to == CHESS_SQUARE_G8)
+
+        /* Handle castling */
+        if (piece == CHESS_PIECE_WHITE_KING && from == CHESS_SQUARE_E1)
         {
-            position->piece[CHESS_SQUARE_F8] = CHESS_PIECE_BLACK_ROOK;
-            position->piece[CHESS_SQUARE_H8] = CHESS_PIECE_NONE;
+            if (to == CHESS_SQUARE_G1)
+            {
+                position->piece[CHESS_SQUARE_F1] = CHESS_PIECE_WHITE_ROOK;
+                position->piece[CHESS_SQUARE_H1] = CHESS_PIECE_NONE;
+            }
+            else if (to == CHESS_SQUARE_C1)
+            {
+                position->piece[CHESS_SQUARE_D1] = CHESS_PIECE_WHITE_ROOK;
+                position->piece[CHESS_SQUARE_A1] = CHESS_PIECE_NONE;
+            }
         }
-        else if (to == CHESS_SQUARE_C8)
+        else if (piece == CHESS_PIECE_BLACK_KING && from == CHESS_SQUARE_E8)
         {
-            position->piece[CHESS_SQUARE_D8] = CHESS_PIECE_BLACK_ROOK;
-            position->piece[CHESS_SQUARE_A8] = CHESS_PIECE_NONE;
+            if (to == CHESS_SQUARE_G8)
+            {
+                position->piece[CHESS_SQUARE_F8] = CHESS_PIECE_BLACK_ROOK;
+                position->piece[CHESS_SQUARE_H8] = CHESS_PIECE_NONE;
+            }
+            else if (to == CHESS_SQUARE_C8)
+            {
+                position->piece[CHESS_SQUARE_D8] = CHESS_PIECE_BLACK_ROOK;
+                position->piece[CHESS_SQUARE_A8] = CHESS_PIECE_NONE;
+            }
+        }
+
+        /* Check if castling availability was lost */
+        if (position->castle & (CHESS_CASTLE_STATE_WKQ))
+        {
+            if (from == CHESS_SQUARE_A1 || to == CHESS_SQUARE_A1)
+                position->castle &= ~CHESS_CASTLE_STATE_WQ;
+
+            if (from == CHESS_SQUARE_H1 || to == CHESS_SQUARE_H1)
+                position->castle &= ~CHESS_CASTLE_STATE_WK;
+
+            if (from == CHESS_SQUARE_E1 || to == CHESS_SQUARE_E1)
+                position->castle &= ~(CHESS_CASTLE_STATE_WKQ);
+        }
+        if (position->castle & (CHESS_CASTLE_STATE_BKQ))
+        {
+            if (from == CHESS_SQUARE_A8 || to == CHESS_SQUARE_A8)
+                position->castle &= ~CHESS_CASTLE_STATE_BQ;
+
+            if (from == CHESS_SQUARE_H8 || to == CHESS_SQUARE_H8)
+                position->castle &= ~CHESS_CASTLE_STATE_BK;
+
+            if (from == CHESS_SQUARE_E8 || to == CHESS_SQUARE_E8)
+                position->castle &= ~(CHESS_CASTLE_STATE_BKQ);
         }
     }
 
@@ -293,10 +328,10 @@ ChessUnmove chess_position_make_move(ChessPosition* position, ChessMove move)
             position->piece[chess_square_from_fr(position->ep, CHESS_RANK_4)] = CHESS_PIECE_NONE;
             ep = CHESS_UNMOVE_EP_CAPTURE;
         }
-        else {
+        else
+        {
             ep = CHESS_UNMOVE_EP_AVAILABLE + position->ep;
         }
-
     }
 
     /* Update ep on a double pawn move */
@@ -306,30 +341,6 @@ ChessUnmove chess_position_make_move(ChessPosition* position, ChessMove move)
         position->ep = chess_square_file(to);
     else
         position->ep = CHESS_FILE_INVALID;
-
-    /* Check if castling availability was lost */
-    if (position->castle & (CHESS_CASTLE_STATE_WKQ))
-    {
-        if (from == CHESS_SQUARE_A1 || to == CHESS_SQUARE_A1)
-            position->castle &= ~CHESS_CASTLE_STATE_WQ;
-
-        if (from == CHESS_SQUARE_H1 || to == CHESS_SQUARE_H1)
-            position->castle &= ~CHESS_CASTLE_STATE_WK;
-
-        if (from == CHESS_SQUARE_E1 || to == CHESS_SQUARE_E1)
-            position->castle &= ~(CHESS_CASTLE_STATE_WKQ);
-    }
-    if (position->castle & (CHESS_CASTLE_STATE_BKQ))
-    {
-        if (from == CHESS_SQUARE_A8 || to == CHESS_SQUARE_A8)
-            position->castle &= ~CHESS_CASTLE_STATE_BQ;
-
-        if (from == CHESS_SQUARE_H8 || to == CHESS_SQUARE_H8)
-            position->castle &= ~CHESS_CASTLE_STATE_BK;
-
-        if (from == CHESS_SQUARE_E8 || to == CHESS_SQUARE_E8)
-            position->castle &= ~(CHESS_CASTLE_STATE_BKQ);
-    }
 
     /* Update fifty counter only if a reversible move was played */
     if (piece == CHESS_PIECE_WHITE_PAWN || piece == CHESS_PIECE_BLACK_PAWN
@@ -376,48 +387,57 @@ void chess_position_undo_move(ChessPosition* position, ChessUnmove unmove)
     ChessUnmoveCaptured captured = chess_unmove_captured(unmove);
     ChessUnmoveEp ep = chess_unmove_ep(unmove);
 
-    ChessPiece piece = position->piece[to];
+    ChessPiece piece;
     ChessColor other = position->to_move;
     ChessColor color = chess_color_other(other);
     ChessFile file;
 
-    assert(color == chess_piece_color(piece));
-
-    if (chess_unmove_promotion(unmove))
-        piece = chess_piece_of_color(CHESS_PIECE_WHITE_PAWN, color);
-
-    /* Unmove the piece */
-    position->piece[from] = piece;
-    position->piece[to] = captured_piece(captured, other);
-
-    /* Handle castling */
-    if (piece == CHESS_PIECE_WHITE_KING && from == CHESS_SQUARE_E1)
+    if (from == 0 && to == 0)
     {
-        if (to == CHESS_SQUARE_G1)
-        {
-            position->piece[CHESS_SQUARE_F1] = CHESS_PIECE_NONE;
-            position->piece[CHESS_SQUARE_H1] = CHESS_PIECE_WHITE_ROOK;
-        }
-        else if (to == CHESS_SQUARE_C1)
-        {
-            position->piece[CHESS_SQUARE_D1] = CHESS_PIECE_NONE;
-            position->piece[CHESS_SQUARE_A1] = CHESS_PIECE_WHITE_ROOK;
-        }
+        /* Null move */
+        piece = CHESS_PIECE_NONE;
     }
-    else if (piece == CHESS_PIECE_BLACK_KING && from == CHESS_SQUARE_E8)
+    else
     {
-        if (to == CHESS_SQUARE_G8)
+        if (chess_unmove_promotion(unmove))
+            piece = chess_piece_of_color(CHESS_PIECE_WHITE_PAWN, color);
+        else
+            piece = position->piece[to];
+        assert(color == chess_piece_color(piece));
+
+        /* Unmove the piece */
+        position->piece[from] = piece;
+        position->piece[to] = captured_piece(captured, other);
+
+        /* Handle castling */
+        if (piece == CHESS_PIECE_WHITE_KING && from == CHESS_SQUARE_E1)
         {
-            position->piece[CHESS_SQUARE_F8] = CHESS_PIECE_NONE;
-            position->piece[CHESS_SQUARE_H8] = CHESS_PIECE_BLACK_ROOK;
+            if (to == CHESS_SQUARE_G1)
+            {
+                position->piece[CHESS_SQUARE_F1] = CHESS_PIECE_NONE;
+                position->piece[CHESS_SQUARE_H1] = CHESS_PIECE_WHITE_ROOK;
+            }
+            else if (to == CHESS_SQUARE_C1)
+            {
+                position->piece[CHESS_SQUARE_D1] = CHESS_PIECE_NONE;
+                position->piece[CHESS_SQUARE_A1] = CHESS_PIECE_WHITE_ROOK;
+            }
         }
-        else if (to == CHESS_SQUARE_C8)
+        else if (piece == CHESS_PIECE_BLACK_KING && from == CHESS_SQUARE_E8)
         {
-            position->piece[CHESS_SQUARE_D8] = CHESS_PIECE_NONE;
-            position->piece[CHESS_SQUARE_A8] = CHESS_PIECE_BLACK_ROOK;
+            if (to == CHESS_SQUARE_G8)
+            {
+                position->piece[CHESS_SQUARE_F8] = CHESS_PIECE_NONE;
+                position->piece[CHESS_SQUARE_H8] = CHESS_PIECE_BLACK_ROOK;
+            }
+            else if (to == CHESS_SQUARE_C8)
+            {
+                position->piece[CHESS_SQUARE_D8] = CHESS_PIECE_NONE;
+                position->piece[CHESS_SQUARE_A8] = CHESS_PIECE_BLACK_ROOK;
+            }
         }
+        position->castle = chess_unmove_castle(unmove);
     }
-    position->castle = chess_unmove_castle(unmove);
 
     /* Handle ep */
     if (ep == CHESS_UNMOVE_EP_NONE)

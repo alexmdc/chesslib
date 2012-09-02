@@ -14,6 +14,8 @@ typedef enum
     CHESS_MOVE_PROMOTE_QUEEN = 4
 } ChessMovePromote;
 
+extern ChessMove CHESS_MOVE_NULL;
+
 ChessMovePromote chess_move_promote_from_char(char);
 char chess_move_promote_to_char(ChessMovePromote);
 

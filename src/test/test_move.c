@@ -40,10 +40,22 @@ static void test_move_make(void)
     CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_KNIGHT, chess_move_promotes(move));
 }
 
+static void test_move_null(void)
+{
+    /* The null move must be != 0 yet return 0 for all properties */
+    ChessMove move = CHESS_MOVE_NULL;
+
+    CU_ASSERT_NOT_EQUAL(0, CHESS_MOVE_NULL);
+    CU_ASSERT_EQUAL(0, chess_move_from(move));
+    CU_ASSERT_EQUAL(0, chess_move_to(move));
+    CU_ASSERT_EQUAL(CHESS_MOVE_PROMOTE_NONE, chess_move_promotes(move));
+}
+
 void test_move_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("move", NULL, NULL);
     CU_add_test(suite, "move_promote_to_char", (CU_TestFunc)test_move_promote_to_char);
     CU_add_test(suite, "move_promote_from_char", (CU_TestFunc)test_move_promote_from_char);
     CU_add_test(suite, "move_make", (CU_TestFunc)test_move_make);
+    CU_add_test(suite, "move_null", (CU_TestFunc)test_move_null);
 }

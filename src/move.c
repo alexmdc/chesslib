@@ -6,6 +6,8 @@
 
 static const char promote_chars[] = "nbrq";
 
+ChessMove CHESS_MOVE_NULL = 0x80000000;
+
 ChessMovePromote chess_move_promote_from_char(char c)
 {
     char* s = strchr(promote_chars, c);

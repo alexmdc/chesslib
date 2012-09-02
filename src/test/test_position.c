@@ -75,6 +75,67 @@ static void test_position_make_move(void)
     CU_ASSERT_EQUAL(3, chess_position_move_num(&position));
 }
 
+static void test_position_make_null_move(void)
+{
+    ChessSquare sq;
+    ChessBoolean squares_equal;
+    ChessPosition position;
+    ChessPosition positions[2];
+    ChessUnmove unmoves[4];
+
+    chess_position_init(&position);
+
+    /* Make null move for white */
+    chess_position_copy(&position, &positions[0]);
+    unmoves[0] = chess_position_make_move(&position, CHESS_MOVE_NULL);
+    squares_equal = CHESS_TRUE;
+    for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
+    {
+        if (chess_position_piece(&position, sq) != chess_position_piece(&positions[0], sq))
+        {
+            squares_equal = CHESS_FALSE;
+            break;
+        }
+    }
+    CU_ASSERT(squares_equal);
+    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, chess_position_to_move(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
+    CU_ASSERT_EQUAL(1, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(1, chess_position_fifty(&position));
+
+    /* Make normal moves */
+    unmoves[1] = chess_position_make_move(&position, MV(B8,C6));
+    unmoves[2] = chess_position_make_move(&position, MV(F2,F4));
+
+    /* Make null move for black */
+    chess_position_copy(&position, &positions[1]);
+    unmoves[3] = chess_position_make_move(&position, CHESS_MOVE_NULL);
+    squares_equal = CHESS_TRUE;
+    for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
+    {
+        if (chess_position_piece(&position, sq) != chess_position_piece(&positions[1], sq))
+        {
+            squares_equal = CHESS_FALSE;
+            break;
+        }
+    }
+    CU_ASSERT(squares_equal);
+    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, chess_position_to_move(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
+    CU_ASSERT_EQUAL(3, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(1, chess_position_fifty(&position));
+
+    /* Check that undoing the moves works too */
+    chess_position_undo_move(&position, unmoves[3]);
+    ASSERT_POSITIONS_EQUAL(&position, &positions[1]);
+    chess_position_undo_move(&position, unmoves[2]);
+    chess_position_undo_move(&position, unmoves[1]);
+    chess_position_undo_move(&position, unmoves[0]);
+    ASSERT_POSITIONS_EQUAL(&position, &positions[0]);
+}
+
 void test_position_check_result(void)
 {
     ChessPosition position;
@@ -107,6 +168,7 @@ void test_position_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("position", NULL, NULL);
     CU_add_test(suite, "position_init", (CU_TestFunc)test_position_init);
+    CU_add_test(suite, "position_make_null_move", (CU_TestFunc)test_position_make_null_move);
     CU_add_test(suite, "position_make_move", (CU_TestFunc)test_position_make_move);
     CU_add_test(suite, "position_check_result", (CU_TestFunc)test_position_check_result);
 }
