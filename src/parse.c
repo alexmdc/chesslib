@@ -123,7 +123,7 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
             equals = '=';
             s++;
         }
-        if ((c = strchr("NBQKnbqk", *s)) && *c)
+        if ((c = strchr("NBRQKnbrqk", *s)) && *c)
         {
             promote = tolower(*c);
             s++;

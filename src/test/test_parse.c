@@ -27,6 +27,11 @@ static void test_parse_move(void)
     chess_position_init_fen(&position, "6k1/8/2n5/p1Bp2N1/2pP4/1nP3P1/p5KP/5R2 b - - 0 44");
     CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_OK, chess_parse_move("a1=Q", &position, &move));
     CU_ASSERT_EQUAL(MVP(A2,A1,QUEEN), move);
+
+    /* Promotion to rook is failing */
+    chess_position_init_fen(&position, "8/p6p/1p6/8/5Q2/P6P/1Pqp2P1/1k4K1 b - - 11 52");
+    CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_OK, chess_parse_move("d1=R+", &position, &move));
+    CU_ASSERT_EQUAL(MVP(D2,D1,ROOK), move);
 }
 
 static void test_parse_null_move(void)
