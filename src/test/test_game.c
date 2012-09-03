@@ -71,6 +71,7 @@ static void test_game_result(void)
     chess_game_iterator_append_move(iter, MV(D1,H5));
     chess_game_iterator_append_move(iter, MV(G8,F6));
     chess_game_iterator_append_move(iter, MV(H5,F7));
+    chess_game_set_result(game, chess_game_iterator_check_result(iter));
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
     CU_ASSERT_EQUAL(7, chess_game_ply(game));
     chess_game_iterator_destroy(iter);
@@ -81,6 +82,7 @@ static void test_game_result(void)
     chess_game_iterator_append_move(iter, MV(E7,E5));
     chess_game_iterator_append_move(iter, MV(G2,G4));
     chess_game_iterator_append_move(iter, MV(D8,H4));
+    chess_game_set_result(game, chess_game_iterator_check_result(iter));
     CU_ASSERT_EQUAL(CHESS_RESULT_BLACK_WINS, chess_game_result(game));
     CU_ASSERT_EQUAL(4, chess_game_ply(game));
     chess_game_iterator_destroy(iter);
@@ -106,10 +108,12 @@ static void test_game_result(void)
     chess_game_iterator_append_move(iter, MV(B8,C8)); /* 9. Qxc8 */
     chess_game_iterator_append_move(iter, MV(F7,G6)); /*    Kg6 */
     chess_game_iterator_append_move(iter, MV(C8,E6)); /* 10. Qe6 stalemate */
+    chess_game_set_result(game, chess_game_iterator_check_result(iter));
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
     CU_ASSERT_EQUAL(19, chess_game_ply(game));
     chess_game_iterator_step_back(iter);
     chess_game_iterator_truncate_moves(iter);
+    chess_game_set_result(game, chess_game_iterator_check_result(iter));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
     CU_ASSERT_EQUAL(18, chess_game_ply(game));
     chess_game_iterator_destroy(iter);
@@ -129,18 +133,15 @@ static void test_game_set_result(void)
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     CU_ASSERT_EQUAL(CHESS_RESULT_WHITE_WINS, chess_game_result(game));
 
-    chess_game_iterator_append_move(iter, MV(E7,E5));
-    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
-
     chess_game_set_result(game, CHESS_RESULT_DRAW);
     CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
 
     chess_game_iterator_step_back(iter);
     chess_game_iterator_truncate_moves(iter);
-    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
 
     chess_game_iterator_append_move(iter, MV(E7,E5));
-    CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
+    CU_ASSERT_EQUAL(CHESS_RESULT_DRAW, chess_game_result(game));
 
     chess_game_iterator_append_move(iter, MV(F1,A6));
     chess_game_iterator_append_move(iter, MV(B8,A6));
