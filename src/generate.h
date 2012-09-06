@@ -5,7 +5,13 @@
 #include "position.h"
 #include "carray.h"
 
+typedef struct ChessMoveGenerator ChessMoveGenerator;
+
 void chess_generate_init(void);
+
+void chess_move_generator_init(ChessMoveGenerator* gen, const ChessPosition* position);
+ChessMove chess_move_generator_next(ChessMoveGenerator*);
+
 void chess_generate_moves(const ChessPosition*, ChessArray*);
 ChessBoolean chess_generate_is_square_attacked(const ChessPosition*, ChessSquare, ChessColor);
 
