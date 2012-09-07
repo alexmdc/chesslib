@@ -61,15 +61,13 @@ static ChessBoolean parse_line(char* s, char** cmd, char** args)
 static void list_moves(const ChessGameIterator* iter)
 {
     const ChessPosition* position = chess_game_iterator_position(iter);
-    ChessArray moves;
+    ChessMoveGenerator generator;
+    ChessMove move;
     char buf[16];
-    int i;
 
-    chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
-    for (i = 0; i < chess_array_size(&moves); i++)
+    chess_move_generator_init(&generator, position);
+    while ((move = chess_move_generator_next(&generator)))
     {
-        ChessMove move = *((ChessMove*)chess_array_elem(&moves, i));
         chess_print_move_san(move, position, buf);
         printf("%s ", buf);
     }

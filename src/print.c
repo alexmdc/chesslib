@@ -33,7 +33,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessSquare to = chess_move_to(move);
     ChessMovePromote promote = chess_move_promotes(move);
     ChessPiece piece;
-    ChessArray moves;
+    ChessMoveGenerator generator;
     ChessMove move2;
     ChessBoolean capture;
     ChessBoolean piece_ambiguous = CHESS_FALSE;
@@ -42,7 +42,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
     ChessFile file;
     ChessRank rank;
     ChessPosition temp_position;
-    size_t n = 0, i;
+    size_t n = 0;
 
     /* Check for null move */
     if (move == CHESS_MOVE_NULL)
@@ -84,15 +84,13 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
         s[n++] = toupper(chess_piece_to_char(piece));
 
         /* Need to examine legal moves to determine ambiguity */
-        chess_array_init(&moves, sizeof(ChessMove));
-        chess_generate_moves(position, &moves);
+        chess_move_generator_init(&generator, position);
 
         file = chess_square_file(from);
         rank = chess_square_rank(from);
 
-        for (i = 0; i < chess_array_size(&moves); i++)
+        while ((move2 = chess_move_generator_next(&generator)))
         {
-            move2 = *((ChessMove*)chess_array_elem(&moves, i));
             if (chess_move_to(move2) != to)
                 continue;
 
@@ -108,8 +106,6 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
             if (chess_square_rank(sq) == rank)
                 rank_ambiguous = CHESS_TRUE;
         }
-
-        chess_array_cleanup(&moves);
 
         if (piece_ambiguous)
         {

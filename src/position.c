@@ -125,23 +125,16 @@ ChessBoolean chess_position_is_check(const ChessPosition* position)
 
 ChessBoolean chess_position_move_is_legal(const ChessPosition* position, ChessMove move)
 {
-    ChessArray moves;
-    ChessBoolean found = CHESS_FALSE;
-    size_t i;
+    ChessMoveGenerator generator;
+    ChessMove legalMove;
 
-    chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
-
-    for (i = 0; i < chess_array_size(&moves); i++)
+    chess_move_generator_init(&generator, position);
+    while ((legalMove = chess_move_generator_next(&generator)))
     {
-        if (*((ChessMove*)chess_array_elem(&moves, i)) == move)
-        {
-            found = CHESS_TRUE;
-            break;
-        }
+        if (legalMove == move)
+            return CHESS_TRUE;
     }
-    chess_array_cleanup(&moves);
-    return found;
+    return CHESS_FALSE;
 }
 
 ChessBoolean chess_position_move_is_capture(const ChessPosition* position, ChessMove move)
@@ -158,15 +151,10 @@ ChessBoolean chess_position_move_is_capture(const ChessPosition* position, Chess
 
 ChessResult chess_position_check_result(const ChessPosition* position)
 {
-    ChessArray moves;
-    size_t m;
+    ChessMoveGenerator generator;
 
-    chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
-    m = chess_array_size(&moves);
-    chess_array_cleanup(&moves);
-
-    if (m > 0)
+    chess_move_generator_init(&generator, position);
+    if (chess_move_generator_next(&generator) > 0)
         return CHESS_RESULT_NONE;
 
     if (!chess_position_is_check(position))

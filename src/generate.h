@@ -5,11 +5,19 @@
 #include "position.h"
 #include "carray.h"
 
-typedef struct ChessMoveGenerator ChessMoveGenerator;
+typedef struct
+{
+    const ChessPosition* position;
+    ChessSquare sq;
+    ChessSquare to;
+    int d;
+    ChessMovePromote promote;
+    ChessCastleState castle;
+} ChessMoveGenerator;
 
 void chess_generate_init(void);
 
-void chess_move_generator_init(ChessMoveGenerator* gen, const ChessPosition* position);
+void chess_move_generator_init(ChessMoveGenerator*, const ChessPosition*);
 ChessMove chess_move_generator_next(ChessMoveGenerator*);
 
 void chess_generate_moves(const ChessPosition*, ChessArray*);

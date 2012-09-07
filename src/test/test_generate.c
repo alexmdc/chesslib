@@ -173,6 +173,19 @@ static void test_generate_moves6(void)
     chess_array_cleanup(&moves);
 }
 
+static void test_move_generator(void)
+{
+    ChessPosition position;
+    ChessMoveGenerator generator;
+    size_t count = 0;
+
+    chess_position_init_fen(&position, "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1");
+    chess_move_generator_init(&generator, &position);
+    while ((chess_move_generator_next(&generator)))
+       ++count;
+    CU_ASSERT_EQUAL(218, count);
+}
+
 void test_generate_add_tests(void)
 {
     CU_Suite* suite = CU_add_suite("generate", (CU_InitializeFunc)initialize, NULL);
@@ -182,4 +195,5 @@ void test_generate_add_tests(void)
     CU_add_test(suite, "generate_moves4", (CU_TestFunc)test_generate_moves4);
     CU_add_test(suite, "generate_moves5", (CU_TestFunc)test_generate_moves5);
     CU_add_test(suite, "generate_moves6", (CU_TestFunc)test_generate_moves6);
+    CU_add_test(suite, "move_generator", (CU_TestFunc)test_move_generator);
 }

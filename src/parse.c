@@ -59,12 +59,11 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
     char capture = '\0';
     char equals = '\0', promote = '\0';
     const char* c;
-    ChessArray moves;
+    ChessMoveGenerator generator;
     ChessMove move, piece_move;
     ChessPiece pc;
     ChessBoolean null_move = CHESS_FALSE;
     ChessBoolean pawn_move, pm, ambiguous;
-    size_t i;
 
     assert(s && *s);
 
@@ -154,24 +153,19 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
         from_rank = 0;
     }
 
-    chess_array_init(&moves, sizeof(ChessMove));
-    chess_generate_moves(position, &moves);
+    chess_move_generator_init(&generator, position);
     move = 0;
     piece_move = 0;
     pawn_move = CHESS_FALSE;
     ambiguous = CHESS_FALSE;
-    for (i = 0; i < chess_array_size(&moves); i++)
+    while ((move = chess_move_generator_next(&generator)))
     {
-        move = *((ChessMove*)chess_array_elem(&moves, i));
         if (matches_move(position, move, piece, from_file, from_rank, capture, to_file, to_rank, promote))
         {
             if (piece)
             {
                 if (piece_move)
-                {
-                    chess_array_cleanup(&moves);
                     return CHESS_PARSE_MOVE_AMBIGUOUS;
-                }
                 piece_move = move;
             }
             else
@@ -190,7 +184,6 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
                     if (pm)
                     {
                         /* Ambiguous pawn moves, no hope of correcting */
-                        chess_array_cleanup(&moves);
                         return CHESS_PARSE_MOVE_AMBIGUOUS;
                     }
                     else
@@ -202,7 +195,6 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
             }
         }
     }
-    chess_array_cleanup(&moves);
 
     if (piece_move == 0)
         return CHESS_PARSE_MOVE_ILLEGAL;

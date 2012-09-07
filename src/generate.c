@@ -106,16 +106,6 @@ static ChessBoolean move_is_legal(const ChessPosition* position, ChessMove move)
     return !chess_position_is_check(&temp_position);
 }
 
-struct ChessMoveGenerator
-{
-    const ChessPosition* position;
-    ChessSquare sq;
-    ChessSquare to;
-    int d;
-    ChessMovePromote promote;
-    ChessCastleState castle;
-};
-
 void chess_move_generator_init(ChessMoveGenerator* gen, const ChessPosition* position)
 {
     gen->position = position;
@@ -126,7 +116,7 @@ void chess_move_generator_init(ChessMoveGenerator* gen, const ChessPosition* pos
     gen->castle = -1;
 }
 
-ChessMove chess_move_generator_next(ChessMoveGenerator* gen)
+static ChessMove gen_next(ChessMoveGenerator* gen)
 {
     const ChessPosition* position = gen->position;
     ChessPiece piece;
@@ -320,7 +310,7 @@ gen_pawn_promotes:
         else {
             gen->castle = CHESS_CASTLE_STATE_NONE;
         }
-   }
+    }
 
     if (color == CHESS_COLOR_WHITE)
     {
@@ -370,6 +360,14 @@ gen_pawn_promotes:
     }
 
     return 0;
+}
+
+ChessMove chess_move_generator_next(ChessMoveGenerator* generator)
+{
+    ChessMove move = 0;
+    while ((move = gen_next(generator)) && !move_is_legal(generator->position, move))
+        ;
+    return move;
 }
 
 void chess_generate_moves(const ChessPosition* position, ChessArray* moves)
