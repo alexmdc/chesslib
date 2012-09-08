@@ -6,18 +6,19 @@
 #include "position.h"
 #include "generate.h"
 #include "fen.h"
+#include "calloc.h"
 #include "carray.h"
 
 ChessPosition* chess_position_new(void)
 {
-    ChessPosition* position = malloc(sizeof(ChessPosition));
+    ChessPosition* position = chess_alloc(sizeof(ChessPosition));
     chess_position_init(position);
     return position;
 }
 
 ChessPosition* chess_position_new_fen(const char* fen)
 {
-    ChessPosition* position = malloc(sizeof(ChessPosition));
+    ChessPosition* position = chess_alloc(sizeof(ChessPosition));
     chess_position_init_fen(position, fen);
     return position;
 }
@@ -32,7 +33,7 @@ ChessPosition* chess_position_clone(const ChessPosition* position)
 void chess_position_destroy(ChessPosition* position)
 {
     assert(position != NULL);
-    free(position);
+    chess_free(position);
 }
 
 void chess_position_init(ChessPosition* position)

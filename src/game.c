@@ -3,6 +3,7 @@
 #include <memory.h>
 
 #include "game.h"
+#include "calloc.h"
 #include "cstring.h"
 #include "carray.h"
 
@@ -47,7 +48,7 @@ ChessGame* chess_game_new(void)
 
 ChessGame* chess_game_new_position(const ChessPosition* position)
 {
-    ChessGame* game = malloc(sizeof(ChessGame));
+    ChessGame* game = chess_alloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
 
     game->initial_position = chess_position_new();
@@ -77,7 +78,7 @@ static void cleanup_extra_tags(ChessGame* game)
     {
         chess_string_cleanup(&extra->name);
         chess_string_cleanup(&extra->value);
-        free(extra);
+        chess_free(extra);
     }
 }
 
@@ -95,7 +96,7 @@ void chess_game_destroy(ChessGame* game)
     chess_string_cleanup(&game->black);
     cleanup_extra_tags(game);
 
-    free(game);
+    chess_free(game);
 }
 
 void chess_game_reset(ChessGame* game)
@@ -277,7 +278,7 @@ void chess_game_set_tag(ChessGame* game, const char* name, const char* value)
         }
 
         /* Add it as a new tag */
-        extra = malloc(sizeof(ExtraTag));
+        extra = chess_alloc(sizeof(ExtraTag));
         chess_string_init_assign(&extra->name, name);
         chess_string_init_assign(&extra->value, value);
         extra->next = NULL;
@@ -331,7 +332,7 @@ void chess_game_remove_tag(ChessGame* game, const char* name)
         {
             game->extra = extra->next;
         }
-        free(extra);
+        chess_free(extra);
     }
 }
 
@@ -382,7 +383,7 @@ const char* chess_game_tag_value(ChessGame* game, const char* name)
 
 ChessGameIterator* chess_game_get_iterator(ChessGame* game)
 {
-    ChessGameIterator* iter = malloc(sizeof(ChessGameIterator));
+    ChessGameIterator* iter = chess_alloc(sizeof(ChessGameIterator));
     memset(iter, 0, sizeof(ChessGameIterator));
     iter->game = game;
     chess_position_copy(game->initial_position, &iter->position);
@@ -394,7 +395,7 @@ ChessGameIterator* chess_game_get_iterator(ChessGame* game)
 void chess_game_iterator_destroy(ChessGameIterator* iter)
 {
     chess_array_cleanup(&iter->unmoves);
-    free(iter);
+    chess_free(iter);
 }
 
 ChessGame* chess_game_iterator_game(const ChessGameIterator* iter)

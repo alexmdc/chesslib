@@ -4,6 +4,7 @@
 
 #include "chess.h"
 #include "move.h"
+#include "calloc.h"
 #include "cstring.h"
 #include "variation.h"
 
@@ -21,7 +22,7 @@ struct ChessVariation
 
 static ChessVariation* new_node(ChessVariation* root)
 {
-    ChessVariation* variation = malloc(sizeof(ChessVariation));
+    ChessVariation* variation = chess_alloc(sizeof(ChessVariation));
     memset(variation, 0, sizeof(ChessVariation));
     variation->root = root;
     chess_string_init(&variation->comment);
@@ -31,7 +32,7 @@ static ChessVariation* new_node(ChessVariation* root)
 static void free_node(ChessVariation* node)
 {
     chess_string_cleanup(&node->comment);
-    free(node);
+    chess_free(node);
 }
 
 static void free_node_tree(ChessVariation* node)

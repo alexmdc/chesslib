@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "writer.h"
+#include "calloc.h"
 
 typedef void(*WriteCharFunc)(ChessWriter*, char);
 typedef void(*WriteStringFunc)(ChessWriter*, const char*);
@@ -69,13 +70,13 @@ static void expand_buffer(ChessBufferWriter* writer)
     {
         /* Pick an average size to start */
         writer->buffer_size = 32;
-        writer->buffer = malloc(writer->buffer_size);
+        writer->buffer = chess_alloc(writer->buffer_size);
     }
     else
     {
         /* Otherwise double the buffer size */
         writer->buffer_size *= 2;
-        writer->buffer = realloc(writer->buffer, writer->buffer_size);
+        writer->buffer = chess_realloc(writer->buffer, writer->buffer_size);
     }
 }
 
@@ -118,7 +119,7 @@ void chess_buffer_writer_init(ChessBufferWriter* writer)
 void chess_buffer_writer_cleanup(ChessBufferWriter* writer)
 {
     if (writer->buffer_size > 0)
-        free(writer->buffer);
+        chess_free(writer->buffer);
 }
 
 char* chess_buffer_writer_data(const ChessBufferWriter* writer)

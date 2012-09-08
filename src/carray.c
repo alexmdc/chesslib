@@ -3,6 +3,7 @@
 #include <memory.h>
 
 #include "carray.h"
+#include "calloc.h"
 
 void chess_array_init(ChessArray* array, size_t elem_size)
 {
@@ -14,7 +15,7 @@ void chess_array_init(ChessArray* array, size_t elem_size)
 void chess_array_cleanup(ChessArray* array)
 {
     if (array->max_size > 0)
-        free(array->data);
+        chess_free(array->data);
 }
 
 size_t chess_array_size(const ChessArray* array)
@@ -38,7 +39,7 @@ void chess_array_clear(ChessArray* array)
 {
     if (array->max_size > 0)
     {
-        free(array->data);
+        chess_free(array->data);
         array->size = 0;
         array->max_size = 0;
     }
@@ -56,9 +57,9 @@ static void expand(ChessArray* array)
 {
     size_t new_size = array->max_size ? array->max_size * 2 : 8;
     if (array->max_size > 0)
-        array->data = realloc(array->data, new_size * array->elem_size);
+        array->data = chess_realloc(array->data, new_size * array->elem_size);
     else
-        array->data = malloc(new_size * array->elem_size);
+        array->data = chess_alloc(new_size * array->elem_size);
     array->max_size = new_size;
 }
 

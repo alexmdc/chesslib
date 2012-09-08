@@ -6,6 +6,7 @@
 #include "fen.h"
 #include "chess.h"
 #include "position.h"
+#include "calloc.h"
 
 void chess_fen_load(const char* s, ChessPosition* position)
 {
@@ -19,7 +20,7 @@ void chess_fen_load(const char* s, ChessPosition* position)
 
     /* Clone the string, as strtok will clobber it */
     len = strlen(s);
-    s_copy = malloc((len + 1) * sizeof(char));
+    s_copy = chess_alloc((len + 1) * sizeof(char));
     strcpy(s_copy, s);
 
     t = 0;
@@ -94,7 +95,7 @@ void chess_fen_load(const char* s, ChessPosition* position)
     /* Move num */
     chess_position_set_move_num(position, atoi(tokens[5]));
 
-    free(s_copy);
+    chess_free(s_copy);
 }
 
 void chess_fen_save(const ChessPosition* position, char* s)

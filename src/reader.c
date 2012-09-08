@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "reader.h"
+#include "calloc.h"
 
 typedef int(*ReadCharFunc)(ChessReader*);
 
@@ -84,7 +85,7 @@ void chess_buffer_reader_init_size(ChessBufferReader* reader, const char* data, 
 {
     chess_reader_init((ChessReader*)reader);
     reader->base.vtable = &buffer_reader_vtable;
-    reader->buffer = malloc(size);
+    reader->buffer = chess_alloc(size);
     memcpy(reader->buffer, data, size);
     reader->buffer_size = size;
     reader->index = 0;
@@ -92,5 +93,5 @@ void chess_buffer_reader_init_size(ChessBufferReader* reader, const char* data, 
 
 void chess_buffer_reader_cleanup(ChessBufferReader* reader)
 {
-    free(reader->buffer);
+    chess_free(reader->buffer);
 }

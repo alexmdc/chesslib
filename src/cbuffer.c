@@ -3,6 +3,7 @@
 #include <memory.h>
 
 #include "cbuffer.h"
+#include "calloc.h"
 
 void chess_buffer_init(ChessBuffer* buffer)
 {
@@ -13,7 +14,7 @@ void chess_buffer_init(ChessBuffer* buffer)
 void chess_buffer_cleanup(ChessBuffer* buffer)
 {
     if (buffer->max_size > 0)
-        free(buffer->data);
+        chess_free(buffer->data);
 }
 
 size_t chess_buffer_size(const ChessBuffer* buffer)
@@ -34,9 +35,9 @@ static void expand(ChessBuffer* buffer, size_t min_size)
         size *= 2;
 
     if (buffer->max_size)
-        buffer->data = realloc(buffer->data, size);
+        buffer->data = chess_realloc(buffer->data, size);
     else
-        buffer->data = malloc(size);
+        buffer->data = chess_alloc(size);
     buffer->max_size = size;
 }
 

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "cstring.h"
+#include "calloc.h"
 
 static const char* empty_string = "";
 
@@ -27,7 +28,7 @@ void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
         return;
     }
     string->size = n;
-    buf = (char*)malloc(n + 1);
+    buf = (char*)chess_alloc(n + 1);
     strncpy(buf, s, n);
     buf[n] = '\0';
     string->data = buf;
@@ -36,7 +37,7 @@ void chess_string_init_assign_size(ChessString* string, const char* s, size_t n)
 void chess_string_cleanup(ChessString* string)
 {
     if (string->size > 0)
-        free((char*)string->data);
+        chess_free((char*)string->data);
 }
 
 size_t chess_string_size(const ChessString* string)
