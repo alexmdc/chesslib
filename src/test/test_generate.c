@@ -4,12 +4,6 @@
 
 #include "helpers.h"
 
-static int initialize(void)
-{
-    chess_generate_init();
-    return 0;
-}
-
 static void test_generate_moves(void)
 {
     ChessMove expected_moves[] = {
@@ -188,7 +182,7 @@ static void test_move_generator(void)
 
 void test_generate_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("generate", (CU_InitializeFunc)initialize, NULL);
+    CU_Suite* suite = add_suite("generate");
     CU_add_test(suite, "generate_moves", (CU_TestFunc)test_generate_moves);
     CU_add_test(suite, "generate_moves2", (CU_TestFunc)test_generate_moves2);
     CU_add_test(suite, "generate_moves3", (CU_TestFunc)test_generate_moves3);

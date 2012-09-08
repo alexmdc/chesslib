@@ -26,4 +26,6 @@ void assert_buffer_value(ChessBufferWriter* writer, const char* str, const char*
 #define MV(f,t) MAKE_MOVE(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t, CHESS_MOVE_PROMOTE_NONE)
 #define MVP(f,t,p) MAKE_MOVE(CHESS_SQUARE_ ## f, CHESS_SQUARE_ ## t, CHESS_MOVE_PROMOTE_ ## p)
 
+CU_Suite* add_suite(const char* name);
+
 #endif /* CHESSLIB_TEST_HELPERS_H_ */

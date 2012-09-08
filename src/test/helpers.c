@@ -8,6 +8,7 @@
 #include "../move.h"
 #include "../unmove.h"
 #include "../position.h"
+#include "../calloc.h"
 
 #include "helpers.h"
 
@@ -128,4 +129,22 @@ void assert_buffer_value(ChessBufferWriter* writer, const char* str, const char*
     size_t size = strlen(str);
     ASSERT_IMPL(chess_buffer_writer_size(writer) == size, "ASSERT_BUFFER_VALUE(size)", file, line);
     ASSERT_IMPL(!strncmp(chess_buffer_writer_data(writer), str, size), "ASSERT_BUFFER_VALUE(value)", file, line);
+}
+
+static int alloc_count;
+
+static int init_suite(void)
+{
+    alloc_count = chess_alloc_count();
+    return 0;
+}
+
+static int cleanup_suite(void)
+{
+    return (alloc_count != chess_alloc_count());
+}
+
+CU_Suite* add_suite(const char* name)
+{
+    return CU_add_suite(name, init_suite, cleanup_suite);
 }

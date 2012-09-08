@@ -492,7 +492,7 @@ static void test_game_step_to_move(void)
 
 void test_game_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("game", NULL, NULL);
+    CU_Suite* suite = add_suite("game");
     CU_add_test(suite, "game_new", (CU_TestFunc)test_game_new);
     CU_add_test(suite, "game_move", (CU_TestFunc)test_game_move);
     CU_add_test(suite, "game_result", (CU_TestFunc)test_game_result);

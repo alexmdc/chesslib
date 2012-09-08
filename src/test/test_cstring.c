@@ -2,6 +2,8 @@
 
 #include "../cstring.h"
 
+#include "helpers.h"
+
 static void test_cstring_init(void)
 {
     ChessString string;
@@ -66,7 +68,7 @@ static void test_cstring_assign(void)
 
 void test_cstring_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("cstring", NULL, NULL);
+    CU_Suite* suite = add_suite("cstring");
     CU_add_test(suite, "cstring_init", (CU_TestFunc)test_cstring_init);
     CU_add_test(suite, "cstring_clear", (CU_TestFunc)test_cstring_clear);
     CU_add_test(suite, "cstring_assign", (CU_TestFunc)test_cstring_assign);

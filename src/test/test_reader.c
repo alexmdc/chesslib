@@ -80,7 +80,7 @@ static void test_file_reader(void)
 
 void test_reader_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("reader", NULL, NULL);
+    CU_Suite* suite = add_suite("reader");
     CU_add_test(suite, "buffer_reader", (CU_TestFunc)test_buffer_reader);
     CU_add_test(suite, "file_reader", (CU_TestFunc)test_file_reader);
 }

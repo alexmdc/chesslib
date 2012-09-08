@@ -2,6 +2,8 @@
 
 #include "../chess.h"
 
+#include "helpers.h"
+
 static void test_boolean(void)
 {
     CU_ASSERT_FALSE(CHESS_FALSE);
@@ -112,7 +114,7 @@ void test_rank_to_char(void)
 
 void test_chess_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("chess", NULL, NULL);
+    CU_Suite* suite = add_suite("chess");
     CU_add_test(suite, "boolean", (CU_TestFunc)test_boolean);
     CU_add_test(suite, "color_other", (CU_TestFunc)test_color);
     CU_add_test(suite, "piece_color", (CU_TestFunc)test_piece_color);

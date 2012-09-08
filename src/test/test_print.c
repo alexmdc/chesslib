@@ -193,7 +193,7 @@ static void test_print_result(void)
 
 void test_print_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("print", NULL, NULL);
+    CU_Suite* suite = add_suite("print");
     CU_add_test(suite, "print_move", (CU_TestFunc)test_print_move);
     CU_add_test(suite, "print_move_san", (CU_TestFunc)test_print_move_san);
     CU_add_test(suite, "print_game_moves", (CU_TestFunc)test_print_game_moves);

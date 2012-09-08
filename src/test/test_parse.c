@@ -45,7 +45,7 @@ static void test_parse_null_move(void)
 
 void test_parse_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("parse", NULL, NULL);
+    CU_Suite* suite = add_suite("parse");
     CU_add_test(suite, "parse_move", (CU_TestFunc)test_parse_move);
     CU_add_test(suite, "parse_null_move", (CU_TestFunc)test_parse_null_move);
 }

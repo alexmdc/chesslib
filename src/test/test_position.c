@@ -166,7 +166,7 @@ void test_position_check_result(void)
 
 void test_position_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("position", NULL, NULL);
+    CU_Suite* suite = add_suite("position");
     CU_add_test(suite, "position_init", (CU_TestFunc)test_position_init);
     CU_add_test(suite, "position_make_null_move", (CU_TestFunc)test_position_make_null_move);
     CU_add_test(suite, "position_make_move", (CU_TestFunc)test_position_make_move);

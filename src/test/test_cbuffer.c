@@ -2,6 +2,8 @@
 
 #include "../cbuffer.h"
 
+#include "helpers.h"
+
 static void test_cbuffer_init(void)
 {
     ChessBuffer buffer;
@@ -106,7 +108,7 @@ static void test_cbuffer_null_terminate(void)
 
 void test_cbuffer_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("cstring", NULL, NULL);
+    CU_Suite* suite = add_suite("cstring");
     CU_add_test(suite, "cbuffer_init", (CU_TestFunc)test_cbuffer_init);
     CU_add_test(suite, "cbuffer_append", (CU_TestFunc)test_cbuffer_append);
     CU_add_test(suite, "cbuffer_set_size", (CU_TestFunc)test_cbuffer_set_size);

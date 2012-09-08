@@ -317,7 +317,7 @@ static void test_promote(void)
 
 void test_variation_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("variation", NULL, NULL);
+    CU_Suite* suite = add_suite("variation");
     CU_add_test(suite, "new", (CU_TestFunc)test_new);
     CU_add_test(suite, "annotations", (CU_TestFunc)test_annotations);
     CU_add_test(suite, "add_child", (CU_TestFunc)test_add_child);

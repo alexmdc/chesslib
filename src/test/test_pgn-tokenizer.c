@@ -296,7 +296,7 @@ static void test_error(void)
 
 void test_pgn_tokenizer_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("pgn-tokenizer", NULL, NULL);
+    CU_Suite* suite = add_suite("pgn-tokenizer");
     CU_add_test(suite, "empty", (CU_TestFunc)test_empty);
     CU_add_test(suite, "tag", (CU_TestFunc)test_tag);
     CU_add_test(suite, "escaped_string", (CU_TestFunc)test_escaped_string);

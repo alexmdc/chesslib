@@ -107,7 +107,7 @@ static void test_file_writer_write(void)
 
 void test_writer_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("writer", NULL, NULL);
+    CU_Suite* suite = add_suite("writer");
     CU_add_test(suite, "buffer_writer_init", (CU_TestFunc)test_buffer_writer_init);
     CU_add_test(suite, "buffer_writer_write", (CU_TestFunc)test_buffer_writer_write);
     CU_add_test(suite, "buffer_writer_clear", (CU_TestFunc)test_buffer_writer_clear);

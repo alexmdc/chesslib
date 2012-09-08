@@ -271,7 +271,7 @@ void test_pgn_load_setup(void)
 
 void test_pgn_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("pgn", NULL, NULL);
+    CU_Suite* suite = add_suite("pgn");
     CU_add_test(suite, "pgn_save", (CU_TestFunc)test_pgn_save);
     CU_add_test(suite, "pgn_load", (CU_TestFunc)test_pgn_load);
     CU_add_test(suite, "pgn_load_subvariations", (CU_TestFunc)test_pgn_load_subvariations);

@@ -125,7 +125,7 @@ static void test_carray_set_elem(void)
 
 void test_carray_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("carray", NULL, NULL);
+    CU_Suite* suite = add_suite("carray");
     CU_add_test(suite, "carray_init", (CU_TestFunc)test_carray_init);
     CU_add_test(suite, "carray_push", (CU_TestFunc)test_carray_push);
     CU_add_test(suite, "carray_pop", (CU_TestFunc)test_carray_pop);

@@ -134,7 +134,7 @@ static void test_fen_save3(void)
 
 void test_fen_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("fen", NULL, NULL);
+    CU_Suite* suite = add_suite("fen");
     CU_add_test(suite, "fen_load", (CU_TestFunc)test_fen_load);
     CU_add_test(suite, "fen_load2", (CU_TestFunc)test_fen_load2);
     CU_add_test(suite, "fen_save", (CU_TestFunc)test_fen_save);

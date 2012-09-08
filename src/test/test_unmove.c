@@ -2,6 +2,8 @@
 
 #include "../unmove.h"
 
+#include "helpers.h"
+
 static void test_unmove_make(void)
 {
     ChessUnmove unmove;
@@ -64,6 +66,6 @@ static void test_unmove_make(void)
 
 void test_unmove_add_tests(void)
 {
-    CU_Suite* suite = CU_add_suite("unmove", NULL, NULL);
+    CU_Suite* suite = add_suite("unmove");
     CU_add_test(suite, "unmove_make", (CU_TestFunc)test_unmove_make);
 }
