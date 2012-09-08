@@ -113,7 +113,9 @@ static void load_pgn(ChessGame* game, const char* filename)
 {
     FILE* file;
     ChessFileReader reader;
+    ChessPgnLoader loader;
     ChessPgnLoadResult result;
+    int count = 0;
 
     file = fopen(filename, "r");
     if (file == NULL)
@@ -123,11 +125,14 @@ static void load_pgn(ChessGame* game, const char* filename)
     }
 
     chess_file_reader_init(&reader, file);
+    chess_pgn_loader_init(&loader, (ChessReader*)&reader);
     do
     {
-        result = chess_pgn_load((ChessReader*)&reader, game);
-        printf("Loaded with result: %d\n", result);
-    } while (result == CHESS_PGN_LOAD_OK);
+        chess_game_reset(game);
+        result = chess_pgn_loader_next(&loader, game);
+        printf("%d. Loaded with result: %d\n", ++count, result);
+    } while (result != CHESS_PGN_LOAD_EOF);
+    chess_pgn_loader_cleanup(&loader);
     chess_file_reader_cleanup(&reader);
 }
 

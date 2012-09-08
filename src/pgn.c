@@ -270,3 +270,39 @@ ChessPgnLoadResult chess_pgn_load(ChessReader* reader, ChessGame* game)
     chess_pgn_tokenizer_destroy(tokenizer);
     return result;
 }
+
+void chess_pgn_loader_init(ChessPgnLoader* loader, ChessReader* reader)
+{
+    loader->reader = reader;
+    loader->tokenizer = chess_pgn_tokenizer_new(reader);
+}
+
+void chess_pgn_loader_cleanup(ChessPgnLoader* loader)
+{
+    chess_pgn_tokenizer_destroy(loader->tokenizer);
+}
+
+ChessPgnLoadResult chess_pgn_loader_next(ChessPgnLoader* loader, ChessGame* game)
+{
+    const ChessPgnToken* token;
+
+    for ((token = chess_pgn_tokenizer_peek(loader->tokenizer));
+         token->type != CHESS_PGN_TOKEN_L_BRACKET;
+         (token = chess_pgn_tokenizer_peek(loader->tokenizer)))
+    {
+        if (token->type == CHESS_PGN_TOKEN_EOF)
+            return CHESS_PGN_LOAD_EOF;
+
+        if (token->type == CHESS_PGN_TOKEN_ERROR)
+            chess_reader_getc(loader->reader);
+
+        chess_pgn_tokenizer_consume(loader->tokenizer);
+    }
+
+    return parse_game(loader->tokenizer, game);
+}
+
+const ChessPgnToken* chess_pgn_loader_last_token(ChessPgnLoader* loader)
+{
+    return chess_pgn_tokenizer_peek(loader->tokenizer);
+}
