@@ -84,6 +84,8 @@ static void test_annotations(void)
     chess_variation_remove_annotation(variation, 7);
     chess_variation_remove_annotation(variation, 128);
     CU_ASSERT_EQUAL(0, chess_variation_annotations(variation, annotations));
+
+    chess_variation_destroy(root);
 }
 
 static void test_add_child(void)
@@ -313,6 +315,8 @@ static void test_promote(void)
     CU_ASSERT_EQUAL(child3, chess_variation_right(child2));
     CU_ASSERT_EQUAL(child2, chess_variation_left(child3));
     CU_ASSERT_EQUAL(NULL, chess_variation_right(child3));
+
+    chess_variation_destroy(root);
 }
 
 void test_variation_add_tests(void)

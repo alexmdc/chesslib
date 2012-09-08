@@ -488,6 +488,9 @@ static void test_game_step_to_move(void)
     ASSERT_POSITIONS_EQUAL(&position_d4_Nf6_c4_g6_Nc3, chess_game_iterator_position(iter));
     CU_ASSERT_EQUAL(variation_d4_Nf6_c4_g6_Nc3, chess_game_iterator_variation(iter));
     CU_ASSERT_EQUAL(MV(B1,C3), chess_game_iterator_move(iter));
+
+    chess_game_iterator_destroy(iter);
+    chess_game_destroy(game);
 }
 
 void test_game_add_tests(void)

@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "../writer.h"
+#include "../calloc.h"
 
 #include "helpers.h"
 
@@ -72,7 +73,7 @@ static void test_buffer_writer_detach(void)
 
     CU_ASSERT_NSTRING_EQUAL("This too shall pass.", buffer, 20);
 
-    free(buffer);
+    chess_free(buffer);
 }
 
 static void test_file_writer_write(void)

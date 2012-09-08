@@ -42,11 +42,13 @@ static void free_node_tree(ChessVariation* node)
     while (child != node)
     {
         child = next;
-        while (child->right)
-            child = child->right;
 
-        while (child->first_child)
-            child = child->first_child;
+        /* Walk down to the bottom-rightmost node */
+        while ((child->right && (child = child->right))
+            || (child->first_child && (child = child->first_child)))
+            ;
+
+        assert(child->first_child == NULL && child->right == NULL);
 
         if (child->left)
         {

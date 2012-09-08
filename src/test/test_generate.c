@@ -54,6 +54,7 @@ static void test_generate_moves2(void)
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
                       expected_moves, sizeof(expected_moves) / sizeof(ChessMove));
+    chess_array_cleanup(&moves);
 }
 
 static void test_generate_moves3(void)

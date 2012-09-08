@@ -332,6 +332,8 @@ void chess_game_remove_tag(ChessGame* game, const char* name)
         {
             game->extra = extra->next;
         }
+        chess_string_cleanup(&extra->name);
+        chess_string_cleanup(&extra->value);
         chess_free(extra);
     }
 }
