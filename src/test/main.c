@@ -3,8 +3,6 @@
 
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
-#include <CUnit/Console.h>
-#include <CUnit/CUCurses.h>
 
 #include "../generate.h"
 

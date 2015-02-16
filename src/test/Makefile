@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-g -Wall -ansi -pedantic -I/opt/local/include
+CC=clang
+CFLAGS=-g -Wall -std=c89 -pedantic -I/opt/local/include
 LDFLAGS=-L.. -L/opt/local/lib -lchesslib -lcunit -lncurses
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)

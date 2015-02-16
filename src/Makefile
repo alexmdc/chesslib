@@ -1,5 +1,5 @@
-CC=gcc
-CFLAGS=-g -Wall -ansi -pedantic
+CC=clang
+CFLAGS=-g -Wall -std=c89 -pedantic
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 SUBDIRS=test shell
