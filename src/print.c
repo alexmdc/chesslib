@@ -51,7 +51,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
         return 2;
     }
 
-    piece = chess_position_piece(position, from);
+    piece = position->piece[from];
     assert(piece != CHESS_PIECE_NONE);
 
     /* Handle castling */
@@ -97,7 +97,7 @@ int chess_print_move_san(ChessMove move, const ChessPosition* position, char* s)
             sq = chess_move_from(move2);
             if (sq == from)
                 continue; /* same move */
-            if (chess_position_piece(position, sq) != piece)
+            if (position->piece[sq] != piece)
                 continue; /* different piece */
 
             piece_ambiguous = CHESS_TRUE;
@@ -165,7 +165,7 @@ int chess_print_position(const ChessPosition* position, char* s)
     for (rank = CHESS_RANK_8; rank >= CHESS_RANK_1; --rank)
         for (file = CHESS_FILE_A; file <= CHESS_FILE_H; ++file)
         {
-            ChessPiece piece = chess_position_piece(position, chess_square_from_fr((ChessFile)file, (ChessRank)rank));
+            ChessPiece piece = position->piece[chess_square_from_fr((ChessFile)file, (ChessRank)rank)];
             char c;
             if (piece == CHESS_PIECE_NONE)
             {
@@ -182,10 +182,10 @@ int chess_print_position(const ChessPosition* position, char* s)
                 s[n++] = '\n';
         }
 
-    to_move = chess_position_to_move(position);
-    castle = chess_position_castle(position);
-    ep = chess_position_ep(position);
-    move_num = chess_position_move_num(position);
+    to_move = position->to_move;
+    castle = position->castle;
+    ep = position->ep;
+    move_num = position->move_num;
     n += sprintf(s + n, "%d. %s to move %c%c%c%c %c (%d)\n",
                  move_num,
                  to_move == CHESS_COLOR_WHITE ? "White" : "Black",
@@ -194,7 +194,7 @@ int chess_print_position(const ChessPosition* position, char* s)
                  castle & CHESS_CASTLE_STATE_BK ? 'w' : '-',
                  castle & CHESS_CASTLE_STATE_BQ ? 'q' : '-',
                  ep != CHESS_FILE_INVALID ? chess_file_to_char(ep) : '-',
-                 chess_position_fifty(position));
+                 position->fifty);
 
     return n;
 }
@@ -227,10 +227,10 @@ static void print_variation(const ChessPosition* position, ChessVariation* varia
             chess_writer_write_char(writer, ' ');
 
         n = 0;
-        if (chess_position_to_move(&temp_position) == CHESS_COLOR_WHITE)
-            n = sprintf(buf, "%d. ", chess_position_move_num(&temp_position));
+        if (temp_position.to_move == CHESS_COLOR_WHITE)
+            n = sprintf(buf, "%d. ", temp_position.move_num);
         else if (showBlackNum)
-            n = sprintf(buf, "%d... ", chess_position_move_num(&temp_position));
+            n = sprintf(buf, "%d... ", temp_position.move_num);
 
         move = chess_variation_move(variation);
         n += chess_print_move_san(move, &temp_position, buf + n);

@@ -84,38 +84,38 @@ void assert_positions_equal(const ChessPosition* lposition, const ChessPosition*
 
     for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
     {
-        if (chess_position_piece(lposition, sq) != chess_position_piece(rposition, sq))
+        if (lposition->piece[sq] != rposition->piece[sq])
         {
             ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(pieces)", file, line);
             return;
         }
     }
 
-    if (chess_position_to_move(lposition) != chess_position_to_move(rposition))
+    if (lposition->to_move!= rposition->to_move)
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(to_move)", file, line);
         return;
     }
 
-    if (chess_position_castle(lposition) != chess_position_castle(rposition))
+    if (lposition->castle != rposition->castle)
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(castle)", file, line);
         return;
     }
 
-    if (chess_position_ep(lposition) != chess_position_ep(rposition))
+    if (lposition->ep != rposition->ep)
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(ep)", file, line);
         return;
     }
 
-    if (chess_position_fifty(lposition) != chess_position_fifty(rposition))
+    if (lposition->fifty != rposition->fifty)
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(fifty)", file, line);
         return;
     }
 
-    if (chess_position_move_num(lposition) != chess_position_move_num(rposition))
+    if (lposition->move_num != rposition->move_num)
     {
         ASSERT_FAIL("ASSERT_POSITIONS_EQUAL(move_num)", file, line);
         return;

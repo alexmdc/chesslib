@@ -32,8 +32,8 @@ static void test_position_pieces(const ChessPosition* position, const ChessPiece
         {
             sq = chess_square_from_fr(f, r);
             qs = chess_square_from_fr(f, CHESS_RANK_8 - r);
-            if (chess_position_piece(position, sq) != pieces[qs])
-                {
+            if (position->piece[sq] != pieces[qs])
+            {
                 ASSERT_IMPL(0, "TEST_POSITION_PIECES()", file, line);
                 return;
             }
@@ -45,11 +45,11 @@ static void test_position_meta(const ChessPosition* position, ChessColor to_move
     ChessCastleState castle, ChessFile ep, int fifty, int move_num,
     const char* file, unsigned int line)
 {
-    ASSERT_IMPL(chess_position_to_move(position) == to_move, "TEST_POSITION_META(to_move)", file, line);
-    ASSERT_IMPL(chess_position_castle(position) == castle, "TEST_POSITION_META(castle)", file, line);
-    ASSERT_IMPL(chess_position_ep(position) == ep, "TEST_POSITION_META(ep)", file, line);
-    ASSERT_IMPL(chess_position_fifty(position) == fifty, "TEST_POSITION_META(fifty)", file, line);
-    ASSERT_IMPL(chess_position_move_num(position) == move_num, "TEST_POSITION_META(move_num)", file, line);
+    ASSERT_IMPL(position->to_move == to_move, "TEST_POSITION_META(to_move)", file, line);
+    ASSERT_IMPL(position->castle == castle, "TEST_POSITION_META(castle)", file, line);
+    ASSERT_IMPL(position->ep == ep, "TEST_POSITION_META(ep)", file, line);
+    ASSERT_IMPL(position->fifty == fifty, "TEST_POSITION_META(fifty)", file, line);
+    ASSERT_IMPL(position->move_num == move_num, "TEST_POSITION_META(move_num)", file, line);
 }
 
 #define TEST_POSITION_PIECES(position, pieces) \

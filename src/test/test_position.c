@@ -10,19 +10,19 @@ static void test_position_init(void)
 
     chess_position_init(&position);
 
-    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_ROOK, chess_position_piece(&position, CHESS_SQUARE_A1));
-    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_KING, chess_position_piece(&position, CHESS_SQUARE_E1));
-    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_PAWN, chess_position_piece(&position, CHESS_SQUARE_C2));
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_C3));
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_G5));
-    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_PAWN, chess_position_piece(&position, CHESS_SQUARE_F7));
-    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_KING, chess_position_piece(&position, CHESS_SQUARE_E8));
-    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_ROOK, chess_position_piece(&position, CHESS_SQUARE_H8));
+    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_ROOK, position.piece[CHESS_SQUARE_A1]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_KING, position.piece[CHESS_SQUARE_E1]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_PAWN, position.piece[CHESS_SQUARE_C2]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_C3]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_G5]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_PAWN, position.piece[CHESS_SQUARE_F7]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_KING, position.piece[CHESS_SQUARE_E8]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_ROOK, position.piece[CHESS_SQUARE_H8]);
 
-    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(1, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(1, position.move_num);
 }
 
 static void test_position_make_move(void)
@@ -33,46 +33,46 @@ static void test_position_make_move(void)
     /* e4 */
     chess_position_make_move(&position, MV(E2,E4));
 
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_E2));
-    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_PAWN, chess_position_piece(&position, CHESS_SQUARE_E4));
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_E2]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_PAWN, position.piece[CHESS_SQUARE_E4]);
 
-    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_E, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(1, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_E, position.ep);
+    CU_ASSERT_EQUAL(1, position.move_num);
 
     /* Nf6 */
     chess_position_make_move(&position, MV(G8,F6));
 
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_G8));
-    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_KNIGHT, chess_position_piece(&position, CHESS_SQUARE_F6));
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_G8]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_KNIGHT, position.piece[CHESS_SQUARE_F6]);
 
-    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(2, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(2, position.move_num);
 
     /* Ke2 */
     chess_position_make_move(&position, MV(E1,E2));
 
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_E1));
-    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_KING, chess_position_piece(&position, CHESS_SQUARE_E2));
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_E1]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_WHITE_KING, position.piece[CHESS_SQUARE_E2]);
 
-    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_BKQ, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(2, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_BKQ, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(2, position.move_num);
 
     /* Rg8 */
     chess_position_make_move(&position, MV(H8,G8));
 
-    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, chess_position_piece(&position, CHESS_SQUARE_H8));
-    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_ROOK, chess_position_piece(&position, CHESS_SQUARE_G8));
+    CU_ASSERT_EQUAL(CHESS_PIECE_NONE, position.piece[CHESS_SQUARE_H8]);
+    CU_ASSERT_EQUAL(CHESS_PIECE_BLACK_ROOK, position.piece[CHESS_SQUARE_G8]);
 
-    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_BQ, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(3, chess_position_move_num(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_BQ, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(3, position.move_num);
 }
 
 static void test_position_make_null_move(void)
@@ -91,18 +91,18 @@ static void test_position_make_null_move(void)
     squares_equal = CHESS_TRUE;
     for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
     {
-        if (chess_position_piece(&position, sq) != chess_position_piece(&positions[0], sq))
+        if (position.piece[sq] != positions[0].piece[sq])
         {
             squares_equal = CHESS_FALSE;
             break;
         }
     }
     CU_ASSERT(squares_equal);
-    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(1, chess_position_move_num(&position));
-    CU_ASSERT_EQUAL(1, chess_position_fifty(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_BLACK, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(1, position.move_num);
+    CU_ASSERT_EQUAL(1, position.fifty);
 
     /* Make normal moves */
     unmoves[1] = chess_position_make_move(&position, MV(B8,C6));
@@ -114,18 +114,18 @@ static void test_position_make_null_move(void)
     squares_equal = CHESS_TRUE;
     for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; sq++)
     {
-        if (chess_position_piece(&position, sq) != chess_position_piece(&positions[1], sq))
+        if (position.piece[sq] != positions[1].piece[sq])
         {
             squares_equal = CHESS_FALSE;
             break;
         }
     }
     CU_ASSERT(squares_equal);
-    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, chess_position_to_move(&position));
-    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, chess_position_castle(&position));
-    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, chess_position_ep(&position));
-    CU_ASSERT_EQUAL(3, chess_position_move_num(&position));
-    CU_ASSERT_EQUAL(1, chess_position_fifty(&position));
+    CU_ASSERT_EQUAL(CHESS_COLOR_WHITE, position.to_move);
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+    CU_ASSERT_EQUAL(3, position.move_num);
+    CU_ASSERT_EQUAL(1, position.fifty);
 
     /* Check that undoing the moves works too */
     chess_position_undo_move(&position, unmoves[3]);

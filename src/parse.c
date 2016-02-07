@@ -20,7 +20,7 @@ static ChessBoolean matches_move(const ChessPosition* position, ChessMove move,
 
     if (piece)
     {
-        move_piece = chess_position_piece(position, from);
+        move_piece = position->piece[from];
         if (tolower(chess_piece_to_char(move_piece)) != piece)
             return CHESS_FALSE;
     }
@@ -171,7 +171,7 @@ ChessParseMoveResult chess_parse_move(const char* s, const ChessPosition* positi
             else
             {
                 /* Need to prioritise pawn moves */
-                pc = chess_position_piece(position, chess_move_from(move));
+                pc = position->piece[chess_move_from(move)];
                 pm = (pc == CHESS_PIECE_WHITE_PAWN || pc == CHESS_PIECE_BLACK_PAWN);
                 if (!piece_move || (pm && !pawn_move))
                 {

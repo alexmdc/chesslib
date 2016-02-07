@@ -7,12 +7,14 @@
 
 typedef struct
 {
+    /* Variables that store the current state of the board. */
     ChessPiece piece[64];
     ChessColor to_move;
     ChessCastleState castle;
     ChessFile ep;
     int fifty;
     int move_num;
+    /* The remaining members are private and should not be used. */
     ChessSquare wking, bking;
 } ChessPosition;
 
@@ -24,13 +26,6 @@ void chess_position_destroy(ChessPosition*);
 void chess_position_init(ChessPosition*);
 void chess_position_init_fen(ChessPosition*, const char*);
 void chess_position_copy(const ChessPosition* from, ChessPosition* to);
-
-ChessPiece chess_position_piece(const ChessPosition*, ChessSquare);
-ChessColor chess_position_to_move(const ChessPosition*);
-ChessCastleState chess_position_castle(const ChessPosition*);
-ChessFile chess_position_ep(const ChessPosition*);
-int chess_position_fifty(const ChessPosition*);
-int chess_position_move_num(const ChessPosition*);
 
 void chess_position_set_piece(ChessPosition*, ChessSquare, ChessPiece);
 void chess_position_set_to_move(ChessPosition*, ChessColor);

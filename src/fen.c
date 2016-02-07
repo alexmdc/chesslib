@@ -103,8 +103,8 @@ void chess_fen_save(const ChessPosition* position, char* s)
     ChessFile file;
     ChessRank rank;
     ChessPiece piece;
-    ChessCastleState castle = chess_position_castle(position);
-    ChessFile ep = chess_position_ep(position);
+    ChessCastleState castle = position->castle;
+    ChessFile ep = position->ep;
     int run;
 
     for (rank = CHESS_RANK_8; rank >= CHESS_RANK_1; rank--)
@@ -112,7 +112,7 @@ void chess_fen_save(const ChessPosition* position, char* s)
         run = 0;
         for (file = CHESS_FILE_A; file <= CHESS_FILE_H; file++)
         {
-            piece = chess_position_piece(position, chess_square_from_fr(file, rank));
+            piece = position->piece[chess_square_from_fr(file, rank)];
             if (piece == CHESS_PIECE_NONE)
             {
                 run++;
@@ -134,7 +134,7 @@ void chess_fen_save(const ChessPosition* position, char* s)
     }
 
     *s++ = ' ';
-    *s++ = chess_position_to_move(position) == CHESS_COLOR_WHITE ? 'w' : 'b';
+    *s++ = position->to_move == CHESS_COLOR_WHITE ? 'w' : 'b';
     *s++ = ' ';
     if (castle != CHESS_CASTLE_STATE_NONE)
     {
@@ -155,13 +155,11 @@ void chess_fen_save(const ChessPosition* position, char* s)
     if (ep != CHESS_FILE_INVALID)
     {
         *s++ = chess_file_to_char(ep);
-        *s++ = (chess_position_to_move(position) == CHESS_COLOR_WHITE) ? '6' : '3';
+        *s++ = (position->to_move == CHESS_COLOR_WHITE) ? '6' : '3';
     }
     else
     {
         *s++ = '-';
     }
-    s += sprintf(s, " %d %d",
-                 chess_position_fifty(position),
-                 chess_position_move_num(position));
+    s += sprintf(s, " %d %d", position->fifty, position->move_num);
 }

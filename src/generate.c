@@ -102,7 +102,7 @@ static ChessBoolean move_is_legal(const ChessPosition* position, ChessMove move)
     ChessPosition temp_position;
     chess_position_copy(position, &temp_position);
     chess_position_make_move(&temp_position,  move);
-    chess_position_set_to_move(&temp_position, chess_position_to_move(position));
+    chess_position_set_to_move(&temp_position, position->to_move);
     return !chess_position_is_check(&temp_position);
 }
 
@@ -120,7 +120,7 @@ static ChessMove gen_next(ChessMoveGenerator* gen)
 {
     const ChessPosition* position = gen->position;
     ChessPiece piece;
-    ChessColor color = chess_position_to_move(position);
+    ChessColor color = position->to_move;
     ChessPiece target;
     int dirs, dir;
     int piece_dirs;
@@ -142,7 +142,7 @@ gen_pawn_promotes:
 
     for (; gen->sq <= CHESS_SQUARE_H8; gen->sq++)
     {
-        piece = chess_position_piece(position, gen->sq);
+        piece = position->piece[gen->sq];
         if (piece == CHESS_PIECE_NONE)
             continue;
 
@@ -158,7 +158,7 @@ gen_pawn_promotes:
                 slide = (color == CHESS_COLOR_WHITE) ? SLIDE_N : SLIDE_S;
                 capture_dirs = (color == CHESS_COLOR_WHITE) ? DIR_NE | DIR_NW : DIR_SE | DIR_SW;
                 dirs = capture_dirs & slide_dirs[gen->sq];
-                ep_file = chess_position_ep(position);
+                ep_file = position->ep;
                 ep = (ep_file == CHESS_FILE_INVALID) ? CHESS_SQUARE_INVALID :
                      chess_square_from_fr(ep_file, (color == CHESS_COLOR_WHITE) ? CHESS_RANK_6 : CHESS_RANK_3);
 
@@ -168,7 +168,7 @@ gen_pawn_promotes:
                     {
                         gen->to = gen->sq + slide;
 
-                        if (chess_position_piece(position, gen->to) == CHESS_PIECE_NONE)
+                        if (position->piece[gen->to] == CHESS_PIECE_NONE)
                         {
                             if (chess_square_rank(gen->to) == end_rank)
                                 goto gen_pawn_promotes;
@@ -179,7 +179,7 @@ gen_pawn_promotes:
                     else if (chess_square_rank(gen->sq) == start_rank && gen->to == gen->sq + slide)
                     {
                         gen->to += slide;
-                        if (chess_position_piece(position, gen->to) == CHESS_PIECE_NONE)
+                        if (position->piece[gen->to] == CHESS_PIECE_NONE)
                             return chess_move_make(gen->sq, gen->to);
                     }
                     gen->to = CHESS_SQUARE_INVALID;
@@ -191,7 +191,7 @@ gen_pawn_promotes:
                     if (dirs_array[gen->d] & dirs)
                     {
                         gen->to = gen->sq + slides_array[gen->d];
-                        piece = chess_position_piece(position, gen->to);
+                        piece = position->piece[gen->to];
                         gen->d += 2;
                         if (piece != CHESS_PIECE_NONE && chess_piece_color(piece) != color)
                         {
@@ -223,7 +223,7 @@ gen_pawn_promotes:
                         continue;
 
                     gen->to = gen->sq + jumps_array[gen->d];
-                    target = chess_position_piece(position, gen->to);
+                    target = position->piece[gen->to];
                     if (target == CHESS_PIECE_NONE || chess_piece_color(target) != color)
                     {
                         gen->d++;
@@ -259,7 +259,7 @@ gen_pawn_promotes:
                             break;
 
                         gen->to += slides_array[gen->d];
-                        target = chess_position_piece(position, gen->to);
+                        target = position->piece[gen->to];
                         if (target == CHESS_PIECE_NONE)
                             return chess_move_make(gen->sq, gen->to);
                         else if (chess_piece_color(target) != color)
@@ -287,7 +287,7 @@ gen_pawn_promotes:
                         continue;
 
                     gen->to = gen->sq + slides_array[gen->d];
-                    target = chess_position_piece(position, gen->to);
+                    target = position->piece[gen->to];
                     if (target == CHESS_PIECE_NONE || chess_piece_color(target) != color)
                     {
                         gen->d++;
@@ -306,7 +306,7 @@ gen_pawn_promotes:
     if ((int)gen->castle == -1)
     {
         if (!chess_position_is_check(position))
-            gen->castle = chess_position_castle(position);
+            gen->castle = position->castle;
         else {
             gen->castle = CHESS_CASTLE_STATE_NONE;
         }
@@ -315,8 +315,8 @@ gen_pawn_promotes:
     if (color == CHESS_COLOR_WHITE)
     {
         if ((gen->castle & CHESS_CASTLE_STATE_WK)
-            && chess_position_piece(position, CHESS_SQUARE_F1) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_G1) == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_F1] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_G1] == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_F1, CHESS_COLOR_BLACK)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_G1, CHESS_COLOR_BLACK))
         {
@@ -325,9 +325,9 @@ gen_pawn_promotes:
         }
 
         if ((gen->castle & CHESS_CASTLE_STATE_WQ)
-            && chess_position_piece(position, CHESS_SQUARE_B1) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_C1) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_D1) == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_B1] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_C1] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_D1] == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_D1, CHESS_COLOR_BLACK)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_C1, CHESS_COLOR_BLACK))
         {
@@ -338,8 +338,8 @@ gen_pawn_promotes:
     else
     {
         if ((gen->castle & CHESS_CASTLE_STATE_BK)
-            && chess_position_piece(position, CHESS_SQUARE_F8) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_G8) == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_F8] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_G8] == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_F8, CHESS_COLOR_WHITE)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_G8, CHESS_COLOR_WHITE))
         {
@@ -348,9 +348,9 @@ gen_pawn_promotes:
         }
 
         if ((gen->castle & CHESS_CASTLE_STATE_BQ)
-            && chess_position_piece(position, CHESS_SQUARE_B8) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_C8) == CHESS_PIECE_NONE
-            && chess_position_piece(position, CHESS_SQUARE_D8) == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_B8] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_C8] == CHESS_PIECE_NONE
+            && position->piece[CHESS_SQUARE_D8] == CHESS_PIECE_NONE
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_D8, CHESS_COLOR_WHITE)
             && !chess_generate_is_square_attacked(position, CHESS_SQUARE_C8, CHESS_COLOR_WHITE))
         {
@@ -401,8 +401,8 @@ ChessBoolean chess_generate_is_square_attacked(const ChessPosition* position, Ch
             continue;
 
         from = sq + jumps_array[d];
-        piece = chess_position_piece(position, from);
-        if (chess_position_piece(position, from) == chess_piece_of_color(CHESS_PIECE_WHITE_KNIGHT, color))
+        piece = position->piece[from];
+        if (position->piece[from] == chess_piece_of_color(CHESS_PIECE_WHITE_KNIGHT, color))
             return CHESS_TRUE;
     }
 
@@ -419,7 +419,7 @@ ChessBoolean chess_generate_is_square_attacked(const ChessPosition* position, Ch
                 break;
 
             from += slides_array[d];
-            piece = chess_position_piece(position, from);
+            piece = position->piece[from];
             if (piece != CHESS_PIECE_NONE && chess_piece_color(piece) == color)
             {
                 switch (piece)

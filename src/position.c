@@ -52,36 +52,6 @@ void chess_position_copy(const ChessPosition* from, ChessPosition* to)
     memcpy(to, from, sizeof(ChessPosition));
 }
 
-ChessPiece chess_position_piece(const ChessPosition* position, ChessSquare square)
-{
-    return position->piece[square];
-}
-
-ChessColor chess_position_to_move(const ChessPosition* position)
-{
-    return position->to_move;
-}
-
-ChessCastleState chess_position_castle(const ChessPosition* position)
-{
-    return position->castle;
-}
-
-ChessFile chess_position_ep(const ChessPosition* position)
-{
-    return position->ep;
-}
-
-int chess_position_fifty(const ChessPosition* position)
-{
-    return position->fifty;
-}
-
-int chess_position_move_num(const ChessPosition* position)
-{
-    return position->move_num;
-}
-
 void chess_position_set_piece(ChessPosition* position, ChessSquare square, ChessPiece value)
 {
     position->piece[square] = value;
