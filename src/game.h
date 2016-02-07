@@ -59,14 +59,17 @@ const char* chess_game_tag_iterator_value(const ChessGameTagIterator*);
 ChessBoolean chess_game_tag_iterator_next(ChessGameTagIterator*);
 
 /* Iterator interface */
-typedef struct ChessGameIterator ChessGameIterator;
+typedef struct ChessGameIterator
+{
+    ChessGame* game;
+    ChessVariation* variation;
+    ChessPosition position;
+    ChessArray unmoves; /* private */
+} ChessGameIterator;
 
-ChessGameIterator* chess_game_get_iterator(ChessGame*);
-void chess_game_iterator_destroy(ChessGameIterator*);
+void chess_game_iterator_init(ChessGameIterator*, ChessGame*);
+void chess_game_iterator_cleanup(ChessGameIterator*);
 
-ChessGame* chess_game_iterator_game(const ChessGameIterator*);
-const ChessPosition* chess_game_iterator_position(const ChessGameIterator*);
-ChessVariation* chess_game_iterator_variation(ChessGameIterator*);
 ChessMove chess_game_iterator_move(const ChessGameIterator*);
 size_t chess_game_iterator_ply(const ChessGameIterator*);
 ChessResult chess_game_iterator_check_result(const ChessGameIterator*);

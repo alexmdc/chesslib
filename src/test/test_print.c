@@ -68,7 +68,7 @@ static void test_print_move_san(void)
 static void test_print_game_moves(void)
 {
     ChessGame* game;
-    ChessGameIterator* iter;
+    ChessGameIterator iter;
     ChessBufferWriter writer;
 
     chess_buffer_writer_init(&writer);
@@ -77,10 +77,10 @@ static void test_print_game_moves(void)
     ASSERT_BUFFER_VALUE(&writer, "*");
 
     chess_buffer_writer_clear(&writer);
-    iter = chess_game_get_iterator(game);
-    chess_game_iterator_append_move(iter, MV(G1,F3));
-    chess_game_iterator_append_move(iter, MV(D7,D5));
-    chess_game_iterator_append_move(iter, MV(C2,C4));
+    chess_game_iterator_init(&iter, game);
+    chess_game_iterator_append_move(&iter, MV(G1,F3));
+    chess_game_iterator_append_move(&iter, MV(D7,D5));
+    chess_game_iterator_append_move(&iter, MV(C2,C4));
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. Nf3 d5 2. c4 *");
 
@@ -88,92 +88,92 @@ static void test_print_game_moves(void)
     chess_game_set_result(game, CHESS_RESULT_WHITE_WINS);
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. Nf3 d5 2. c4 1-0");
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_cleanup(&iter);
 
     chess_buffer_writer_clear(&writer);
     chess_game_reset_fen(game, "5k2/3b2p1/1p4qp/p1pPp1pn/P1P1P3/2PQ4/6PP/3BB1K1 b - - 1 26");
-    iter = chess_game_get_iterator(game);
-    chess_game_iterator_append_move(iter, MV(H5,F4));
-    chess_game_iterator_append_move(iter, MV(D3,C2));
-    chess_game_iterator_append_move(iter, MV(D7,A4));
+    chess_game_iterator_init(&iter, game);
+    chess_game_iterator_append_move(&iter, MV(H5,F4));
+    chess_game_iterator_append_move(&iter, MV(D3,C2));
+    chess_game_iterator_append_move(&iter, MV(D7,A4));
     chess_game_set_result(game, CHESS_RESULT_BLACK_WINS);
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "26... Nf4 27. Qc2 Bxa4 0-1");
 
     chess_buffer_writer_cleanup(&writer);
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_cleanup(&iter);
     chess_game_destroy(game);
 }
 
 static void test_print_game_moves_nested(void)
 {
     ChessGame* game;
-    ChessGameIterator* iter;
+    ChessGameIterator iter;
     ChessBufferWriter writer;
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    iter = chess_game_get_iterator(game);
+    chess_game_iterator_init(&iter, game);
 
-    chess_game_iterator_append_move(iter, MV(E2,E4));
-    chess_game_iterator_append_move(iter, MV(E7,E5));
-    chess_game_iterator_append_move(iter, MV(F2,F4));
-    chess_game_iterator_step_back(iter);
-    chess_game_iterator_append_move(iter, MV(G1,F3));
-    chess_game_iterator_append_move(iter, MV(B8,C6));
-    chess_game_iterator_step_back(iter);
-    chess_game_iterator_append_move(iter, MV(G8,F6));
+    chess_game_iterator_append_move(&iter, MV(E2,E4));
+    chess_game_iterator_append_move(&iter, MV(E7,E5));
+    chess_game_iterator_append_move(&iter, MV(F2,F4));
+    chess_game_iterator_step_back(&iter);
+    chess_game_iterator_append_move(&iter, MV(G1,F3));
+    chess_game_iterator_append_move(&iter, MV(B8,C6));
+    chess_game_iterator_step_back(&iter);
+    chess_game_iterator_append_move(&iter, MV(G8,F6));
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. e4 e5 2. f4 (2. Nf3 Nc6 (2... Nf6)) *");
 
     chess_buffer_writer_clear(&writer);
-    chess_game_iterator_step_to_start(iter);
-    chess_game_iterator_append_move(iter, MV(D2,D4));
-    chess_game_iterator_step_back(iter);
-    chess_game_iterator_append_move(iter, MV(C2,C4));
-    chess_game_iterator_append_move(iter, MV(C7,C5));
+    chess_game_iterator_step_to_start(&iter);
+    chess_game_iterator_append_move(&iter, MV(D2,D4));
+    chess_game_iterator_step_back(&iter);
+    chess_game_iterator_append_move(&iter, MV(C2,C4));
+    chess_game_iterator_append_move(&iter, MV(C7,C5));
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. e4 (1. d4) (1. c4 c5) 1... e5 2. f4 (2. Nf3 Nc6 (2... Nf6)) *");
 
     chess_buffer_writer_clear(&writer);
-    chess_game_iterator_step_to_start(iter);
-    chess_game_iterator_step_to_end(iter);
-    chess_game_iterator_append_move(iter, MV(E5,F4));
-    chess_game_iterator_append_move(iter, MV(F1,C4));
+    chess_game_iterator_step_to_start(&iter);
+    chess_game_iterator_step_to_end(&iter);
+    chess_game_iterator_append_move(&iter, MV(E5,F4));
+    chess_game_iterator_append_move(&iter, MV(F1,C4));
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. e4 (1. d4) (1. c4 c5) 1... e5 2. f4 (2. Nf3 Nc6 (2... Nf6)) 2... exf4 3. Bc4 *");
 
     chess_buffer_writer_cleanup(&writer);
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_cleanup(&iter);
     chess_game_destroy(game);
 }
 
 static void test_print_game_moves_nags(void)
 {
     ChessGame* game;
-    ChessGameIterator* iter;
+    ChessGameIterator iter;
     ChessBufferWriter writer;
 
     chess_buffer_writer_init(&writer);
     game = chess_game_new();
-    iter = chess_game_get_iterator(game);
+    chess_game_iterator_init(&iter, game);
 
-    chess_game_iterator_append_move(iter, MV(E2,E4));
-    chess_game_iterator_append_move(iter, MV(E7,E5));
-    chess_variation_add_annotation(chess_game_iterator_variation(iter), 2);
-    chess_game_iterator_append_move(iter, MV(F2,F4));
-    chess_variation_add_annotation(chess_game_iterator_variation(iter), 1);
-    chess_variation_add_annotation(chess_game_iterator_variation(iter), 13);
-    chess_game_iterator_append_move(iter, MV(E5,F4));
-    chess_game_iterator_step_back(iter);
-    chess_game_iterator_step_back(iter);
-    chess_game_iterator_append_move(iter, MV(G1,F3));
-    chess_variation_add_annotation(chess_game_iterator_variation(iter), 20);
+    chess_game_iterator_append_move(&iter, MV(E2,E4));
+    chess_game_iterator_append_move(&iter, MV(E7,E5));
+    chess_variation_add_annotation(iter.variation, 2);
+    chess_game_iterator_append_move(&iter, MV(F2,F4));
+    chess_variation_add_annotation(iter.variation, 1);
+    chess_variation_add_annotation(iter.variation, 13);
+    chess_game_iterator_append_move(&iter, MV(E5,F4));
+    chess_game_iterator_step_back(&iter);
+    chess_game_iterator_step_back(&iter);
+    chess_game_iterator_append_move(&iter, MV(G1,F3));
+    chess_variation_add_annotation(iter.variation, 20);
     chess_print_game_moves(game, (ChessWriter*)&writer);
     ASSERT_BUFFER_VALUE(&writer, "1. e4 e5 $2 2. f4 $1 $13 (2. Nf3 $20) 2... exf4 *");
 
     chess_buffer_writer_cleanup(&writer);
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_cleanup(&iter);
     chess_game_destroy(game);
 }
 

@@ -60,15 +60,14 @@ static ChessBoolean parse_line(char* s, char** cmd, char** args)
 
 static void list_moves(const ChessGameIterator* iter)
 {
-    const ChessPosition* position = chess_game_iterator_position(iter);
     ChessMoveGenerator generator;
     ChessMove move;
     char buf[16];
 
-    chess_move_generator_init(&generator, position);
+    chess_move_generator_init(&generator, &iter->position);
     while ((move = chess_move_generator_next(&generator)))
     {
-        chess_print_move_san(move, position, buf);
+        chess_print_move_san(move, &iter->position, buf);
         printf("%s ", buf);
     }
     putchar('\n');
@@ -85,19 +84,18 @@ static void game_moves(const ChessGame* game)
 
 static void print_board(const ChessGameIterator* iter)
 {
-    const ChessPosition* position = chess_game_iterator_position(iter);
     char buf[1024];
-    chess_print_position(position, buf);
+    chess_print_position(&iter->position, buf);
     fputs(buf, stdout);
 }
 
 static void load_fen(ChessGame* game, const char* fen)
 {
-    ChessGameIterator* iter;
+    ChessGameIterator iter;
     chess_game_reset_fen(game, fen);
-    iter = chess_game_get_iterator(game);
-    print_board(iter);
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_init(&iter, game);
+    print_board(&iter);
+    chess_game_iterator_cleanup(&iter);
 }
 
 static void save_pgn(const ChessGame* game)
@@ -151,9 +149,8 @@ static void undo_move(ChessGameIterator* iter)
 
 static void handle_move(ChessGameIterator* iter, const char* cmd)
 {
-    const ChessPosition* position = chess_game_iterator_position(iter);
     ChessMove move = 0;
-    ChessParseMoveResult result = chess_parse_move(cmd, position, &move);
+    ChessParseMoveResult result = chess_parse_move(cmd, &iter->position, &move);
     ChessResult game_result;
     char buf[10];
 
@@ -171,7 +168,7 @@ static void handle_move(ChessGameIterator* iter, const char* cmd)
     }
     else
     {
-        chess_print_move_san(move, position, buf);
+        chess_print_move_san(move, &iter->position, buf);
         puts(buf);
 
         chess_game_iterator_append_move(iter, move);
@@ -281,14 +278,14 @@ int main (int argc, const char* argv[])
 {
     char *line, *cmd, *args;
     ChessGame* game;
-    ChessGameIterator* iter;
+    ChessGameIterator iter;
     int quit = 0;
 
     chess_generate_init();
 
     game = chess_game_new();
-    iter = chess_game_get_iterator(game);
-    print_board(iter);
+    chess_game_iterator_init(&iter, game);
+    print_board(&iter);
 
     line = 0;
 
@@ -310,10 +307,10 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "new"))
         {
-            chess_game_iterator_destroy(iter);
+            chess_game_iterator_cleanup(&iter);
             chess_game_reset(game);
-            iter = chess_game_get_iterator(game);
-            print_board(iter);
+            chess_game_iterator_init(&iter, game);
+            print_board(&iter);
         }
         else if (!strcmp(cmd, "fen"))
         {
@@ -325,7 +322,7 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "ls"))
         {
-            list_moves(iter);
+            list_moves(&iter);
         }
         else if (!strcmp(cmd, "moves"))
         {
@@ -333,11 +330,11 @@ int main (int argc, const char* argv[])
         }
         else if (!strcmp(cmd, "bd"))
         {
-            print_board(iter);
+            print_board(&iter);
         }
         else if (!strcmp(cmd, "undo"))
         {
-            undo_move(iter);
+            undo_move(&iter);
         }
         else if (!strcmp(cmd, "event"))
         {
@@ -369,11 +366,11 @@ int main (int argc, const char* argv[])
         }
         else
         {
-            handle_move(iter, cmd);
+            handle_move(&iter, cmd);
         }
     }
 
-    chess_game_iterator_destroy(iter);
+    chess_game_iterator_cleanup(&iter);
     chess_game_destroy(game);
 
     return 0;

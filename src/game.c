@@ -31,14 +31,6 @@ struct ChessGame
     ExtraTag* extra;
 };
 
-struct ChessGameIterator
-{
-    ChessGame* game;
-    ChessVariation* variation;
-    ChessPosition position;
-    ChessArray unmoves;
-};
-
 ChessGame* chess_game_new(void)
 {
     ChessPosition position;
@@ -382,21 +374,17 @@ const char* chess_game_tag_value(ChessGame* game, const char* name)
     }
 }
 
-ChessGameIterator* chess_game_get_iterator(ChessGame* game)
+void chess_game_iterator_init(ChessGameIterator* iter, ChessGame* game)
 {
-    ChessGameIterator* iter = chess_alloc(sizeof(ChessGameIterator));
-    memset(iter, 0, sizeof(ChessGameIterator));
     iter->game = game;
     chess_position_copy(&game->initial_position, &iter->position);
     iter->variation = game->root_variation;
     chess_array_init(&iter->unmoves, sizeof(ChessUnmove));
-    return iter;
 }
 
-void chess_game_iterator_destroy(ChessGameIterator* iter)
+void chess_game_iterator_cleanup(ChessGameIterator* iter)
 {
     chess_array_cleanup(&iter->unmoves);
-    chess_free(iter);
 }
 
 ChessGame* chess_game_iterator_game(const ChessGameIterator* iter)
