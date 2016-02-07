@@ -303,7 +303,7 @@ gen_pawn_promotes:
         }
     }
 
-    if (gen->castle == -1)
+    if ((int)gen->castle == -1)
     {
         if (!chess_position_is_check(position))
             gen->castle = chess_position_castle(position);

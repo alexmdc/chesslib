@@ -21,7 +21,7 @@ static void test_unmove_make(void)
 
     /* Capture */
     unmove = chess_unmove_make(CHESS_SQUARE_H5, CHESS_SQUARE_F7, CHESS_UNMOVE_CAPTURED_PAWN,
-        CHESS_FALSE, CHESS_FALSE, CHESS_CASTLE_STATE_WKQ, 3);
+        CHESS_FALSE, CHESS_UNMOVE_EP_NONE, CHESS_CASTLE_STATE_WKQ, 3);
     CU_ASSERT_EQUAL(CHESS_SQUARE_H5, chess_unmove_from(unmove));
     CU_ASSERT_EQUAL(CHESS_SQUARE_F7, chess_unmove_to(unmove));
     CU_ASSERT_EQUAL(CHESS_UNMOVE_CAPTURED_PAWN, chess_unmove_captured(unmove));
@@ -37,7 +37,7 @@ static void test_unmove_make(void)
     CU_ASSERT_EQUAL(CHESS_SQUARE_H8, chess_unmove_to(unmove));
     CU_ASSERT_EQUAL(CHESS_UNMOVE_CAPTURED_ROOK, chess_unmove_captured(unmove));
     CU_ASSERT_EQUAL(CHESS_TRUE, chess_unmove_promotion(unmove));
-    CU_ASSERT_EQUAL(CHESS_UNMOVE_EP_AVAILABLE + CHESS_FILE_H, chess_unmove_ep(unmove));
+    CU_ASSERT_EQUAL(CHESS_UNMOVE_EP_AVAILABLE + CHESS_FILE_H, (int)chess_unmove_ep(unmove));
     CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_BKQ, chess_unmove_castle(unmove));
     CU_ASSERT_EQUAL(7, chess_unmove_fifty(unmove));
 
@@ -54,7 +54,7 @@ static void test_unmove_make(void)
 
     /* Max value for fifty (8 bits = 0-255) */
     unmove = chess_unmove_make(CHESS_SQUARE_E4, CHESS_SQUARE_D5, CHESS_UNMOVE_CAPTURED_NONE,
-        CHESS_FALSE, CHESS_FALSE, CHESS_CASTLE_STATE_NONE, 255);
+        CHESS_FALSE, CHESS_UNMOVE_EP_NONE, CHESS_CASTLE_STATE_NONE, 255);
     CU_ASSERT_EQUAL(CHESS_SQUARE_E4, chess_unmove_from(unmove));
     CU_ASSERT_EQUAL(CHESS_SQUARE_D5, chess_unmove_to(unmove));
     CU_ASSERT_EQUAL(CHESS_UNMOVE_CAPTURED_NONE, chess_unmove_captured(unmove));

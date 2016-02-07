@@ -9,12 +9,13 @@ ChessUnmove chess_unmove_make(
 {
     /* When capturing ep, captured piece must be NONE */
     assert(ep != CHESS_UNMOVE_EP_CAPTURE || captured == CHESS_UNMOVE_CAPTURED_NONE);
-    assert(ep >= CHESS_UNMOVE_EP_NONE && ep <= (CHESS_UNMOVE_EP_AVAILABLE + CHESS_FILE_H));
+    assert(ep >= CHESS_UNMOVE_EP_NONE);
+    assert((int)ep <= CHESS_UNMOVE_EP_AVAILABLE + CHESS_FILE_H);
 
     return from             /* 6 bits */
-        | (to << 6)            /* 6 bits */
-        | (captured << 12)    /* 3 bits */
-        | (promotion << 15)    /* 1 bit */
+        | (to << 6)         /* 6 bits */
+        | (captured << 12)  /* 3 bits */
+        | (promotion << 15) /* 1 bit */
         | (ep << 16)        /* 4 bits */
         | (castle << 20)    /* 4 bits */
         | (fifty << 24);    /* remaining 8 bits */
