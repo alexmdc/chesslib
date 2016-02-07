@@ -93,10 +93,11 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
     ChessMove move;
     ChessUnmove unmove;
     ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
-    ChessPosition* current_position = chess_position_clone(position);
+    ChessPosition current_position;
     ChessVariation* current_variation = chess_variation_new();
     ChessVariation* subvariation;
-
+ 
+    chess_position_copy(position, &current_position);
     while (result == CHESS_PGN_LOAD_OK)
     {
         token = chess_pgn_tokenizer_peek(tokenizer);
@@ -113,11 +114,11 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                     chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_SYMBOL:
-                result = parse_move(tokenizer, current_position, &move);
+                result = parse_move(tokenizer, &current_position, &move);
                 if (result != CHESS_PGN_LOAD_OK)
                     break;
 
-                unmove = chess_position_make_move(current_position, move);
+                unmove = chess_position_make_move(&current_position, move);
                 current_variation = chess_variation_add_child(current_variation, move);
                 break;
             case CHESS_PGN_TOKEN_NAG:
@@ -139,12 +140,12 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                 chess_pgn_tokenizer_consume(tokenizer);
 
                 /* Subvariation, back up a move and parse it */
-                chess_position_undo_move(current_position, unmove);
-                result = parse_variation(tokenizer, current_position, &subvariation);
+                chess_position_undo_move(&current_position, unmove);
+                result = parse_variation(tokenizer, &current_position, &subvariation);
                 if (result != CHESS_PGN_LOAD_OK)
                     break;
 
-                chess_position_make_move(current_position, move);
+                chess_position_make_move(&current_position, move);
 
                 token = chess_pgn_tokenizer_peek(tokenizer);
                 if (token->type != CHESS_PGN_TOKEN_R_PARENTHESIS)
@@ -174,7 +175,6 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
         result = CHESS_PGN_LOAD_OK;
     }
 
-    chess_position_destroy(current_position);
     return result;
 }
 

@@ -17,7 +17,7 @@ typedef struct ExtraTag ExtraTag;
 
 struct ChessGame
 {
-    ChessPosition* initial_position;
+    ChessPosition initial_position;
     ChessVariation* root_variation;
 
     /* PGN tags */
@@ -51,7 +51,7 @@ ChessGame* chess_game_new_position(const ChessPosition* position)
     ChessGame* game = chess_alloc(sizeof(ChessGame));
     memset(game, 0, sizeof(ChessGame));
 
-    game->initial_position = chess_position_new();
+    chess_position_copy(position, &game->initial_position);
     game->root_variation = chess_variation_new();
 
     chess_string_init(&game->event);
@@ -85,7 +85,6 @@ static void cleanup_extra_tags(ChessGame* game)
 void chess_game_destroy(ChessGame* game)
 {
     assert(game != NULL);
-    chess_position_destroy(game->initial_position);
     chess_variation_destroy(game->root_variation);
 
     chess_string_cleanup(&game->event);
@@ -108,7 +107,7 @@ void chess_game_reset(ChessGame* game)
 
 void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
 {
-    chess_position_copy(position, game->initial_position);
+    chess_position_copy(position, &game->initial_position);
     chess_variation_truncate(game->root_variation);
 
     game->result = chess_position_check_result(position);
@@ -138,13 +137,13 @@ void chess_game_set_root_variation(ChessGame* game, ChessVariation* variation)
 
 void chess_game_set_initial_position(ChessGame* game, const ChessPosition* position)
 {
-    chess_position_copy(position, game->initial_position);
+    chess_position_copy(position, &game->initial_position);
     chess_variation_truncate(game->root_variation);
 }
 
 const ChessPosition* chess_game_initial_position(const ChessGame* game)
 {
-    return game->initial_position;
+    return &game->initial_position;
 }
 
 ChessVariation* chess_game_root_variation(const ChessGame* game)
@@ -388,7 +387,7 @@ ChessGameIterator* chess_game_get_iterator(ChessGame* game)
     ChessGameIterator* iter = chess_alloc(sizeof(ChessGameIterator));
     memset(iter, 0, sizeof(ChessGameIterator));
     iter->game = game;
-    chess_position_copy(game->initial_position, &iter->position);
+    chess_position_copy(&game->initial_position, &iter->position);
     iter->variation = game->root_variation;
     chess_array_init(&iter->unmoves, sizeof(ChessUnmove));
     return iter;
@@ -472,7 +471,7 @@ void chess_game_iterator_step_back(ChessGameIterator* iter)
 
 void chess_game_iterator_step_to_start(ChessGameIterator* iter)
 {
-    chess_position_copy(iter->game->initial_position, &iter->position);
+    chess_position_copy(&iter->game->initial_position, &iter->position);
     iter->variation = iter->game->root_variation;
     chess_array_clear(&iter->unmoves);
 }

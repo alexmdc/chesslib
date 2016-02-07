@@ -9,33 +9,6 @@
 #include "calloc.h"
 #include "carray.h"
 
-ChessPosition* chess_position_new(void)
-{
-    ChessPosition* position = chess_alloc(sizeof(ChessPosition));
-    chess_position_init(position);
-    return position;
-}
-
-ChessPosition* chess_position_new_fen(const char* fen)
-{
-    ChessPosition* position = chess_alloc(sizeof(ChessPosition));
-    chess_position_init_fen(position, fen);
-    return position;
-}
-
-ChessPosition* chess_position_clone(const ChessPosition* position)
-{
-    ChessPosition* clone = chess_position_new();
-    chess_position_copy(position, clone);
-    return clone;
-}
-
-void chess_position_destroy(ChessPosition* position)
-{
-    assert(position != NULL);
-    chess_free(position);
-}
-
 void chess_position_init(ChessPosition* position)
 {
     chess_position_init_fen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
