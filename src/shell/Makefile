@@ -1,6 +1,6 @@
 CC=clang
 CFLAGS=-g -Wall -std=c89 -pedantic
-LDFLAGS=-L.. -lchesslib
+LDFLAGS=
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:.c=.o)
 LIB=../libchesslib.a
@@ -9,7 +9,7 @@ EXE=chess-shell
 all: $(EXE)
 
 $(EXE): $(OBJS) $(LIB)
-	$(CC) $(CFLAGS) $(OBJS) -o $(EXE) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(OBJS) $(LIB) -o $(EXE) $(LDFLAGS)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
