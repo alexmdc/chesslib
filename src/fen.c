@@ -6,22 +6,19 @@
 #include "fen.h"
 #include "chess.h"
 #include "position.h"
-#include "calloc.h"
 
 ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
 {
-    size_t len;
     ChessPosition temp_position;
     ChessRank rank;
     ChessFile file;
     ChessPiece piece;
-    char *s_copy, *tokens[6], *token, *c;
+    char s_copy[CHESS_FEN_MAX_LENGTH];
+    char *tokens[6], *token, *c;
     int t, m, skip;
 
     /* Clone the string, as strtok will clobber it */
-    len = strlen(s);
-    s_copy = chess_alloc((len + 1) * sizeof(char));
-    strcpy(s_copy, s);
+    strncpy(s_copy, s, CHESS_FEN_MAX_LENGTH - 1);
 
     t = 0;
     token = strtok(s_copy, " ");
@@ -33,11 +30,13 @@ ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
 
     /* Clear the position before filling it in */
     memset(&temp_position, 0, sizeof(ChessPosition));
+    temp_position.ep = CHESS_FILE_INVALID;
+    temp_position.move_num = 1;
 
     /* The first token is the board */
     rank = CHESS_RANK_8;
     token = strtok(tokens[0], "/");
-    while (token && rank >= CHESS_RANK_1)
+    while (token && *token && rank >= CHESS_RANK_1)
     {
         m = 0;
         file = CHESS_FILE_A;
@@ -65,37 +64,43 @@ ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
     }
 
     /* To move */
-    if (!strcmp("w", tokens[1]))
+    if (t < 2 || !strcmp("w", tokens[1]))
         temp_position.to_move = CHESS_COLOR_WHITE;
     else if (!strcmp("b", tokens[1]))
         temp_position.to_move = CHESS_COLOR_BLACK;
 
     /* Castle availability */
-    for (c = tokens[2]; *c; c++)
+    if (t > 2)
     {
-        if (*c == 'K')
-            temp_position.castle |= CHESS_CASTLE_STATE_WK;
-        else if (*c == 'Q')
-            temp_position.castle |= CHESS_CASTLE_STATE_WQ;
-        else if (*c == 'k')
-            temp_position.castle |= CHESS_CASTLE_STATE_BK;
-        else if (*c == 'q')
-            temp_position.castle |= CHESS_CASTLE_STATE_BQ;
+        for (c = tokens[2]; *c; c++)
+        {
+            if (*c == 'K')
+                temp_position.castle |= CHESS_CASTLE_STATE_WK;
+            else if (*c == 'Q')
+                temp_position.castle |= CHESS_CASTLE_STATE_WQ;
+            else if (*c == 'k')
+                temp_position.castle |= CHESS_CASTLE_STATE_BK;
+            else if (*c == 'q')
+                temp_position.castle |= CHESS_CASTLE_STATE_BQ;
+        }
     }
 
     /* En passant */
     temp_position.ep = CHESS_FILE_INVALID;
-    token = strchr("abcdefgh", tokens[3][0]);
-    if (token && *token)
-        temp_position.ep = *token - 'a';
+    if (t > 3)
+    {
+        token = strchr("abcdefgh", tokens[3][0]);
+        if (token && *token)
+            temp_position.ep = *token - 'a';
+    }
 
     /* Half moves */
-    temp_position.fifty = atoi(tokens[4]);
+    if (t > 4)
+        temp_position.fifty = atoi(tokens[4]);
 
     /* Move num */
-    temp_position.move_num = atoi(tokens[5]);
-
-    chess_free(s_copy);
+    if (t > 5)
+        temp_position.move_num = atoi(tokens[5]);
 
     /* Validate the position before returning */
     if (chess_position_validate(&temp_position) == CHESS_FALSE)

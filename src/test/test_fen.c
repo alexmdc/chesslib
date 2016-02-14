@@ -114,7 +114,7 @@ static void test_fen_load_invalid(void)
 
 static void test_fen_save(void)
 {
-    char fen[100];
+    char fen[CHESS_FEN_MAX_LENGTH];
     ChessPosition position;
 
     chess_position_init(&position);
@@ -124,7 +124,7 @@ static void test_fen_save(void)
 
 static void test_fen_save2(void)
 {
-    char fen[100];
+    char fen[CHESS_FEN_MAX_LENGTH];
     ChessPosition position;
 
     chess_position_init(&position);
@@ -136,7 +136,7 @@ static void test_fen_save2(void)
 
 static void test_fen_save3(void)
 {
-    char fen[100];
+    char fen[CHESS_FEN_MAX_LENGTH];
     ChessPosition position;
 
     chess_position_init(&position);
