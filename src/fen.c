@@ -110,14 +110,14 @@ ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
     return CHESS_TRUE;
 }
 
-void chess_fen_save(const ChessPosition* position, char* s)
+int chess_fen_save(const ChessPosition* position, char* s)
 {
     ChessFile file;
     ChessRank rank;
     ChessPiece piece;
     ChessCastleState castle = position->castle;
     ChessFile ep = position->ep;
-    int run;
+    int run, n = 0;
 
     for (rank = CHESS_RANK_8; rank >= CHESS_RANK_1; rank--)
     {
@@ -133,45 +133,47 @@ void chess_fen_save(const ChessPosition* position, char* s)
 
             if (run)
             {
-                *s++ = run + '0';
+                s[n++] = run + '0';
                 run = 0;
             }
-            *s++ = chess_piece_to_char(piece);
+            s[n++] = chess_piece_to_char(piece);
         }
 
         if (run)
-            *s++ = run + '0';
+            s[n++] = run + '0';
         if (rank != CHESS_RANK_1)
-            *s++ = '/';
+            s[n++] = '/';
     }
 
-    *s++ = ' ';
-    *s++ = position->to_move == CHESS_COLOR_WHITE ? 'w' : 'b';
-    *s++ = ' ';
+    s[n++] = ' ';
+    s[n++] = position->to_move == CHESS_COLOR_WHITE ? 'w' : 'b';
+    s[n++] = ' ';
     if (castle != CHESS_CASTLE_STATE_NONE)
     {
         if (castle & CHESS_CASTLE_STATE_WK)
-            *s++ = 'K';
+            s[n++] = 'K';
         if (castle & CHESS_CASTLE_STATE_WQ)
-            *s++ = 'Q';
+            s[n++] = 'Q';
         if (castle & CHESS_CASTLE_STATE_BK)
-            *s++ = 'k';
+            s[n++] = 'k';
         if (castle & CHESS_CASTLE_STATE_BQ)
-            *s++ = 'q';
+            s[n++] = 'q';
     }
     else
     {
-        *s++ = '-';
+        s[n++] = '-';
     }
-    *s++ = ' ';
+    s[n++] = ' ';
     if (ep != CHESS_FILE_INVALID)
     {
-        *s++ = chess_file_to_char(ep);
-        *s++ = (position->to_move == CHESS_COLOR_WHITE) ? '6' : '3';
+        s[n++] = chess_file_to_char(ep);
+        s[n++] = (position->to_move == CHESS_COLOR_WHITE) ? '6' : '3';
     }
     else
     {
-        *s++ = '-';
+        s[n++] = '-';
     }
-    s += sprintf(s, " %d %d", position->fifty, position->move_num);
+    n += sprintf(s + n, " %d %d", position->fifty, position->move_num);
+
+    return n;
 }
