@@ -14,7 +14,14 @@ $(EXE): $(OBJS) $(LIB)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+%.d: %.c
+	$(CC) $(CFLAGS) -MM $< -MF $@
+
+ifneq ($(MAKECMDGOALS), clean)
+    -include $(SRCS:%.c=%.d)
+endif
+
 .PHONY: clean
 
 clean:
-	rm -f *.o $(EXE)
+	rm -f *.o *.d $(EXE)

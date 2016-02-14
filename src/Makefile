@@ -13,8 +13,15 @@ $(LIB): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
+%.d: %.c
+	$(CC) $(CFLAGS) -MM $< -MF $@
+
+ifneq ($(MAKECMDGOALS), clean)
+    -include $(SRCS:%.c=%.d)
+endif
+
 clean: $(SUBDIRS)
-	rm -f *.o $(LIB)
+	rm -f *.o *.d $(LIB)
 
 $(SUBDIRS):
 	$(MAKE) -C $@ $(MAKEOPTS) $(MAKECMDGOALS)

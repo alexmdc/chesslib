@@ -1,3 +1,4 @@
+*.d
 *.o
 /src/libchesslib.a
 /src/shell/chess-shell
