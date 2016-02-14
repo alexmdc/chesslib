@@ -11,7 +11,7 @@
 
 void chess_position_init(ChessPosition* position)
 {
-    chess_position_init_fen(position, "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    chess_position_init_fen(position, CHESS_FEN_STARTING_POSITION);
 }
 
 void chess_position_init_fen(ChessPosition* position, const char* fen)

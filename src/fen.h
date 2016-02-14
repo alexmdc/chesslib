@@ -7,6 +7,8 @@
 /* Longest possible FEN string is about 102 characters */
 #define CHESS_FEN_MAX_LENGTH 128
 
+extern const char* const CHESS_FEN_STARTING_POSITION;
+
 ChessBoolean chess_fen_load(const char* s, ChessPosition*);
 int chess_fen_save(const ChessPosition*, char* s);
 

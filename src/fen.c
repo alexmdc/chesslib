@@ -7,6 +7,8 @@
 #include "chess.h"
 #include "position.h"
 
+const char* const CHESS_FEN_STARTING_POSITION = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
 ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
 {
     ChessPosition temp_position;
