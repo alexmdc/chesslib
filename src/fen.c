@@ -8,13 +8,13 @@
 #include "position.h"
 #include "calloc.h"
 
-void chess_fen_load(const char* s, ChessPosition* position)
+ChessBoolean chess_fen_load(const char* s, ChessPosition* position)
 {
     size_t len;
+    ChessPosition temp_position;
     ChessRank rank;
     ChessFile file;
     ChessPiece piece;
-    ChessCastleState castle;
     char *s_copy, *tokens[6], *token, *c;
     int t, m, skip;
 
@@ -31,6 +31,9 @@ void chess_fen_load(const char* s, ChessPosition* position)
         token = strtok(NULL, " ");
     }
 
+    /* Clear the position before filling it in */
+    memset(&temp_position, 0, sizeof(ChessPosition));
+
     /* The first token is the board */
     rank = CHESS_RANK_8;
     token = strtok(tokens[0], "/");
@@ -43,7 +46,7 @@ void chess_fen_load(const char* s, ChessPosition* position)
             piece = chess_piece_from_char(token[m]);
             if (piece != CHESS_PIECE_NONE)
             {
-                chess_position_set_piece(position, chess_square_from_fr(file, rank), piece);
+                temp_position.piece[chess_square_from_fr(file, rank)] = piece;
                 file++;
             }
             else if (isdigit(token[m]))
@@ -51,7 +54,7 @@ void chess_fen_load(const char* s, ChessPosition* position)
                 skip = token[m] - '0';
                 while (skip--)
                 {
-                    chess_position_set_piece(position, chess_square_from_fr(file, rank), CHESS_PIECE_NONE);
+                    temp_position.piece[chess_square_from_fr(file, rank)] = CHESS_PIECE_NONE;
                     file++;
                 }
             }
@@ -63,39 +66,43 @@ void chess_fen_load(const char* s, ChessPosition* position)
 
     /* To move */
     if (!strcmp("w", tokens[1]))
-        chess_position_set_to_move(position, CHESS_COLOR_WHITE);
+        temp_position.to_move = CHESS_COLOR_WHITE;
     else if (!strcmp("b", tokens[1]))
-        chess_position_set_to_move(position, CHESS_COLOR_BLACK);
+        temp_position.to_move = CHESS_COLOR_BLACK;
 
     /* Castle availability */
-    castle = 0;
     for (c = tokens[2]; *c; c++)
     {
         if (*c == 'K')
-            castle |= CHESS_CASTLE_STATE_WK;
+            temp_position.castle |= CHESS_CASTLE_STATE_WK;
         else if (*c == 'Q')
-            castle |= CHESS_CASTLE_STATE_WQ;
+            temp_position.castle |= CHESS_CASTLE_STATE_WQ;
         else if (*c == 'k')
-            castle |= CHESS_CASTLE_STATE_BK;
+            temp_position.castle |= CHESS_CASTLE_STATE_BK;
         else if (*c == 'q')
-            castle |= CHESS_CASTLE_STATE_BQ;
+            temp_position.castle |= CHESS_CASTLE_STATE_BQ;
     }
-    chess_position_set_castle(position, castle);
 
     /* En passant */
-    file = CHESS_FILE_INVALID;
+    temp_position.ep = CHESS_FILE_INVALID;
     token = strchr("abcdefgh", tokens[3][0]);
     if (token && *token)
-        file = *token - 'a';
-    chess_position_set_ep(position, file);
+        temp_position.ep = *token - 'a';
 
     /* Half moves */
-    chess_position_set_fifty(position, atoi(tokens[4]));
+    temp_position.fifty = atoi(tokens[4]);
 
     /* Move num */
-    chess_position_set_move_num(position, atoi(tokens[5]));
+    temp_position.move_num = atoi(tokens[5]);
 
     chess_free(s_copy);
+
+    /* Validate the position before returning */
+    if (chess_position_validate(&temp_position) == CHESS_FALSE)
+        return CHESS_FALSE;
+
+    chess_position_copy(&temp_position, position);
+    return CHESS_TRUE;
 }
 
 void chess_fen_save(const ChessPosition* position, char* s)
