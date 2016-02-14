@@ -25,6 +25,190 @@ static void test_position_init(void)
     CU_ASSERT_EQUAL(1, position.move_num);
 }
 
+static void test_position_validate(void)
+{
+    ChessPosition position;
+    memset(&position, 0, sizeof(ChessPosition));
+    position.to_move = CHESS_COLOR_WHITE;
+    position.ep = CHESS_FILE_INVALID;
+    position.move_num = 1;
+
+    /* Empty position is invalid */
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Black is missing a king */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_WHITE_KING;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* One king each is valid! */
+    position.piece[CHESS_SQUARE_E8] = CHESS_PIECE_BLACK_KING;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+
+    /* Now white is missing a king */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_NONE;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Two kings is no good either */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_WHITE_KING;
+    position.piece[CHESS_SQUARE_D3] = CHESS_PIECE_WHITE_KING;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Now black has two kings */
+    position.piece[CHESS_SQUARE_D3] = CHESS_PIECE_BLACK_KING;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* White pawn on first rank */
+    position.piece[CHESS_SQUARE_D3] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_B1] = CHESS_PIECE_WHITE_PAWN;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Black pawn on first rank */
+    position.piece[CHESS_SQUARE_B1] = CHESS_PIECE_BLACK_PAWN;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Black pawn on last rank */
+    position.piece[CHESS_SQUARE_B1] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_B8] = CHESS_PIECE_BLACK_PAWN;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* White pawn on last rank */
+    position.piece[CHESS_SQUARE_B8] = CHESS_PIECE_WHITE_PAWN;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* Pawns on valid squares */
+    position.piece[CHESS_SQUARE_B8] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_B2] = CHESS_PIECE_WHITE_PAWN;
+    position.piece[CHESS_SQUARE_B7] = CHESS_PIECE_BLACK_PAWN;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+}
+
+static void test_position_validate_check(void)
+{
+    ChessPosition position;
+    memset(&position, 0, sizeof(ChessPosition));
+    position.to_move = CHESS_COLOR_WHITE;
+    position.ep = CHESS_FILE_INVALID;
+    position.move_num = 1;
+
+    /* Two kings cannot be adjacent */
+    position.piece[CHESS_SQUARE_D4] = CHESS_PIECE_WHITE_KING;
+    position.piece[CHESS_SQUARE_E5] = CHESS_PIECE_BLACK_KING;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* They can be separated though */
+    position.piece[CHESS_SQUARE_E5] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_E6] = CHESS_PIECE_BLACK_KING;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+
+    /* With white to move, black's king cannot be en prise */
+    position.piece[CHESS_SQUARE_E4] = CHESS_PIECE_WHITE_ROOK;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* But with black to move it's okay */
+    position.to_move = CHESS_COLOR_BLACK;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+
+    /* Likewise white's king cannot be en prise */
+    position.piece[CHESS_SQUARE_D6] = CHESS_PIECE_BLACK_ROOK;
+    CU_ASSERT_EQUAL(CHESS_FALSE, chess_position_validate(&position));
+
+    /* So let's block the check */
+    position.piece[CHESS_SQUARE_D5] = CHESS_PIECE_WHITE_PAWN;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+}
+
+static void test_position_validate_castle(void)
+{
+    ChessPosition position;
+    memset(&position, 0, sizeof(ChessPosition));
+    position.to_move = CHESS_COLOR_WHITE;
+    position.ep = CHESS_FILE_INVALID;
+    position.move_num = 1;
+
+    /* Valid position but no castling availability */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_WHITE_KING;
+    position.piece[CHESS_SQUARE_E8] = CHESS_PIECE_BLACK_KING;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_NONE, position.castle);
+
+    /* White can castle king-side */
+    position.piece[CHESS_SQUARE_H1] = CHESS_PIECE_WHITE_ROOK;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_WK, position.castle);
+
+    /* Black can castle king-side */
+    position.piece[CHESS_SQUARE_H8] = CHESS_PIECE_BLACK_ROOK;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_WK | CHESS_CASTLE_STATE_BK, position.castle);
+
+    /* White can castle queen-side */
+    position.piece[CHESS_SQUARE_A1] = CHESS_PIECE_WHITE_ROOK;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_WKQ | CHESS_CASTLE_STATE_BK, position.castle);
+
+    /* Black can castle queen-side */
+    position.piece[CHESS_SQUARE_A8] = CHESS_PIECE_BLACK_ROOK;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_ALL, position.castle);
+
+    /* Moving the black king means black can no longer castle */
+    position.piece[CHESS_SQUARE_E8] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_D8] = CHESS_PIECE_BLACK_KING;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_WKQ, position.castle);
+
+    /* Moving the white king has the same effect on white */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_NONE;
+    position.piece[CHESS_SQUARE_D1] = CHESS_PIECE_WHITE_KING;
+    position.castle = CHESS_CASTLE_STATE_ALL;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_CASTLE_STATE_NONE, position.castle);
+}
+
+static void test_position_validate_ep(void)
+{
+    ChessPosition position;
+    memset(&position, 0, sizeof(ChessPosition));
+    position.to_move = CHESS_COLOR_WHITE;
+    position.ep = CHESS_FILE_INVALID;
+    position.move_num = 1;
+
+    /* Valid position but no en-passant availability */
+    position.piece[CHESS_SQUARE_E1] = CHESS_PIECE_WHITE_KING;
+    position.piece[CHESS_SQUARE_E8] = CHESS_PIECE_BLACK_KING;
+    position.ep = CHESS_FILE_E;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+
+    /* Black's pawn on e5 could have moved from e7 */
+    position.piece[CHESS_SQUARE_E5] = CHESS_PIECE_BLACK_PAWN;
+    position.ep = CHESS_FILE_E;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_E, position.ep);
+
+    /* But if black is to move that is no longer valid */
+    position.to_move = CHESS_COLOR_BLACK;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+
+    /* Unless white's pawn just moved to e4 */
+    position.piece[CHESS_SQUARE_E4] = CHESS_PIECE_WHITE_PAWN;
+    position.ep = CHESS_FILE_E;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_E, position.ep);
+
+    /* If ep is set to a different file then it should be cleared */
+    position.ep = CHESS_FILE_D;
+    CU_ASSERT_EQUAL(CHESS_TRUE, chess_position_validate(&position));
+    CU_ASSERT_EQUAL(CHESS_FILE_INVALID, position.ep);
+}
+
 static void test_position_make_move(void)
 {
     ChessPosition position;
@@ -168,6 +352,10 @@ void test_position_add_tests(void)
 {
     CU_Suite* suite = add_suite("position");
     CU_add_test(suite, "position_init", (CU_TestFunc)test_position_init);
+    CU_add_test(suite, "position_validate", (CU_TestFunc)test_position_validate);
+    CU_add_test(suite, "position_validate_check", (CU_TestFunc)test_position_validate_check);
+    CU_add_test(suite, "position_validate_castle", (CU_TestFunc)test_position_validate_castle);
+    CU_add_test(suite, "position_validate_ep", (CU_TestFunc)test_position_validate_ep);
     CU_add_test(suite, "position_make_null_move", (CU_TestFunc)test_position_make_null_move);
     CU_add_test(suite, "position_make_move", (CU_TestFunc)test_position_make_move);
     CU_add_test(suite, "position_check_result", (CU_TestFunc)test_position_check_result);

@@ -22,6 +22,20 @@ void chess_position_init(ChessPosition*);
 void chess_position_init_fen(ChessPosition*, const char*);
 void chess_position_copy(const ChessPosition* from, ChessPosition* to);
 
+/* Validates the given position by checking some simple invariants, and if
+ * valid, sets up any extra internal state. This method MUST be called after
+ * setting up a new position. If position is invalid, returns CHESS_FALSE.
+ *
+ * The following invariants are checked:
+ *  1. Both sides have one king each.
+ *  2. There are no pawns on the first or last rank.
+ *  3. The opponent's king can not immediately be captured.
+ *
+ * In addition, any castle or en-passant states are cleared if they are
+ * impossible (e.g. if the king is not on its starting square).
+ */
+ChessBoolean chess_position_validate(ChessPosition*);
+
 void chess_position_set_piece(ChessPosition*, ChessSquare, ChessPiece);
 void chess_position_set_to_move(ChessPosition*, ChessColor);
 void chess_position_set_castle(ChessPosition*, ChessCastleState);

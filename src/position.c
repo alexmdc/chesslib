@@ -25,6 +25,104 @@ void chess_position_copy(const ChessPosition* from, ChessPosition* to)
     memcpy(to, from, sizeof(ChessPosition));
 }
 
+ChessBoolean chess_position_validate(ChessPosition* position)
+{
+    ChessSquare sq, other_king;
+    ChessRank rank;
+    ChessPiece pc;
+    ChessPosition temp_position;
+
+    chess_position_copy(position, &temp_position);
+    temp_position.wking = CHESS_SQUARE_INVALID;
+    temp_position.bking = CHESS_SQUARE_INVALID;
+
+    for (sq = CHESS_SQUARE_A1; sq <= CHESS_SQUARE_H8; ++sq)
+    {
+        pc = position->piece[sq];
+        if (pc == CHESS_PIECE_WHITE_KING)
+        {
+            if (temp_position.wking != CHESS_SQUARE_INVALID)
+                return CHESS_FALSE; /* Too many white kings */
+
+            temp_position.wking = sq;
+        }
+        else if (pc == CHESS_PIECE_BLACK_KING)
+        {
+            if (temp_position.bking != CHESS_SQUARE_INVALID)
+                return CHESS_FALSE; /* Too many black kings */
+
+            temp_position.bking = sq;
+        }
+        else if (pc == CHESS_PIECE_WHITE_PAWN || pc == CHESS_PIECE_BLACK_PAWN)
+        {
+            rank = chess_square_rank(sq);
+            if (rank == CHESS_RANK_1 || rank == CHESS_RANK_8)
+            {
+                /* Pawn on first or last rank */
+                return CHESS_FALSE;
+            }
+        }
+    }
+
+    if (temp_position.wking == CHESS_SQUARE_INVALID
+        || temp_position.bking == CHESS_SQUARE_INVALID)
+    {
+        /* No white king or black king */
+        return CHESS_FALSE;
+    }
+
+    /* Clear any impossible castling states */
+    if (temp_position.piece[CHESS_SQUARE_E1] != CHESS_PIECE_WHITE_KING)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_WKQ;
+    }
+    if (temp_position.piece[CHESS_SQUARE_H1] != CHESS_PIECE_WHITE_ROOK)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_WK;
+    }
+    if (temp_position.piece[CHESS_SQUARE_A1] != CHESS_PIECE_WHITE_ROOK)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_WQ;
+    }
+    if (temp_position.piece[CHESS_SQUARE_E8] != CHESS_PIECE_BLACK_KING)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_BKQ;
+    }
+    if (temp_position.piece[CHESS_SQUARE_H8] != CHESS_PIECE_BLACK_ROOK)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_BK;
+    }
+    if (temp_position.piece[CHESS_SQUARE_A8] != CHESS_PIECE_BLACK_ROOK)
+    {
+        temp_position.castle &= ~CHESS_CASTLE_STATE_BQ;
+    }
+
+    /* Clear en passant state if it's not valid */
+    if (temp_position.ep != CHESS_FILE_INVALID)
+    {
+        /* Valid would mean that a pawn (possibly) just moved to its 4th rank */
+        if ((temp_position.to_move == CHESS_COLOR_WHITE &&
+            temp_position.piece[chess_square_from_fr(temp_position.ep, CHESS_RANK_5)] != CHESS_PIECE_BLACK_PAWN) ||
+            (temp_position.to_move == CHESS_COLOR_BLACK &&
+            temp_position.piece[chess_square_from_fr(temp_position.ep, CHESS_RANK_4)] != CHESS_PIECE_WHITE_PAWN))
+        {
+            temp_position.ep = CHESS_FILE_INVALID;
+        }
+    }
+
+    other_king = (temp_position.to_move == CHESS_COLOR_WHITE)
+        ? temp_position.bking : temp_position.wking;
+    if (chess_generate_is_square_attacked(&temp_position, other_king, temp_position.to_move))
+    {
+        /* Opponent's king is en prise */
+        return CHESS_FALSE;
+    }
+
+    /* All checks passed! */
+    chess_position_copy(&temp_position, position);
+    return CHESS_TRUE;
+}
+
 void chess_position_set_piece(ChessPosition* position, ChessSquare square, ChessPiece value)
 {
     position->piece[square] = value;
