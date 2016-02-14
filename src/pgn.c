@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "fen.h"
 #include "pgn.h"
 #include "pgn-tokenizer.h"
 #include "parse.h"
@@ -226,7 +227,7 @@ static void check_setup_tag(ChessGame* game)
     if (value == NULL)
         return;
 
-    chess_position_init_fen(&position, value);
+    chess_fen_load(value, &position);
     chess_game_set_initial_position(game, &position);
 }
 

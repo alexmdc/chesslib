@@ -1,5 +1,6 @@
 #include <CUnit/CUnit.h>
 
+#include "../fen.h"
 #include "../generate.h"
 
 #include "helpers.h"
@@ -21,7 +22,7 @@ static void test_generate_moves(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -49,7 +50,7 @@ static void test_generate_moves2(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init_fen(&position, "r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 6");
+    chess_fen_load("r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQK2R w KQkq - 0 6", &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -77,7 +78,7 @@ static void test_generate_moves3(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init_fen(&position, "r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQ1RK1 b kq - 0 6");
+    chess_fen_load("r3kbnr/ppp1qppp/2np4/4p3/2BPP1b1/2N2N2/PPP2PPP/R1BQ1RK1 b kq - 0 6", &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -105,7 +106,7 @@ static void test_generate_moves4(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init_fen(&position, "r1bqk1nr/pppp1ppp/2n5/2b5/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq - 0 5");
+    chess_fen_load("r1bqk1nr/pppp1ppp/2n5/2b5/2BpP3/5N2/PPP2PPP/RNBQK2R w KQkq - 0 5", &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -132,7 +133,7 @@ static void test_generate_moves5(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init_fen(&position, "r1b1k2r/pppp1pBp/8/b2P4/2B4q/1Q6/P4PP1/R4RK1 b kq - 0 15");
+    chess_fen_load("r1b1k2r/pppp1pBp/8/b2P4/2B4q/1Q6/P4PP1/R4RK1 b kq - 0 15", &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -160,7 +161,7 @@ static void test_generate_moves6(void)
     ChessPosition position;
     ChessArray moves;
 
-    chess_position_init_fen(&position, "r1bqrnk1/ppp1bNp1/7p/2P5/3P4/3Q1N2/PPB1p1PP/R4RK1 b - - 3 16");
+    chess_fen_load("r1bqrnk1/ppp1bNp1/7p/2P5/3P4/3Q1N2/PPB1p1PP/R4RK1 b - - 3 16", &position);
     chess_array_init(&moves, sizeof(ChessMove));
     chess_generate_moves(&position, &moves);
     ASSERT_SETS_EQUAL((ChessMove*)chess_array_data(&moves), chess_array_size(&moves),
@@ -174,7 +175,7 @@ static void test_move_generator(void)
     ChessMoveGenerator generator;
     size_t count = 0;
 
-    chess_position_init_fen(&position, "R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1");
+    chess_fen_load("R6R/3Q4/1Q4Q1/4Q3/2Q4Q/Q4Q2/pp1Q4/kBNN1KB1 w - - 0 1", &position);
     chess_move_generator_init(&generator, &position);
     while ((chess_move_generator_next(&generator)))
        ++count;

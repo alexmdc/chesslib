@@ -9,17 +9,6 @@
 #include "calloc.h"
 #include "carray.h"
 
-void chess_position_init(ChessPosition* position)
-{
-    chess_position_init_fen(position, CHESS_FEN_STARTING_POSITION);
-}
-
-void chess_position_init_fen(ChessPosition* position, const char* fen)
-{
-    memset(position, 0, sizeof(ChessPosition));
-    chess_fen_load(fen, position);
-}
-
 void chess_position_copy(const ChessPosition* from, ChessPosition* to)
 {
     memcpy(to, from, sizeof(ChessPosition));

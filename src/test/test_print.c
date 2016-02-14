@@ -1,5 +1,6 @@
 #include <CUnit/CUnit.h>
 
+#include "../fen.h"
 #include "../print.h"
 
 #include "helpers.h"
@@ -21,35 +22,35 @@ static void test_print_move_san(void)
     ChessPosition position;
     ChessMove move;
 
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     chess_print_move_san(CHESS_MOVE_NULL, &position, buf);
     CU_ASSERT_STRING_EQUAL("--", buf);
 
-    chess_position_init_fen(&position, "rnbqkb1r/ppp2ppp/8/3pP3/3Qn3/5N2/PPP2PPP/RNB1KB1R w KQkq d6 0 6");
+    chess_fen_load("rnbqkb1r/ppp2ppp/8/3pP3/3Qn3/5N2/PPP2PPP/RNB1KB1R w KQkq d6 0 6", &position);
     chess_print_move_san(MV(E5,D6), &position, buf);
     CU_ASSERT_STRING_EQUAL("exd6", buf);
 
-    chess_position_init_fen(&position, "r2qk2r/pbpnnpb1/1p1pp1pp/8/2PPP3/2N1BN2/PPQ1BPPP/R4RK1 w kq - 0 10");
+    chess_fen_load("r2qk2r/pbpnnpb1/1p1pp1pp/8/2PPP3/2N1BN2/PPQ1BPPP/R4RK1 w kq - 0 10", &position);
     chess_print_move_san(MV(A1,D1), &position, buf);
     CU_ASSERT_STRING_EQUAL("Rad1", buf);
 
-    chess_position_init_fen(&position, "r2qk2r/1p1bbp1p/1n2p1p1/pPnpP3/3N1P2/P2BB3/2P1NQPP/R4RK1 b kq - 7 17");
+    chess_fen_load("r2qk2r/1p1bbp1p/1n2p1p1/pPnpP3/3N1P2/P2BB3/2P1NQPP/R4RK1 b kq - 7 17", &position);
     chess_print_move_san(MV(B6,A4), &position, buf);
     CU_ASSERT_STRING_EQUAL("Nba4", buf);
 
-    chess_position_init_fen(&position, "5rk1/3q2pp/p2bp3/1b1p2Q1/1p1Pp3/6PP/PP1B1rB1/1NR3RK b - - 3 23");
+    chess_fen_load("5rk1/3q2pp/p2bp3/1b1p2Q1/1p1Pp3/6PP/PP1B1rB1/1NR3RK b - - 3 23", &position);
     chess_print_move_san(MV(F8,F5), &position, buf);
     CU_ASSERT_STRING_EQUAL("R8f5", buf);
 
-    chess_position_init_fen(&position, "rnb1k1r1/pp2bpPP/4p3/3p4/6Q1/8/1pP1KP2/1q3BNR w q - 0 17");
+    chess_fen_load("rnb1k1r1/pp2bpPP/4p3/3p4/6Q1/8/1pP1KP2/1q3BNR w q - 0 17", &position);
     chess_print_move_san(chess_move_make_promote(CHESS_SQUARE_H7, CHESS_SQUARE_G8, CHESS_MOVE_PROMOTE_QUEEN), &position, buf);
     CU_ASSERT_STRING_EQUAL("hxg8=Q+", buf);
 
-    chess_position_init_fen(&position, "6K1/7P/6k1/5p2/5P2/8/8/8 w - - 0 63");
+    chess_fen_load("6K1/7P/6k1/5p2/5P2/8/8/8 w - - 0 63", &position);
     chess_print_move_san(MVP(H7,H8,ROOK), &position, buf);
     CU_ASSERT_STRING_EQUAL("h8=R", buf);
 
-    chess_position_init_fen(&position, "r1bQ4/pp6/k1n4R/1qbp4/1Q6/4QK2/2q2P2/6N1 w - - 4 27");
+    chess_fen_load("r1bQ4/pp6/k1n4R/1qbp4/1Q6/4QK2/2q2P2/6N1 w - - 4 27", &position);
     move = MV(E3,A3);
     chess_print_move_san(move, &position, buf);
     CU_ASSERT_STRING_EQUAL("Qea3+", buf);

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <memory.h>
 
+#include "fen.h"
 #include "game.h"
 #include "calloc.h"
 #include "cstring.h"
@@ -34,7 +35,7 @@ struct ChessGame
 ChessGame* chess_game_new(void)
 {
     ChessPosition position;
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     return chess_game_new_position(&position);
 }
 
@@ -59,7 +60,7 @@ ChessGame* chess_game_new_position(const ChessPosition* position)
 ChessGame* chess_game_new_fen(const char* fen)
 {
     ChessPosition position;
-    chess_position_init_fen(&position, fen);
+    chess_fen_load(fen, &position);
     return chess_game_new_position(&position);
 }
 
@@ -93,7 +94,7 @@ void chess_game_destroy(ChessGame* game)
 void chess_game_reset(ChessGame* game)
 {
     ChessPosition position;
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     chess_game_reset_position(game, &position);
 }
 
@@ -116,7 +117,7 @@ void chess_game_reset_position(ChessGame* game, const ChessPosition* position)
 void chess_game_reset_fen(ChessGame* game, const char* fen)
 {
     ChessPosition position;
-    chess_position_init_fen(&position, fen);
+    chess_fen_load(fen, &position);
     chess_game_reset_position(game, &position);
 }
 

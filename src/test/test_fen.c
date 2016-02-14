@@ -118,7 +118,7 @@ static void test_fen_save(void)
     char fen[CHESS_FEN_MAX_LENGTH];
     int n;
 
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     n = chess_fen_save(&position, fen);
     CU_ASSERT_STRING_EQUAL("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", fen);
     CU_ASSERT_EQUAL(56, n);
@@ -130,7 +130,6 @@ static void test_fen_save2(void)
     char fen[CHESS_FEN_MAX_LENGTH];
     int n;
 
-    chess_position_init(&position);
     CU_ASSERT_EQUAL(CHESS_TRUE, chess_fen_load("r3r1k1/pp3pbp/1qp3p1/2B5/2BP2b1/Q1n2N2/P4PPP/3R1K1R b - - 0 17", &position));
     chess_position_make_move(&position, MV(G4, E6));
     n = chess_fen_save(&position, fen);
@@ -144,7 +143,6 @@ static void test_fen_save3(void)
     char fen[CHESS_FEN_MAX_LENGTH];
     int n;
 
-    chess_position_init(&position);
     CU_ASSERT_EQUAL(CHESS_TRUE, chess_fen_load("r1bq1r2/pp2npp1/4p1k1/3pP1N1/1b1n2QP/2N5/PP3PP1/R1B1K2R b KQ - 1 12", &position));
     chess_position_make_move(&position, MV(F7, F5));
     n = chess_fen_save(&position, fen);

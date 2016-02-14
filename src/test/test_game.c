@@ -1,5 +1,6 @@
 #include <CUnit/CUnit.h>
 
+#include "../fen.h"
 #include "../game.h"
 
 #include "helpers.h"
@@ -16,7 +17,7 @@ static void test_game_new(void)
     CU_ASSERT_EQUAL(0, chess_game_ply(game));
     CU_ASSERT_EQUAL(CHESS_RESULT_IN_PROGRESS, chess_game_result(game));
 
-    chess_position_init(&start_position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &start_position);
     ASSERT_POSITIONS_EQUAL(&start_position, chess_game_initial_position(game));
 
     chess_game_destroy(game);
@@ -36,7 +37,7 @@ static void test_game_move(void)
     chess_game_iterator_append_move(&iter, moves[1]);
     CU_ASSERT_EQUAL(2, chess_game_ply(game));
 
-    chess_position_init(&position);
+    chess_fen_load(CHESS_FEN_STARTING_POSITION, &position);
     ASSERT_POSITIONS_EQUAL(&position, chess_game_initial_position(game));
     chess_position_make_move(&position, moves[0]);
     chess_position_make_move(&position, moves[1]);

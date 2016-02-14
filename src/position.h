@@ -18,8 +18,6 @@ typedef struct
     ChessSquare wking, bking;
 } ChessPosition;
 
-void chess_position_init(ChessPosition*);
-void chess_position_init_fen(ChessPosition*, const char*);
 void chess_position_copy(const ChessPosition* from, ChessPosition* to);
 
 /* Validates the given position by checking some simple invariants, and if
