@@ -123,40 +123,6 @@ ChessBoolean chess_position_validate(ChessPosition* position)
     return CHESS_TRUE;
 }
 
-void chess_position_set_piece(ChessPosition* position, ChessSquare square, ChessPiece value)
-{
-    position->piece[square] = value;
-    if (value == CHESS_PIECE_WHITE_KING)
-        position->wking = square;
-    else if (value == CHESS_PIECE_BLACK_KING)
-        position->bking = square;
-}
-
-void chess_position_set_to_move(ChessPosition* position, ChessColor value)
-{
-    position->to_move = value;
-}
-
-void chess_position_set_castle(ChessPosition* position, ChessCastleState value)
-{
-    position->castle = value;
-}
-
-void chess_position_set_ep(ChessPosition* position, ChessFile value)
-{
-    position->ep = value;
-}
-
-void chess_position_set_fifty(ChessPosition* position, int value)
-{
-    position->fifty = value;
-}
-
-void chess_position_set_move_num(ChessPosition* position, int value)
-{
-    position->move_num = value;
-}
-
 ChessBoolean chess_position_is_check(const ChessPosition* position)
 {
     if (position->to_move == CHESS_COLOR_WHITE)

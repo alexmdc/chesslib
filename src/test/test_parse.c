@@ -15,7 +15,7 @@ static void test_parse_move(void)
     CU_ASSERT_EQUAL(MV(F4,F5), move);
 
     /* Removing the pawn on f4 should actually lead to an ambiguous move */
-    chess_position_set_piece(&position, CHESS_SQUARE_F4, CHESS_PIECE_NONE);
+    position.piece[CHESS_SQUARE_F4] = CHESS_PIECE_NONE;
     CU_ASSERT_EQUAL(CHESS_PARSE_MOVE_AMBIGUOUS, chess_parse_move("f5", &position, &move));
 
     /* Another bug - castling queenside is failing */

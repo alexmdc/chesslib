@@ -102,7 +102,7 @@ static ChessBoolean move_is_legal(const ChessPosition* position, ChessMove move)
     ChessPosition temp_position;
     chess_position_copy(position, &temp_position);
     chess_position_make_move(&temp_position,  move);
-    chess_position_set_to_move(&temp_position, position->to_move);
+    temp_position.to_move = position->to_move;
     return !chess_position_is_check(&temp_position);
 }
 

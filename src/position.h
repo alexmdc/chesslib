@@ -36,13 +36,6 @@ void chess_position_copy(const ChessPosition* from, ChessPosition* to);
  */
 ChessBoolean chess_position_validate(ChessPosition*);
 
-void chess_position_set_piece(ChessPosition*, ChessSquare, ChessPiece);
-void chess_position_set_to_move(ChessPosition*, ChessColor);
-void chess_position_set_castle(ChessPosition*, ChessCastleState);
-void chess_position_set_ep(ChessPosition*, ChessFile);
-void chess_position_set_fifty(ChessPosition*, int);
-void chess_position_set_move_num(ChessPosition*, int);
-
 ChessBoolean chess_position_is_check(const ChessPosition*);
 ChessBoolean chess_position_move_is_legal(const ChessPosition*, ChessMove);
 ChessBoolean chess_position_move_is_capture(const ChessPosition*, ChessMove);
