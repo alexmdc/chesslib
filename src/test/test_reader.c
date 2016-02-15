@@ -1,6 +1,8 @@
-#include <CUnit/CUnit.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include <CUnit/CUnit.h>
 
 #include "../reader.h"
 
@@ -37,22 +39,23 @@ static void test_buffer_reader(void)
 static void test_file_reader(void)
 {
     ChessFileReader reader;
-    char* filename;
+    int fd[2];
     FILE* file;
 
-    filename = tmpnam(NULL);
-    file = fopen(filename, "w");
-    assert(file != NULL);
+    /* Create a pipe so we don't need to use the filesystem */
+    assert(pipe(fd) == 0);
 
-    /* First write some data to the file */
+    /* Write some test data to the pipe */
+    file = fdopen(fd[1], "w");
+    assert(file != NULL);
     fputs("key=VALUE", file);
     fclose(file);
 
-    /* Reopen the file and try to read it */
-    file = fopen(filename, "r");
+    /* Open the other side and read back the data */
+    file = fdopen(fd[0], "r");
     assert(file != NULL);
-
     chess_file_reader_init(&reader, file);
+
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'k');
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'e');
     CU_ASSERT_EQUAL(chess_reader_getc((ChessReader*)&reader), 'y');
@@ -75,7 +78,6 @@ static void test_file_reader(void)
     chess_file_reader_cleanup(&reader);
 
     fclose(file);
-    remove(filename);
 }
 
 void test_reader_add_tests(void)

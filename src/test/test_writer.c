@@ -1,9 +1,12 @@
-#include <CUnit/CUnit.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-#include "../writer.h"
+#include <CUnit/CUnit.h>
+
 #include "../calloc.h"
+#include "../writer.h"
 
 #include "helpers.h"
 
@@ -41,6 +44,7 @@ static void test_buffer_writer_write(void)
     bigstring = malloc(10000);
     memset(bigstring, '?', 10000);
     chess_writer_write_string_size((ChessWriter*)&writer, bigstring, 10000);
+    free(bigstring);
     CU_ASSERT_EQUAL(10012, chess_buffer_writer_size(&writer));
     CU_ASSERT_NSTRING_EQUAL("????????????", chess_buffer_writer_data(&writer) + 10000, 12);
 
@@ -79,14 +83,18 @@ static void test_buffer_writer_detach(void)
 static void test_file_writer_write(void)
 {
     ChessFileWriter writer;
-    char* filename, data[128];
+    int fd[2];
     FILE* file;
+    char data[128];
 
-    filename = tmpnam(NULL);
-    file = fopen(filename, "w");
+    /* Create a pipe so we don't need to use the filesystem */
+    assert(pipe(fd) == 0);
+
+    /* Open the pipe for writing */
+    file = fdopen(fd[1], "w");
     assert(file != NULL);
 
-    /* First write some data to the file */
+    /* Write some test data to the pipe */
     chess_file_writer_init(&writer, file);
     chess_writer_write_char((ChessWriter*)&writer, 'A');
     chess_writer_write_char((ChessWriter*)&writer, '!');
@@ -95,15 +103,14 @@ static void test_file_writer_write(void)
     chess_file_writer_cleanup(&writer);
     fclose(file);
 
-    /* Reopen the file and check the data */
-    file = fopen(filename, "r");
+    /* Read from the other side and check the data */
+    file = fdopen(fd[0], "r");
     assert(file != NULL);
 
-    CU_ASSERT_EQUAL(data, fgets(data, 128, file));
+    CU_ASSERT(fgets(data, 128, file) != NULL);
     CU_ASSERT_STRING_EQUAL("A!(cake)LION", data);
 
     fclose(file);
-    remove(filename);
 }
 
 void test_writer_add_tests(void)
