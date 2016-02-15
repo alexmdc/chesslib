@@ -189,9 +189,9 @@ int chess_print_position(const ChessPosition* position, char* s)
     n += sprintf(s + n, "%d. %s to move %c%c%c%c %c (%d)\n",
                  move_num,
                  to_move == CHESS_COLOR_WHITE ? "White" : "Black",
-                 castle & CHESS_CASTLE_STATE_WK ? 'W' : '-',
+                 castle & CHESS_CASTLE_STATE_WK ? 'K' : '-',
                  castle & CHESS_CASTLE_STATE_WQ ? 'Q' : '-',
-                 castle & CHESS_CASTLE_STATE_BK ? 'w' : '-',
+                 castle & CHESS_CASTLE_STATE_BK ? 'k' : '-',
                  castle & CHESS_CASTLE_STATE_BQ ? 'q' : '-',
                  ep != CHESS_FILE_INVALID ? chess_file_to_char(ep) : '-',
                  position->fifty);
