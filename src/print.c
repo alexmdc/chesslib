@@ -232,16 +232,16 @@ static void print_variation(const ChessPosition* position, ChessVariation* varia
         else if (showBlackNum)
             n = sprintf(buf, "%d... ", temp_position.move_num);
 
-        move = chess_variation_move(variation);
+        move = variation->move;
         n += chess_print_move_san(move, &temp_position, buf + n);
         n += print_nags(variation, buf + n);
         chess_writer_write_string_size(writer, buf, n);
         showBlackNum = CHESS_FALSE;
 
-        if (chess_variation_left(variation) == NULL)
+        if (variation->left == NULL)
         {
-            for (alternate = chess_variation_right(variation);
-                 alternate != NULL; alternate = chess_variation_right(alternate))
+            for (alternate = variation->right;
+                 alternate != NULL; alternate = alternate->right)
             {
                 chess_writer_write_string(writer, " (");
                 print_variation(&temp_position, alternate, writer);
@@ -252,7 +252,7 @@ static void print_variation(const ChessPosition* position, ChessVariation* varia
 
         chess_position_make_move(&temp_position, move);
         showSep = CHESS_TRUE;
-    } while ((variation = chess_variation_first_child(variation)) != NULL);
+    } while ((variation = variation->first_child) != NULL);
 }
 
 void chess_print_game_moves(const ChessGame* game, ChessWriter* writer)
@@ -265,7 +265,7 @@ void chess_print_game_moves(const ChessGame* game, ChessWriter* writer)
 
     position = chess_game_initial_position(game);
     variation = chess_game_root_variation(game);
-    variation = chess_variation_first_child(variation);
+    variation = variation->first_child;
     if (variation != NULL)
     {
         print_variation(position, variation, writer);

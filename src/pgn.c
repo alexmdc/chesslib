@@ -158,7 +158,7 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
 
                 chess_pgn_tokenizer_consume(tokenizer); /* R_PARENTHESIS */
                 chess_variation_attach_subvariation(
-                    chess_variation_parent(current_variation), subvariation);
+                    current_variation->parent, subvariation);
                 break;
             default:
                 /* Stop parsing on unexpected token */
@@ -170,8 +170,8 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
     if (result == CHESS_PGN_LOAD_UNEXPECTED_TOKEN)
     {
         /* Rewind back to the head of the variation */
-        while (current_variation != NULL && chess_variation_parent(current_variation))
-            current_variation = chess_variation_parent(current_variation);
+        while (current_variation != NULL && current_variation->parent != NULL)
+            current_variation = current_variation->parent;
         *variation = current_variation;
         result = CHESS_PGN_LOAD_OK;
     }

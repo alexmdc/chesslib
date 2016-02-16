@@ -8,13 +8,13 @@ static void test_new(void)
 {
     ChessVariation* root = chess_variation_new();
     CU_ASSERT_TRUE(chess_variation_is_root(root));
-    CU_ASSERT_EQUAL(root, chess_variation_root(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_parent(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(root));
-    CU_ASSERT_STRING_EQUAL("", chess_variation_comment(root)->data);
-    CU_ASSERT_EQUAL(0, chess_variation_move(root));
+    CU_ASSERT_EQUAL(root, root->root);
+    CU_ASSERT_EQUAL(NULL, root->parent);
+    CU_ASSERT_EQUAL(NULL, root->first_child);
+    CU_ASSERT_EQUAL(NULL, root->left);
+    CU_ASSERT_EQUAL(NULL, root->right);
+    CU_ASSERT_STRING_EQUAL("", root->comment.data);
+    CU_ASSERT_EQUAL(0, root->move);
     chess_variation_destroy(root);
 }
 
@@ -95,30 +95,30 @@ static void test_add_child(void)
     root = chess_variation_new();
     child = chess_variation_add_child(root, MV(E2,E4));
     CU_ASSERT_FALSE(chess_variation_is_root(child));
-    CU_ASSERT_EQUAL(child, chess_variation_first_child(root));
-    CU_ASSERT_EQUAL(root, chess_variation_root(child));
-    CU_ASSERT_EQUAL(root, chess_variation_parent(child));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(child));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(child));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(child));
-    CU_ASSERT_EQUAL(MV(E2,E4), chess_variation_move(child));
+    CU_ASSERT_EQUAL(child, root->first_child);
+    CU_ASSERT_EQUAL(root, child->root);
+    CU_ASSERT_EQUAL(root, child->parent);
+    CU_ASSERT_EQUAL(NULL, child->left);
+    CU_ASSERT_EQUAL(NULL, child->right);
+    CU_ASSERT_EQUAL(NULL, child->first_child);
+    CU_ASSERT_EQUAL(MV(E2,E4), child->move);
 
     grandchild = chess_variation_add_child(child, MV(C7,C5));
     CU_ASSERT_FALSE(chess_variation_is_root(grandchild));
-    CU_ASSERT_EQUAL(root, chess_variation_root(grandchild));
-    CU_ASSERT_EQUAL(child, chess_variation_parent(grandchild));
-    CU_ASSERT_EQUAL(grandchild, chess_variation_first_child(child));
-    CU_ASSERT_EQUAL(MV(C7,C5), chess_variation_move(grandchild));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(grandchild));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(grandchild));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(grandchild));
+    CU_ASSERT_EQUAL(root, grandchild->root);
+    CU_ASSERT_EQUAL(child, grandchild->parent);
+    CU_ASSERT_EQUAL(grandchild, child->first_child);
+    CU_ASSERT_EQUAL(MV(C7,C5), grandchild->move);
+    CU_ASSERT_EQUAL(NULL, grandchild->left);
+    CU_ASSERT_EQUAL(NULL, grandchild->right);
+    CU_ASSERT_EQUAL(NULL, grandchild->first_child);
 
     /* Adding the same move again should use the existing variation */
     grandchild2 = chess_variation_add_child(child, MV(C7,C5));
     CU_ASSERT_EQUAL(grandchild, grandchild2);
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(grandchild));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(grandchild));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(grandchild));
+    CU_ASSERT_EQUAL(NULL, grandchild->left);
+    CU_ASSERT_EQUAL(NULL, grandchild->right);
+    CU_ASSERT_EQUAL(NULL, grandchild->first_child);
 
     chess_variation_destroy(root);
 }
@@ -131,27 +131,27 @@ static void test_add_sibling(void)
     child = chess_variation_add_child(root, MV(E2,E4));
     sibling = chess_variation_add_child(root, MV(D2,D4));
     CU_ASSERT_FALSE(chess_variation_is_root(sibling));
-    CU_ASSERT_EQUAL(root, chess_variation_root(sibling));
-    CU_ASSERT_EQUAL(root, chess_variation_parent(sibling));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(child));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(sibling));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(child));
-    CU_ASSERT_EQUAL(sibling, chess_variation_right(child));
-    CU_ASSERT_EQUAL(child, chess_variation_left(sibling));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(sibling));
-    CU_ASSERT_EQUAL(MV(D2,D4), chess_variation_move(sibling));
+    CU_ASSERT_EQUAL(root, sibling->root);
+    CU_ASSERT_EQUAL(root, sibling->parent);
+    CU_ASSERT_EQUAL(NULL, child->first_child);
+    CU_ASSERT_EQUAL(NULL, sibling->first_child);
+    CU_ASSERT_EQUAL(NULL, child->left);
+    CU_ASSERT_EQUAL(sibling, child->right);
+    CU_ASSERT_EQUAL(child, sibling->left);
+    CU_ASSERT_EQUAL(NULL, sibling->right);
+    CU_ASSERT_EQUAL(MV(D2,D4), sibling->move);
 
     sibling2 = chess_variation_add_child(root, MV(C2,C4));
     CU_ASSERT_FALSE(chess_variation_is_root(sibling2));
-    CU_ASSERT_EQUAL(root, chess_variation_root(sibling2));
-    CU_ASSERT_EQUAL(root, chess_variation_parent(sibling2));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(sibling));
-    CU_ASSERT_EQUAL(NULL, chess_variation_first_child(sibling2));
-    CU_ASSERT_EQUAL(child, chess_variation_left(sibling));
-    CU_ASSERT_EQUAL(sibling2, chess_variation_right(sibling));
-    CU_ASSERT_EQUAL(sibling, chess_variation_left(sibling2));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(sibling2));
-    CU_ASSERT_EQUAL(MV(C2,C4), chess_variation_move(sibling2));
+    CU_ASSERT_EQUAL(root, sibling2->root);
+    CU_ASSERT_EQUAL(root, sibling2->parent);
+    CU_ASSERT_EQUAL(NULL, sibling->first_child);
+    CU_ASSERT_EQUAL(NULL, sibling2->first_child);
+    CU_ASSERT_EQUAL(child, sibling->left);
+    CU_ASSERT_EQUAL(sibling2, sibling->right);
+    CU_ASSERT_EQUAL(sibling, sibling2->left);
+    CU_ASSERT_EQUAL(NULL, sibling2->right);
+    CU_ASSERT_EQUAL(MV(C2,C4), sibling2->move);
 
     /* Adding the same move should use existing variation */
     sibling2 = chess_variation_add_child(root, MV(D2,D4));
@@ -174,7 +174,7 @@ static void test_length(void)
 
     chess_variation_add_child(root, MV(E2,E4));
     CU_ASSERT_EQUAL(2, chess_variation_length(root));
-    chess_variation_add_child(chess_variation_first_child(variation), MV(C2,C4));
+    chess_variation_add_child(variation->first_child, MV(C2,C4));
     CU_ASSERT_EQUAL(3, chess_variation_length(root));
     chess_variation_destroy(root);
 }
@@ -262,26 +262,26 @@ static void test_delete(void)
     child = chess_variation_add_child(root, MV(E2,E4));
     grandchild = chess_variation_add_child(child, MV(E7,E5));
     chess_variation_add_child(child, MV(D7,D5));
-    CU_ASSERT_EQUAL(grandchild, chess_variation_first_child(child));
+    CU_ASSERT_EQUAL(grandchild, child->first_child);
     CU_ASSERT_EQUAL(2, chess_variation_num_children(child));
     chess_variation_delete(grandchild);
     CU_ASSERT_EQUAL(1, chess_variation_num_children(child));
-    grandchild = chess_variation_first_child(child);
-    CU_ASSERT_EQUAL(MV(D7,D5), chess_variation_move(grandchild));
+    grandchild = child->first_child;
+    CU_ASSERT_EQUAL(MV(D7,D5), grandchild->move);
     chess_variation_delete(grandchild);
     CU_ASSERT_EQUAL(0, chess_variation_num_children(child));
 
     child2 = chess_variation_add_child(root, MV(D2,D4));
     child3 = chess_variation_add_child(root, MV(C2,C4));
-    CU_ASSERT_EQUAL(child2, chess_variation_right(child));
-    CU_ASSERT_EQUAL(child, chess_variation_left(child2));
-    CU_ASSERT_EQUAL(child3, chess_variation_right(child2));
-    CU_ASSERT_EQUAL(child2, chess_variation_left(child3));
+    CU_ASSERT_EQUAL(child2, child->right);
+    CU_ASSERT_EQUAL(child, child2->left);
+    CU_ASSERT_EQUAL(child3, child2->right);
+    CU_ASSERT_EQUAL(child2, child3->left);
     chess_variation_delete(child2);
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(child));
-    CU_ASSERT_EQUAL(child3, chess_variation_right(child));
-    CU_ASSERT_EQUAL(child, chess_variation_left(child3));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(child3));
+    CU_ASSERT_EQUAL(NULL, child->left);
+    CU_ASSERT_EQUAL(child3, child->right);
+    CU_ASSERT_EQUAL(child, child3->left);
+    CU_ASSERT_EQUAL(NULL, child3->right);
 
     chess_variation_destroy(root);
 }
@@ -293,28 +293,28 @@ static void test_promote(void)
 
     child1 = chess_variation_add_child(root, MV(E2,E4));
     child2 = chess_variation_add_child(root, MV(D2,D4));
-    CU_ASSERT_EQUAL(child1, chess_variation_first_child(root));
+    CU_ASSERT_EQUAL(child1, root->first_child);
 
     chess_variation_promote(child2);
-    CU_ASSERT_EQUAL(child2, chess_variation_first_child(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(child2));
-    CU_ASSERT_EQUAL(child1, chess_variation_right(child2));
-    CU_ASSERT_EQUAL(child2, chess_variation_left(child1));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(child1));
+    CU_ASSERT_EQUAL(child2, root->first_child);
+    CU_ASSERT_EQUAL(NULL, child2->left);
+    CU_ASSERT_EQUAL(child1, child2->right);
+    CU_ASSERT_EQUAL(child2, child1->left);
+    CU_ASSERT_EQUAL(NULL, child1->right);
 
     child3 = chess_variation_add_child(root, MV(C2,C4));
-    CU_ASSERT_EQUAL(child3, chess_variation_right(child1));
-    CU_ASSERT_EQUAL(child1, chess_variation_left(child3));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(child3));
+    CU_ASSERT_EQUAL(child3, child1->right);
+    CU_ASSERT_EQUAL(child1, child3->left);
+    CU_ASSERT_EQUAL(NULL, child3->right);
 
     chess_variation_promote(child1);
-    CU_ASSERT_EQUAL(child1, chess_variation_first_child(root));
-    CU_ASSERT_EQUAL(NULL, chess_variation_left(child1));
-    CU_ASSERT_EQUAL(child2, chess_variation_right(child1));
-    CU_ASSERT_EQUAL(child1, chess_variation_left(child2));
-    CU_ASSERT_EQUAL(child3, chess_variation_right(child2));
-    CU_ASSERT_EQUAL(child2, chess_variation_left(child3));
-    CU_ASSERT_EQUAL(NULL, chess_variation_right(child3));
+    CU_ASSERT_EQUAL(child1, root->first_child);
+    CU_ASSERT_EQUAL(NULL, child1->left);
+    CU_ASSERT_EQUAL(child2, child1->right);
+    CU_ASSERT_EQUAL(child1, child2->left);
+    CU_ASSERT_EQUAL(child3, child2->right);
+    CU_ASSERT_EQUAL(child2, child3->left);
+    CU_ASSERT_EQUAL(NULL, child3->right);
 
     chess_variation_destroy(root);
 }

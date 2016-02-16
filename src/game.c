@@ -153,7 +153,7 @@ size_t chess_game_ply(const ChessGame* game)
 ChessMove chess_game_move_at_ply(const ChessGame* game, size_t ply)
 {
     ChessVariation* variation = chess_variation_ply(game->root_variation, ply);
-    return chess_variation_move(variation);
+    return variation->move;
 }
 
 const char* chess_game_event(const ChessGame* game)
@@ -406,7 +406,7 @@ ChessVariation* chess_game_iterator_variation(ChessGameIterator* iter)
 ChessMove chess_game_iterator_move(const ChessGameIterator* iter)
 {
     assert(!chess_variation_is_root(iter->variation));
-    return chess_variation_move(iter->variation);
+    return iter->variation->move;
 }
 
 size_t chess_game_iterator_ply(const ChessGameIterator* iter)
@@ -445,16 +445,16 @@ void chess_game_iterator_truncate_moves(ChessGameIterator* iter)
 
 void chess_game_iterator_step_forward(ChessGameIterator* iter)
 {
-    ChessVariation* next = chess_variation_first_child(iter->variation);
+    ChessVariation* next = iter->variation->first_child;
     assert(next != NULL);
-    advance_current_position(iter, chess_variation_move(next));
+    advance_current_position(iter, next->move);
     iter->variation = next;
 }
 
 void chess_game_iterator_step_back(ChessGameIterator* iter)
 {
     assert(!chess_variation_is_root(iter->variation));
-    iter->variation = chess_variation_parent(iter->variation);
+    iter->variation = iter->variation->parent;
     retreat_current_position(iter);
 }
 
@@ -467,12 +467,12 @@ void chess_game_iterator_step_to_start(ChessGameIterator* iter)
 
 void chess_game_iterator_step_to_end(ChessGameIterator* iter)
 {
-    ChessVariation* next = chess_variation_first_child(iter->variation);
+    ChessVariation* next = iter->variation->first_child;
     while (next)
     {
-        advance_current_position(iter, chess_variation_move(next));
+        advance_current_position(iter, next->move);
         iter->variation = next;
-        next = chess_variation_first_child(next);
+        next = iter->variation->first_child;
     }
 }
 
@@ -481,15 +481,15 @@ void chess_game_iterator_step_to_move(ChessGameIterator* iter, ChessVariation* v
     ChessArray moves;
     ChessMove move;
 
-    assert(chess_variation_root(variation) == iter->game->root_variation);
+    assert(variation->root == iter->game->root_variation);
 
     chess_array_init(&moves, sizeof(ChessMove));
 
     while (variation != iter->game->root_variation)
     {
-        move = chess_variation_move(variation);
+        move = variation->move;
         chess_array_push(&moves, &move);
-        variation = chess_variation_parent(variation);
+        variation = variation->parent;
     }
 
     chess_game_iterator_step_to_start(iter);

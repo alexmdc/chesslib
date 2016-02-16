@@ -8,18 +8,6 @@
 #include "cstring.h"
 #include "variation.h"
 
-struct ChessVariation
-{
-    ChessMove move;
-    ChessString comment;
-    ChessAnnotation annotations[4];
-    struct ChessVariation* root;
-    struct ChessVariation* parent;
-    struct ChessVariation* first_child;
-    struct ChessVariation* left;
-    struct ChessVariation* right;
-};
-
 static ChessVariation* new_node(ChessVariation* root)
 {
     ChessVariation* variation = chess_alloc(sizeof(ChessVariation));
@@ -110,18 +98,6 @@ ChessBoolean chess_variation_is_root(const ChessVariation* variation)
     return variation == variation->root;
 }
 
-ChessMove chess_variation_move(const ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->move;
-}
-
-ChessString* chess_variation_comment(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return &variation->comment;
-}
-
 size_t chess_variation_annotations(const ChessVariation* variation, ChessAnnotation* annotations)
 {
     size_t n, max;
@@ -133,36 +109,6 @@ size_t chess_variation_annotations(const ChessVariation* variation, ChessAnnotat
             annotations[n] = variation->annotations[n];
     }
     return n;
-}
-
-ChessVariation* chess_variation_root(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->root;
-}
-
-ChessVariation* chess_variation_parent(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->parent;
-}
-
-ChessVariation* chess_variation_first_child(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->first_child;
-}
-
-ChessVariation* chess_variation_left(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->left;
-}
-
-ChessVariation* chess_variation_right(ChessVariation* variation)
-{
-    assert(variation != NULL);
-    return variation->right;
 }
 
 size_t chess_variation_length(const ChessVariation* variation)

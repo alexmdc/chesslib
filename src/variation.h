@@ -4,22 +4,26 @@
 #include "move.h"
 #include "cstring.h"
 
-typedef struct ChessVariation ChessVariation;
 typedef unsigned char ChessAnnotation;
+
+typedef struct ChessVariation ChessVariation;
+struct ChessVariation
+{
+    ChessMove move;
+    ChessString comment;
+    ChessAnnotation annotations[4];
+    ChessVariation* root;
+    ChessVariation* parent;
+    ChessVariation* first_child;
+    ChessVariation* left;
+    ChessVariation* right;
+};
 
 ChessVariation* chess_variation_new(void);
 void chess_variation_destroy(ChessVariation*);
 
 ChessBoolean chess_variation_is_root(const ChessVariation*);
-ChessMove chess_variation_move(const ChessVariation*);
-ChessString* chess_variation_comment(ChessVariation*);
 size_t chess_variation_annotations(const ChessVariation*, ChessAnnotation*);
-
-ChessVariation* chess_variation_root(ChessVariation*);
-ChessVariation* chess_variation_parent(ChessVariation*);
-ChessVariation* chess_variation_first_child(ChessVariation*);
-ChessVariation* chess_variation_left(ChessVariation*);
-ChessVariation* chess_variation_right(ChessVariation*);
 
 size_t chess_variation_length(const ChessVariation*);
 size_t chess_variation_num_children(const ChessVariation*);
