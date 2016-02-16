@@ -2,26 +2,31 @@ CC=clang
 CFLAGS=-g -Wall -std=c89 -pedantic
 LDFLAGS=-lcunit
 SRCS=$(wildcard *.c)
-OBJS=$(SRCS:.c=.o)
-LIB=../libchesslib.a
-EXE=chess-test
+OBJS=$(SRCS:%.c=$(BUILD_DIR)/%.o)
+DEPS=$(SRCS:%.c=$(BUILD_DIR)/%.d)
+BUILD_DIR?=build
+LIB=../$(BUILD_DIR)/libchesslib.a
+EXE=$(BUILD_DIR)/chess-test
 
 all: $(EXE)
 
 $(EXE): $(OBJS) $(LIB)
 	$(CC) $(CFLAGS) $(OBJS) $(LIB) -o $(EXE) $(LDFLAGS)
 
-%.o: %.c
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(BUILD_DIR)/%.o: %.c $(BUILD_DIR)/%.d | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.d: %.c
-	$(CC) $(CFLAGS) -MM $< -MF $@
+$(BUILD_DIR)/%.d: %.c | $(BUILD_DIR)
+	$(CC) -MM $< -MT $(@:%.d=%.o) -MF $@
 
 ifneq ($(MAKECMDGOALS), clean)
-    -include $(SRCS:%.c=%.d)
+    -include $(DEPS)
 endif
 
-.PHONY: clean
-
 clean:
-	rm -f *.o *.d $(EXE)
+	rm -Rf $(BUILD_DIR)
+
+.PHONY: clean

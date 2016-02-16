@@ -1,29 +1,30 @@
 CC=clang
 CFLAGS=-g -Wall -std=c89 -pedantic
 SRCS=$(wildcard *.c)
-OBJS=$(SRCS:.c=.o)
-SUBDIRS=test shell
-LIB=libchesslib.a
+OBJS=$(SRCS:%.c=$(BUILD_DIR)/%.o)
+DEPS=$(SRCS:%.c=$(BUILD_DIR)/%.d)
+BUILD_DIR?=build
+LIB=$(BUILD_DIR)/libchesslib.a
 
-all: $(LIB) $(SUBDIRS)
+all: $(LIB)
 
 $(LIB): $(OBJS)
 	libtool -static -o $@ $(OBJS)
 
-%.o: %.c
+$(BUILD_DIR):
+	mkdir -p $@
+
+$(BUILD_DIR)/%.o: %.c $(BUILD_DIR)/%.d | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-%.d: %.c
-	$(CC) $(CFLAGS) -MM $< -MF $@
+$(BUILD_DIR)/%.d: %.c | $(BUILD_DIR)
+	$(CC) -MM $< -MT $(@:%.d=%.o) -MF $@
 
 ifneq ($(MAKECMDGOALS), clean)
-    -include $(SRCS:%.c=%.d)
+    -include $(DEPS)
 endif
 
-clean: $(SUBDIRS)
-	rm -f *.o *.d $(LIB)
+clean:
+	rm -Rf $(BUILD_DIR)
 
-$(SUBDIRS):
-	$(MAKE) -C $@ $(MAKEOPTS) $(MAKECMDGOALS)
-
-.PHONY: clean $(SUBDIRS)
+.PHONY: clean
