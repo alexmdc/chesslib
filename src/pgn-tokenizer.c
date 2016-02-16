@@ -7,7 +7,6 @@
 
 #include "pgn-tokenizer.h"
 #include "chess.h"
-#include "calloc.h"
 
 const int NOCHAR = -2;
 
@@ -273,9 +272,8 @@ static ChessPgnToken* read_token(ChessPgnTokenizer* tokenizer)
     }
 }
 
-ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader* reader)
+void chess_pgn_tokenizer_init(ChessPgnTokenizer* tokenizer, ChessReader* reader)
 {
-    ChessPgnTokenizer* tokenizer = chess_alloc(sizeof(ChessPgnTokenizer));
     memset(tokenizer, 0, sizeof(ChessPgnTokenizer));
     tokenizer->reader = reader;
     tokenizer->line = 1;
@@ -285,15 +283,13 @@ ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader* reader)
     token_init(&tokenizer->tokens[0]);
     token_init(&tokenizer->tokens[1]);
     chess_buffer_init(&tokenizer->buffer);
-    return tokenizer;
 }
 
-void chess_pgn_tokenizer_destroy(ChessPgnTokenizer* tokenizer)
+void chess_pgn_tokenizer_cleanup(ChessPgnTokenizer* tokenizer)
 {
     token_cleanup(&tokenizer->tokens[0]);
     token_cleanup(&tokenizer->tokens[1]);
     chess_buffer_cleanup(&tokenizer->buffer);
-    chess_free(tokenizer);
 }
 
 const ChessPgnToken* chess_pgn_tokenizer_peek(ChessPgnTokenizer* tokenizer)

@@ -45,8 +45,8 @@ typedef struct
     ChessBuffer buffer;
 } ChessPgnTokenizer;
 
-ChessPgnTokenizer* chess_pgn_tokenizer_new(ChessReader*);
-void chess_pgn_tokenizer_destroy(ChessPgnTokenizer*);
+void chess_pgn_tokenizer_init(ChessPgnTokenizer*, ChessReader*);
+void chess_pgn_tokenizer_cleanup(ChessPgnTokenizer*);
 
 const ChessPgnToken* chess_pgn_tokenizer_peek(ChessPgnTokenizer*);
 void chess_pgn_tokenizer_consume(ChessPgnTokenizer*);

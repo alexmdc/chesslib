@@ -20,7 +20,7 @@ void chess_pgn_save(const ChessGame*, ChessWriter*);
 typedef struct
 {
     ChessReader* reader;
-    ChessPgnTokenizer* tokenizer;
+    ChessPgnTokenizer tokenizer;
 } ChessPgnLoader;
 
 void chess_pgn_loader_init(ChessPgnLoader*, ChessReader*);
