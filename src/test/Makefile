@@ -1,5 +1,5 @@
 CC=clang
-CFLAGS=-g -Wall -std=c89 -pedantic
+CFLAGS=-Wall -std=c89 -pedantic $(EXTRA_CFLAGS)
 LDFLAGS=-lcunit
 SRCS=$(wildcard *.c)
 OBJS=$(SRCS:%.c=$(BUILD_DIR)/%.o)
