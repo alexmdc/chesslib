@@ -88,18 +88,17 @@ static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
 }
 
 static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
-    const ChessPosition* position, ChessVariation** variation)
+    const ChessPosition* initial_position, ChessVariation* root)
 {
     const ChessPgnToken* token;
     ChessMove move;
     ChessUnmove unmove;
-    ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
-    ChessPosition current_position;
-    ChessVariation* current_variation = chess_variation_new();
-    ChessVariation* subvariation;
+    ChessPgnLoadResult result;
+    ChessPosition position;
+    ChessVariation* variation = root;
  
-    chess_position_copy(position, &current_position);
-    while (result == CHESS_PGN_LOAD_OK)
+    chess_position_copy(initial_position, &position);
+    for (;;)
     {
         token = chess_pgn_tokenizer_peek(tokenizer);
         switch (token->type)
@@ -115,103 +114,82 @@ static ChessPgnLoadResult parse_variation(ChessPgnTokenizer* tokenizer,
                     chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_SYMBOL:
-                result = parse_move(tokenizer, &current_position, &move);
+                result = parse_move(tokenizer, &position, &move);
                 if (result != CHESS_PGN_LOAD_OK)
-                    break;
+                    return result;
 
-                unmove = chess_position_make_move(&current_position, move);
-                current_variation = chess_variation_add_child(current_variation, move);
+                unmove = chess_position_make_move(&position, move);
+                variation = chess_variation_add_child(variation, move);
                 break;
             case CHESS_PGN_TOKEN_NAG:
-                if (chess_variation_is_root(current_variation))
-                {
-                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
-                    break;
-                }
+                if (variation == root)
+                    return CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
 
-                chess_variation_add_annotation(current_variation, token->number);
+                chess_variation_add_annotation(variation, token->number);
                 chess_pgn_tokenizer_consume(tokenizer);
                 break;
             case CHESS_PGN_TOKEN_L_PARENTHESIS:
-                if (chess_variation_is_root(current_variation))
-                {
-                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
-                    break;
-                }
+                if (variation == root)
+                    return CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
+
                 chess_pgn_tokenizer_consume(tokenizer);
 
                 /* Subvariation, back up a move and parse it */
-                chess_position_undo_move(&current_position, unmove);
-                result = parse_variation(tokenizer, &current_position, &subvariation);
+                chess_position_undo_move(&position, unmove);
+                result = parse_variation(tokenizer, &position, variation->parent);
                 if (result != CHESS_PGN_LOAD_OK)
-                    break;
+                    return result;
 
-                chess_position_make_move(&current_position, move);
+                chess_position_make_move(&position, move);
 
                 token = chess_pgn_tokenizer_peek(tokenizer);
                 if (token->type != CHESS_PGN_TOKEN_R_PARENTHESIS)
-                {
-                    result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
-                    chess_variation_destroy(subvariation);
-                    break;
-                }
+                    return CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
 
                 chess_pgn_tokenizer_consume(tokenizer); /* R_PARENTHESIS */
-                chess_variation_attach_subvariation(
-                    current_variation->parent, subvariation);
                 break;
             default:
-                /* Stop parsing on unexpected token */
-                result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
-                break;
+                /* Stop parsing variation on any other token */
+                return CHESS_PGN_LOAD_OK;
         }
     }
-
-    if (result == CHESS_PGN_LOAD_UNEXPECTED_TOKEN)
-    {
-        /* Rewind back to the head of the variation */
-        while (current_variation != NULL && current_variation->parent != NULL)
-            current_variation = current_variation->parent;
-        *variation = current_variation;
-        result = CHESS_PGN_LOAD_OK;
-    }
-
-    return result;
 }
 
-static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer,
-    const ChessPosition* position, ChessVariation** variation, ChessResult* game_result)
+static ChessPgnLoadResult parse_movetext(ChessPgnTokenizer* tokenizer, ChessGame* game)
 {
+    ChessPgnLoadResult result;
     const ChessPgnToken* token;
-    ChessPgnLoadResult result = CHESS_PGN_LOAD_OK;
+    ChessResult game_result;
 
-    parse_variation(tokenizer, position, variation);
+    result = parse_variation(tokenizer, chess_game_initial_position(game), chess_game_root_variation(game));
+    if (result != CHESS_PGN_LOAD_OK)
+        return result;
 
     token = chess_pgn_tokenizer_peek(tokenizer);
     switch (token->type)
     {
         case CHESS_PGN_TOKEN_ASTERISK:
             chess_pgn_tokenizer_consume(tokenizer);
-            *game_result = CHESS_RESULT_IN_PROGRESS;
+            game_result = CHESS_RESULT_IN_PROGRESS;
             break;
         case CHESS_PGN_TOKEN_ONE_ZERO:
             chess_pgn_tokenizer_consume(tokenizer);
-            *game_result = CHESS_RESULT_WHITE_WINS;
+            game_result = CHESS_RESULT_WHITE_WINS;
             break;
         case CHESS_PGN_TOKEN_ZERO_ONE:
             chess_pgn_tokenizer_consume(tokenizer);
-            *game_result = CHESS_RESULT_BLACK_WINS;
+            game_result = CHESS_RESULT_BLACK_WINS;
             break;
         case CHESS_PGN_TOKEN_HALF_HALF:
             chess_pgn_tokenizer_consume(tokenizer);
-            *game_result = CHESS_RESULT_DRAW;
+            game_result = CHESS_RESULT_DRAW;
             break;
         default:
-            result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
-            break;
+            return CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
     }
+    chess_game_set_result(game, game_result);
 
-    return result;
+    return CHESS_PGN_LOAD_OK;
 }
 
 static void check_setup_tag(ChessGame* game)
@@ -234,9 +212,9 @@ static void check_setup_tag(ChessGame* game)
 static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* game)
 {
     const ChessPgnToken* token;
-    ChessVariation* variation;
-    ChessResult game_result;
     ChessPgnLoadResult result;
+
+    chess_game_reset(game);
 
     for (;;)
     {
@@ -252,14 +230,7 @@ static ChessPgnLoadResult parse_game(ChessPgnTokenizer* tokenizer, ChessGame* ga
                 break;
             default:
                 check_setup_tag(game);
-                result = parse_movetext(tokenizer, chess_game_initial_position(game),
-                                        &variation, &game_result);
-                if (result == CHESS_PGN_LOAD_OK)
-                {
-                    chess_game_set_root_variation(game, variation);
-                    chess_game_set_result(game, game_result);
-                }
-                return result;
+                return parse_movetext(tokenizer, game);
         }
     }
 }
