@@ -13,7 +13,7 @@ static void test_new(void)
     CU_ASSERT_EQUAL(NULL, chess_variation_first_child(root));
     CU_ASSERT_EQUAL(NULL, chess_variation_left(root));
     CU_ASSERT_EQUAL(NULL, chess_variation_right(root));
-    CU_ASSERT_STRING_EQUAL("", chess_string_data(chess_variation_comment(root)));
+    CU_ASSERT_STRING_EQUAL("", chess_variation_comment(root)->data);
     CU_ASSERT_EQUAL(0, chess_variation_move(root));
     chess_variation_destroy(root);
 }

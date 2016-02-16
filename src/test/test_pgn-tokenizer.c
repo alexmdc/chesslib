@@ -64,10 +64,10 @@ static void test_tag(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_L_BRACKET, 1, 1);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 2);
-    CU_ASSERT_STRING_EQUAL("Event", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("Event", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_STRING, 1, 8);
-    CU_ASSERT_STRING_EQUAL("AUS Champs", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("AUS Champs", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_R_BRACKET, 1, 20);
     token = chess_pgn_tokenizer_next(tokenizer);
@@ -92,7 +92,7 @@ static void test_escaped_string(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_STRING, 1, 1);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_STRING, 1, 1);
-    CU_ASSERT_STRING_EQUAL("One \"fine\" move", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("One \"fine\" move", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_EOF, 1, 20);
 
@@ -117,10 +117,10 @@ static void test_movetext(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 1, 2);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 4);
-    CU_ASSERT_STRING_EQUAL("e4", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("e4", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 7);
-    CU_ASSERT_STRING_EQUAL("e5", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("e5", token->string.data);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_NUMBER, 2, 1);
@@ -129,7 +129,7 @@ static void test_movetext(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 2, 2);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 2, 4);
-    CU_ASSERT_STRING_EQUAL("f4", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("f4", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_ONE_ZERO, 3, 1);
     token = chess_pgn_tokenizer_next(tokenizer);
@@ -161,7 +161,7 @@ static void test_black_movenum(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 1, 5);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 7);
-    CU_ASSERT_STRING_EQUAL("O-O", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("O-O", token->string.data);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_NUMBER, 1, 11);
@@ -170,7 +170,7 @@ static void test_black_movenum(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 1, 13);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 15);
-    CU_ASSERT_STRING_EQUAL("Rd1", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("Rd1", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_EOF, 1, 18);
 
@@ -196,14 +196,14 @@ static void test_nag(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 1, 2);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 4);
-    CU_ASSERT_STRING_EQUAL("Bg5", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("Bg5", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_NAG, 1, 8);
     CU_ASSERT_EQUAL(2, token->number);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 11);
-    CU_ASSERT_STRING_EQUAL("h6", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("h6", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_NAG, 1, 14);
     CU_ASSERT_EQUAL(3, token->number);
@@ -234,17 +234,17 @@ static void test_comment(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_PERIOD, 1, 2);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 4);
-    CU_ASSERT_STRING_EQUAL("e4", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("e4", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_COMMENT, 1, 7);
-    CU_ASSERT_STRING_EQUAL("A strong move", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("A strong move", token->string.data);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 23);
-    CU_ASSERT_STRING_EQUAL("e6", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("e6", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_COMMENT, 1, 26);
-    CU_ASSERT_STRING_EQUAL("The French Defence", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("The French Defence", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_EOF, 1, 46);
 
@@ -263,7 +263,7 @@ static void test_error(void)
     tokenizer = chess_pgn_tokenizer_new((ChessReader*)&reader);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 1);
-    CU_ASSERT_STRING_EQUAL("Qxh7", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("Qxh7", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_ERROR, 1, 6);
     chess_pgn_tokenizer_destroy(tokenizer);
@@ -276,7 +276,7 @@ static void test_error(void)
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_L_BRACKET, 1, 1);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 2);
-    CU_ASSERT_STRING_EQUAL("White", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("White", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_ERROR, 1, 8);
     chess_pgn_tokenizer_destroy(tokenizer);
@@ -287,7 +287,7 @@ static void test_error(void)
     tokenizer = chess_pgn_tokenizer_new((ChessReader*)&reader);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_SYMBOL, 1, 1);
-    CU_ASSERT_STRING_EQUAL("h4", chess_string_data(&token->string));
+    CU_ASSERT_STRING_EQUAL("h4", token->string.data);
     token = chess_pgn_tokenizer_next(tokenizer);
     ASSERT_TOKEN_EQUAL(token, CHESS_PGN_TOKEN_ERROR, 1, 4);
     chess_pgn_tokenizer_destroy(tokenizer);

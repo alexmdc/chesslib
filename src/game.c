@@ -158,32 +158,32 @@ ChessMove chess_game_move_at_ply(const ChessGame* game, size_t ply)
 
 const char* chess_game_event(const ChessGame* game)
 {
-    return chess_string_data(&game->event);
+    return game->event.data;
 }
 
 const char* chess_game_site(const ChessGame* game)
 {
-    return chess_string_data(&game->site);
+    return game->site.data;
 }
 
 const char* chess_game_date(const ChessGame* game)
 {
-    return chess_string_data(&game->date);
+    return game->date.data;
 }
 
 const char* chess_game_round(const ChessGame* game)
 {
-    return chess_string_data(&game->round);
+    return game->round.data;
 }
 
 const char* chess_game_white(const ChessGame* game)
 {
-    return chess_string_data(&game->white);
+    return game->white.data;
 }
 
 const char* chess_game_black(const ChessGame* game)
 {
-    return chess_string_data(&game->black);
+    return game->black.data;
 }
 
 ChessResult chess_game_result(const ChessGame* game)
@@ -260,7 +260,7 @@ void chess_game_set_tag(ChessGame* game, const char* name, const char* value)
         ExtraTag* last = extra;
         while (extra != NULL)
         {
-            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
+            if (strcasecmp(name, extra->name.data) == 0)
             {
                 chess_string_assign(&extra->value, value);
                 return;
@@ -306,7 +306,7 @@ void chess_game_remove_tag(ChessGame* game, const char* name)
         ExtraTag* last = NULL;
         while (extra != NULL)
         {
-            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
+            if (strcasecmp(name, extra->name.data) == 0)
                 break;
 
             last = extra;
@@ -367,8 +367,8 @@ const char* chess_game_tag_value(ChessGame* game, const char* name)
         /* Maybe an extra tag */
         for (extra = game->extra; extra != NULL; extra = extra->next)
         {
-            if (strcasecmp(name, chess_string_data(&extra->name)) == 0)
-                return chess_string_data(&extra->value);
+            if (strcasecmp(name, extra->name.data) == 0)
+                return extra->value.data;
         }
 
         return NULL;
@@ -516,7 +516,7 @@ ChessGameTagIterator chess_game_get_tag_iterator(ChessGame* game)
 const char* chess_game_tag_iterator_name(const ChessGameTagIterator* iter)
 {
     if (iter->extra)
-        return chess_string_data(&((ExtraTag*)iter->extra)->name);
+        return ((ExtraTag*)iter->extra)->name.data;
 
     switch (iter->index)
     {
@@ -534,7 +534,7 @@ const char* chess_game_tag_iterator_name(const ChessGameTagIterator* iter)
 const char* chess_game_tag_iterator_value(const ChessGameTagIterator* iter)
 {
     if (iter->extra)
-        return chess_string_data(&((ExtraTag*)iter->extra)->value);
+        return ((ExtraTag*)iter->extra)->value.data;
 
     switch (iter->index)
     {

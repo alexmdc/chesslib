@@ -47,7 +47,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
         goto error;
     }
-    chess_string_assign(&tag, chess_string_data(&token->string));
+    chess_string_assign(&tag, token->string.data);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     if (token->type != CHESS_PGN_TOKEN_STRING)
@@ -55,7 +55,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         result = CHESS_PGN_LOAD_UNEXPECTED_TOKEN;
         goto error;
     }
-    chess_string_assign(&value, chess_string_data(&token->string));
+    chess_string_assign(&value, token->string.data);
 
     token = chess_pgn_tokenizer_next(tokenizer);
     if (token->type != CHESS_PGN_TOKEN_R_BRACKET)
@@ -64,7 +64,7 @@ static ChessPgnLoadResult parse_tag(ChessPgnTokenizer* tokenizer, ChessGame* gam
         goto error;
     }
 
-    chess_game_set_tag(game, chess_string_data(&tag), chess_string_data(&value));
+    chess_game_set_tag(game, tag.data, value.data);
 
 error:
     chess_string_cleanup(&tag);
@@ -79,7 +79,7 @@ static ChessPgnLoadResult parse_move(ChessPgnTokenizer* tokenizer,
     const ChessPgnToken* token;
 
     token = chess_pgn_tokenizer_peek(tokenizer); /* SYMBOL */
-    result = chess_parse_move(chess_string_data(&token->string), position, move);
+    result = chess_parse_move(token->string.data, position, move);
     if (result != CHESS_PARSE_MOVE_OK)
         return CHESS_PGN_LOAD_ILLEGAL_MOVE;
 
