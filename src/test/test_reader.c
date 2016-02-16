@@ -39,11 +39,12 @@ static void test_buffer_reader(void)
 static void test_file_reader(void)
 {
     ChessFileReader reader;
-    int fd[2];
+    int fd[2], ret;
     FILE* file;
 
     /* Create a pipe so we don't need to use the filesystem */
-    assert(pipe(fd) == 0);
+    ret = pipe(fd);
+    assert(ret == 0);
 
     /* Write some test data to the pipe */
     file = fdopen(fd[1], "w");

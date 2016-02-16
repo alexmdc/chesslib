@@ -83,12 +83,13 @@ static void test_buffer_writer_detach(void)
 static void test_file_writer_write(void)
 {
     ChessFileWriter writer;
-    int fd[2];
+    int fd[2], ret;
     FILE* file;
     char data[128];
 
     /* Create a pipe so we don't need to use the filesystem */
-    assert(pipe(fd) == 0);
+    ret = pipe(fd);
+    assert(ret == 0);
 
     /* Open the pipe for writing */
     file = fdopen(fd[1], "w");
